@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:starter/main.dart';
+import '../main.dart';
 import 'app_config.dart';
 import 'interceptors.dart';
 
