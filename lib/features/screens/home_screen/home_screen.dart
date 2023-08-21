@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:starter/features/authentication/phone_auth/phone_auth_screen.dart';
-import 'package:starter/widgets/loading_button.dart';
+
+import '../../../widgets/loading_button.dart';
+import '../../authentication/phone_auth/phone_auth_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String path = "/home";

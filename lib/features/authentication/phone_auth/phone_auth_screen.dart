@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pinput/pinput.dart';
-import 'package:starter/core/theme.dart';
-import 'package:starter/gen/assets.gen.dart';
-import 'package:starter/theme/t_style.dart';
 
 import '../../../constants.dart';
 import '../../../core/logger.dart';
+import '../../../core/theme.dart';
+import '../../../gen/assets.gen.dart';
+import '../../../theme/t_style.dart';
 import '../../screens/home_screen/home_screen.dart';
 import '../../../widgets/loading_button.dart';
 
@@ -353,7 +353,6 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   }
 
   void resendOtp() {
-    otpErrorText = null;
     pincodeController.clear();
     _sendOtp();
   }

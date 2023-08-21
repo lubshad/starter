@@ -1,11 +1,12 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:starter/constants.dart';
-import 'package:starter/features/authentication/phone_auth/phone_auth_screen.dart';
-import 'package:starter/gen/assets.gen.dart';
-import 'package:starter/theme/t_style.dart';
-import 'package:starter/widgets/loading_button.dart';
+
+import '../../../constants.dart';
+import '../../../gen/assets.gen.dart';
+import '../../../theme/t_style.dart';
+import '../../../widgets/loading_button.dart';
+import '../phone_auth/phone_auth_screen.dart';
 
 class LandingPage extends StatefulWidget {
   static const String path = "/landing-page";
