@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../constants.dart';
-
 class LoadingButton extends StatelessWidget {
   const LoadingButton({
     super.key,
@@ -20,8 +18,6 @@ class LoadingButton extends StatelessWidget {
       children: [
         Expanded(
           child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(padding, 60)),
               onPressed: isLoading ? null : onPressed,
               child:
                   isLoading ? const CircularProgressIndicator() : Text(text)),

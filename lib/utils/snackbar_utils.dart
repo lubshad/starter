@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:starter/main.dart';
 
-final scaffoldMessengetKey =
-    GlobalKey<ScaffoldMessengerState>(debugLabel: "scaffoldMessnger");
 void showErrorMessage(String message) {
-  ScaffoldMessenger.of(scaffoldMessengetKey.currentState!.context)
+  ScaffoldMessenger.of(navigatorKey.currentState!.context)
       .showSnackBar(SnackBar(content: Text(message)));
 }

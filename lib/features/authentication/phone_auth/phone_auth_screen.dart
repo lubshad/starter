@@ -2,11 +2,15 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:pinput/pinput.dart';
+import 'package:starter/core/theme.dart';
+import 'package:starter/gen/assets.gen.dart';
+import 'package:starter/theme/t_style.dart';
 
 import '../../../constants.dart';
 import '../../../core/logger.dart';
-import '../../../screens/home_screen/home_screen.dart';
+import '../../screens/home_screen/home_screen.dart';
 import '../../../widgets/loading_button.dart';
 
 class PhoneVerification extends StatefulWidget {
@@ -46,7 +50,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   FirebaseAuth auth = FirebaseAuth.instance;
 
   void _sendOtp() async {
-    if (!validate()) return;
+    if (pageController.page == 0 && !validate()) return;
     makeButtonLoading();
     await auth.verifyPhoneNumber(
       timeout: const Duration(seconds: 30),
@@ -89,8 +93,19 @@ class _PhoneVerificationState extends State<PhoneVerification> {
     return valid;
   }
 
+  GlobalKey<FormState> pinformKey = GlobalKey<FormState>(debugLabel: 'phone');
+  bool validatepin() {
+    bool valid = false;
+    if (!pinformKey.currentState!.validate()) {
+      return valid;
+    } else {
+      valid = true;
+    }
+    return valid;
+  }
+
   void validateOtp() async {
-    if (!validate()) return;
+    if (!validatepin()) return;
     makeButtonLoading();
     // Create a PhoneAuthCredential with the code
     PhoneAuthCredential credential = PhoneAuthProvider.credential(
@@ -98,11 +113,12 @@ class _PhoneVerificationState extends State<PhoneVerification> {
     // Sign the user in (or link) with the credential
     try {
       await auth.signInWithCredential(credential);
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacementNamed(context, HomeScreen.path);
     } on FirebaseAuthException catch (e) {
-      logInfo(e.code);
+      logInfo(e);
       if (e.code == 'invalid-verification-code') {
-        otpErrorText = e.message;
+        otpErrorText = "OTP Entered is incorrect";
       }
       makeButtonNotLoading();
     }
@@ -120,62 +136,179 @@ class _PhoneVerificationState extends State<PhoneVerification> {
             : null;
   }
 
+  final ValueNotifier<Duration> _stopwatchValue = ValueNotifier(Duration.zero);
+  final Stopwatch _stopwatch = Stopwatch();
+
+  @override
+  void dispose() {
+    _stopwatchValue.dispose();
+    super.dispose();
+  }
+
+  void _startStopwatch() {
+    _stopwatch.start();
+    _stopwatchValue.value = _stopwatch.elapsed;
+    _updateStopwatch();
+  }
+
+  // void _stopStopwatch() {
+  //   _stopwatch.stop();
+  // }
+
+  void _resetStopwatch() {
+    _stopwatch.stop();
+    _stopwatch.reset();
+    _stopwatchValue.value = _stopwatch.elapsed;
+  }
+
+  void _updateStopwatch() {
+    Future.delayed(const Duration(seconds: 1), () {
+      if (_stopwatch.isRunning && !isTimeOut) {
+        _stopwatchValue.value = _stopwatch.elapsed;
+        _updateStopwatch();
+      }
+    });
+  }
+
+  PageController pageController = PageController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Padding(
-      padding: const EdgeInsets.all(paddingLarge),
-      child: Form(
-          key: formKey,
+        appBar: AppBar(),
+        body: SafeArea(
           child: Builder(builder: (context) {
-            if (!showOTP) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            return PageView(
+                physics: const NeverScrollableScrollPhysics(),
+                controller: pageController,
                 children: [
-                  TextFormField(
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(10),
-                    ],
-                    keyboardType: TextInputType.number,
-                    autofillHints: const [AutofillHints.telephoneNumber],
-                    validator: _validatePhone,
-                    controller: _phoneController,
-                    decoration: InputDecoration(
-                      errorText: phoneErrorText,
-                      prefixIcon: CountryCodePicker(
-                        onChanged: _onCountryChanged,
-                        initialSelection: _selectedCountry.name,
+                  Padding(
+                    padding: const EdgeInsets.all(paddingXL),
+                    child: Form(
+                      key: formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Spacer(),
+                          TextFormField(
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(10),
+                            ],
+                            keyboardType: TextInputType.number,
+                            autofillHints: const [
+                              AutofillHints.telephoneNumber
+                            ],
+                            validator: _validatePhone,
+                            controller: _phoneController,
+                            decoration: InputDecoration(
+                              hintText: "Enter Phone Number",
+                              errorText: phoneErrorText,
+                              prefixIcon: CountryCodePicker(
+                                onChanged: _onCountryChanged,
+                                initialSelection: _selectedCountry.name,
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            "By continuing, you agree  to our Terms of Uses and Privacy policy ",
+                            style: Tstyle.labelLarge,
+                            textAlign: TextAlign.center,
+                          ),
+                          gapLarge,
+                          LoadingButton(
+                            isLoading: buttonLoading,
+                            onPressed: _sendOtp,
+                            text: 'Next',
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  gapLarge,
-                  LoadingButton(
-                    isLoading: buttonLoading,
-                    onPressed: _sendOtp,
-                    text: 'SEND OTP',
+                  Padding(
+                    padding: const EdgeInsets.all(paddingXL),
+                    child: Form(
+                      key: pinformKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Spacer(),
+                          Pinput(
+                            forceErrorState: otpErrorText != null,
+                            errorText: otpErrorText,
+                            controller: pincodeController,
+                            length: otpLenth,
+                            validator: pinValidation,
+                          ),
+                          if (isTimeOut)
+                            IconButton(
+                              icon: SvgPicture.asset(Assets.svgs.retry),
+                              onPressed: resendOtp,
+                            ),
+                          const Spacer(),
+                          RichText(
+                            text: TextSpan(children: [
+                              WidgetSpan(
+                                  child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Change ",
+                                    style: Tstyle.labelLarge,
+                                  ),
+                                  TextButton(
+                                      style: shrinkedButton,
+                                      onPressed: () =>
+                                          pageController.animateToPage(0,
+                                              duration: animationDuration,
+                                              curve: Curves.fastOutSlowIn),
+                                      child: Text(phoneNumber)),
+                                ],
+                              )),
+                              WidgetSpan(
+                                  child: AnimatedBuilder(
+                                      animation: _stopwatchValue,
+                                      builder: (context, child) {
+                                        return Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            TextButton(
+                                                onPressed: isTimeOut
+                                                    ? resendOtp
+                                                    : null,
+                                                style: shrinkedButton,
+                                                child:
+                                                    const Text("Resend OTP ")),
+                                            if (!isTimeOut)
+                                              Text("in $timeRemaining seconds",
+                                                  style: Tstyle.labelLarge),
+                                          ],
+                                        );
+                                      })),
+                            ]),
+                          ),
+                          gapXL,
+                          LoadingButton(
+                              isLoading: buttonLoading,
+                              text: "Validate",
+                              onPressed: validateOtp)
+                        ],
+                      ),
+                    ),
                   ),
-                ],
-              );
-            }
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Pinput(
-                  errorText: otpErrorText,
-                  controller: pincodeController,
-                  length: otpLenth,
-                  validator: pinValidation,
-                ),
-                gapLarge,
-                LoadingButton(
-                    isLoading: buttonLoading,
-                    text: "VALIDATE OTP",
-                    onPressed: validateOtp)
-              ],
-            );
-          })),
-    ));
+                ]);
+          }),
+        ));
+  }
+
+  bool get isTimeOut {
+    return _stopwatchValue.value.inSeconds > 30;
+  }
+
+  int get timeRemaining {
+    return isTimeOut ? 0 : 30 - _stopwatchValue.value.inSeconds;
   }
 
   void onCodeSent(String verId, int? forceToken) {
@@ -183,9 +316,14 @@ class _PhoneVerificationState extends State<PhoneVerification> {
       verificationId = verId;
       forceResendingToken = forceToken;
       buttonLoading = false;
-      showOTP = true;
-      formKey = GlobalKey<FormState>(debugLabel: "pincode");
     });
+
+    _resetStopwatch();
+    _startStopwatch();
+    if (pageController.page != 1) {
+      pageController.nextPage(
+          duration: animationDuration, curve: Curves.fastOutSlowIn);
+    }
   }
 
   void onCodeAutoRetrievalTimeout(String verificationId) {}
@@ -193,8 +331,10 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   void onVerificationCompleted(PhoneAuthCredential credential) async {
     try {
       await auth.signInWithCredential(credential);
+      // ignore: use_build_context_synchronously
+      Navigator.pushReplacementNamed(context, HomeScreen.path);
     } on FirebaseAuthException catch (e) {
-      logInfo(e.code);
+      logInfo(e);
       switch (e.code) {
         case "value":
           break;
@@ -204,11 +344,16 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   }
 
   void onVerificationFailed(FirebaseAuthException error) {
-    logInfo(error.code);
+    logInfo(error);
     switch (error.code) {
       case "invalid-phone-number":
         phoneErrorText = error.message;
     }
     makeButtonNotLoading();
+  }
+
+  void resendOtp() {
+    pincodeController.clear();
+    _sendOtp();
   }
 }

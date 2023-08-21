@@ -1,8 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../features/authentication/landing_screen/landing_screen.dart';
 import '../features/authentication/phone_auth/phone_auth_screen.dart';
-import '../screens/home_screen/home_screen.dart';
+import '../features/screens/home_screen/home_screen.dart';
 import 'logger.dart';
 
 class AppRoute {
@@ -11,8 +12,8 @@ class AppRoute {
     logInfo(uri);
     if (FirebaseAuth.instance.currentUser == null) {
       return [
-        pageRoute(const RouteSettings(name: PhoneVerification.path),
-            const PhoneVerification())
+        pageRoute(
+            const RouteSettings(name: LandingPage.path), const LandingPage())
       ];
     }
     return [
