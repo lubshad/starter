@@ -11,5 +11,4 @@ echo "
   firebase_core: ^2.15.1
   firebase_analytics: ^10.4.5
   flutter_svg: ^2.0.7
-  animations: ^2.0.7"
->> pubspec.yaml
+  animations: ^2.0.7" >> pubspec.yaml

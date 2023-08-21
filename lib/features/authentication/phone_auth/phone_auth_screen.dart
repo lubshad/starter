@@ -353,6 +353,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   }
 
   void resendOtp() {
+    otpErrorText = null;
     pincodeController.clear();
     _sendOtp();
   }
