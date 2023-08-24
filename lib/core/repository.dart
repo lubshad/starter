@@ -12,6 +12,7 @@ class DataRepository {
   static final DataRepository _instance = DataRepository._private();
 
   DataRepository._private() {
+    _client.interceptors.add(AuthenticationInterceptor());
     _client.interceptors.add(LoggingInterceptor());
   }
 }

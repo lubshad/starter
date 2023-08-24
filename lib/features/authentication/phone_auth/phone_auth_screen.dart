@@ -7,7 +7,7 @@ import 'package:pinput/pinput.dart';
 
 import '../../../constants.dart';
 import '../../../core/logger.dart';
-import '../../../core/theme.dart';
+import '../../../theme/theme.dart';
 import '../../../gen/assets.gen.dart';
 import '../../../theme/t_style.dart';
 import '../../screens/home_screen/home_screen.dart';
