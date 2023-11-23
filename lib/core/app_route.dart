@@ -1,5 +1,7 @@
+import 'package:animations/animations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:starter/constants.dart';
 
 import '../features/authentication/landing_screen/landing_screen.dart';
 import '../features/authentication/phone_auth/phone_auth_screen.dart';
@@ -34,11 +36,45 @@ class AppRoute {
     }
   }
 
-  static MaterialPageRoute<dynamic> pageRoute(
+  static MaterialPageRoute<T> pageRoute<T>(
       RouteSettings settings, Widget screen) {
     return MaterialPageRoute(
       settings: settings,
       builder: (context) => screen,
+    );
+  }
+
+  static PageRouteBuilder downToTop(RouteSettings settings, Widget screen) {
+    return PageRouteBuilder(
+      transitionDuration: animationDurationLarge,
+      settings: settings,
+      pageBuilder: (context, animation, secondaryAnimation) => screen,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = const Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var curve = Curves.fastOutSlowIn;
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
+
+  static PageRouteBuilder fadeScale(RouteSettings settings, Widget screen) {
+    return PageRouteBuilder(
+      settings: settings,
+      pageBuilder: (context, animation, secondaryAnimation) => screen,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeScaleTransition(
+          animation: animation,
+          child: child,
+        );
+      },
     );
   }
 }

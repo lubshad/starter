@@ -1,32 +1,39 @@
-
 import 'package:flutter/material.dart';
 
-import 'default_loading_widget.dart';
-import 'error_widget_with_retry.dart';
-import '../core/app_error.dart';
+class NetworkResource<Type> extends StatelessWidget {
+  const NetworkResource(this.future,
+      {super.key,
+      required this.loading,
+      required this.error,
+      required this.success});
 
-class NetworkResource extends StatelessWidget {
-  const NetworkResource({
-    super.key,
-    required this.builder,
-    required this.isLoading,
-    this.loadingWidget,
-    required this.error,
-    required this.retry,
-  });
-
-  final WidgetBuilder builder;
-  final bool isLoading;
-  final AppError? error;
-  final Widget? loadingWidget;
-  final VoidCallback retry;
+  final Future<Type>? future;
+  final Widget loading;
+  final Widget Function(dynamic) error;
+  final Widget Function(Type) success;
 
   @override
   Widget build(BuildContext context) {
-    return isLoading
-        ? loadingWidget ?? const LoadingWidget()
-        : error != null
-            ? ErrorWidgetWithRetry(error: error!, retry: retry)
-            : builder(context);
+    return FutureBuilder(
+      future: future,
+      builder: (context, snapshot) {
+        if (future == null) return loading;
+        Widget widget = Container();
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            widget = loading;
+            break;
+          case ConnectionState.done:
+            if (snapshot.hasError) {
+              widget = error(snapshot.error);
+            } else if (snapshot.hasData) {
+              widget = success(snapshot.data as Type);
+            }
+            break;
+          default:
+        }
+        return widget;
+      },
+    );
   }
 }

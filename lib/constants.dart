@@ -14,4 +14,5 @@ const gapHorizontal = SizedBox(width: padding);
 const gapHorizontalLarge = SizedBox(width: paddingLarge);
 const gapHorizontalSmall = SizedBox(width: paddingSmall);
 
-const Duration animationDuration = Duration(seconds: 1);
+const Duration animationDuration = Duration(milliseconds: 300);
+const Duration animationDurationLarge = Duration(seconds: 1);
