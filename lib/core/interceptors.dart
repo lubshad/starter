@@ -2,8 +2,8 @@
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:starter/utils/shared_preferences_utils.dart';
 
+import '../utils/shared_preferences_utils.dart';
 import 'logger.dart';
 
 class LoggingInterceptor extends Interceptor {

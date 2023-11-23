@@ -1,12 +1,12 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:starter/utils/shared_preferences_utils.dart';
 
 import 'core/app_route.dart';
 import 'theme/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'utils/shared_preferences_utils.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 

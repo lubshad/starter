@@ -1,4 +1,4 @@
-#!/bin/bash
+    #!/bin/bash
 
 # Prompt for project name
 read -p "Enter the project name: " project_name
@@ -21,5 +21,7 @@ cp -r starter/assets .
 rm -rf starter
 
 # Add Flutter packages
-flutter pub add dio dartz flutter_spinkit pinput country_code_picker firebase_auth firebase_core firebase_analytics flutter_svg animations
+flutter pub add dio dartz flutter_spinkit pinput country_code_picker firebase_auth firebase_core firebase_analytics flutter_svg animations shared_preferences jwt_decoder
+
+code .
 
