@@ -180,7 +180,7 @@ mixin PhoneAuthMixin<T extends StatefulWidget> on State<T> {
       "otp": pincodeController.text
     }).then((value) async {
       SharedPreferencesService.i.setValue(value: value);
-      await updateDevice();
+      // await updateDevice();
       makeButtonNotLoading();
       Navigator.pushNamedAndRemoveUntil(
           context, SplashScreen.path, (route) => false);

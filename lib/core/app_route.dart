@@ -6,6 +6,7 @@ import '../constants.dart';
 import '../features/authentication/landing_screen/landing_screen.dart';
 import '../features/authentication/phone_auth/phone_auth_screen.dart';
 import '../features/home_screen/home_screen.dart';
+import '../features/splash_screen/splash_screen.dart';
 import 'logger.dart';
 
 class AppRoute {
@@ -19,7 +20,7 @@ class AppRoute {
       ];
     }
     return [
-      pageRoute(const RouteSettings(name: HomeScreen.path), const HomeScreen())
+      pageRoute(const RouteSettings(name: SplashScreen.path), const SplashScreen())
     ];
   }
 
@@ -28,6 +29,9 @@ class AppRoute {
     Uri uri = Uri.parse(settings.name ?? "");
     final Widget screen;
     switch (uri.path) {
+      case SplashScreen.path:
+        screen = const SplashScreen();
+        break;
       case HomeScreen.path:
         screen = const HomeScreen();
         break;

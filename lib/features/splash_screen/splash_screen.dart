@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_svg/svg.dart';
 import '../../exporter.dart';
 import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/network_resource.dart';
+import '../home_screen/home_screen.dart';
 import 'models/registration_state.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -36,21 +36,14 @@ class _SplashScreenState extends State<SplashScreen> {
         success: (data) => const SizedBox(),
         loading: Center(
             child: Container(
-          padding: const EdgeInsets.all(paddingLarge),
-          width: 140,
-          height: 140,
-          decoration: const BoxDecoration(
-            color: Colors.black,
-            shape: BoxShape.circle,
-          ),
-          child: SvgPicture.asset(
-            Assets.svgs.appIcon,
-            colorFilter: const ColorFilter.mode(
-              Colors.white,
-              BlendMode.srcATop,
-            ),
-          ),
-        )
+                    padding: const EdgeInsets.all(paddingLarge),
+                    width: 140,
+                    height: 140,
+                    decoration: const BoxDecoration(
+                      color: Colors.black,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Placeholder())
                 .animate()
                 .scaleXY(
                   begin: 1.5,
@@ -77,8 +70,8 @@ class _SplashScreenState extends State<SplashScreen> {
         Future.delayed(const Duration(seconds: 3))
       ]).then((value) {
         // throw DioException(requestOptions: RequestOptions());
-        RegistrationState state =
-            RegistrationState.fromString(value.first.data["state"]);
+        RegistrationState state = RegistrationState.completed;
+        // RegistrationState.fromString(value.first.data["state"]);
         switch (state) {
           case RegistrationState.basicDetails:
           // Navigator.pushNamedAndRemoveUntil(
@@ -89,9 +82,9 @@ class _SplashScreenState extends State<SplashScreen> {
           //     context, ProgramSelectionForm.path, (route) => false);
           // break;
           case RegistrationState.completed:
-          // Navigator.pushNamedAndRemoveUntil(
-          //     context, HomeScreen.path, (route) => false);
-          // break;
+          Navigator.pushNamedAndRemoveUntil(
+              context, HomeScreen.path, (route) => false);
+          break;
         }
       });
     });
