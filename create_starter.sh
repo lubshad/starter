@@ -21,6 +21,6 @@ cp -r starter/assets .
 rm -rf starter
 
 # Add Flutter packages
-flutter pub add dio dartz flutter_spinkit pinput  country_code_picker  firebase_auth  firebase_core firebase_analytics flutter_svg  animations  jwt_decoder  get  hive  path_provider flutter_animate firebase_messaging webview_flutter package_info_plus
+flutter pub add dio dartz flutter_spinkit pinput  country_code_picker  firebase_auth  firebase_core firebase_analytics flutter_svg  animations  jwt_decoder  get  hive  path_provider flutter_animate firebase_messaging webview_flutter neopop device_info_plus package_info_plus
 code .
 

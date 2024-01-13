@@ -1,6 +1,6 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:starter/features/profile_screen/profile_details_model.dart';
+import '../features/profile_screen/profile_details_model.dart';
 import 'api_constants.dart';
 import 'app_config.dart';
 import 'error_exception_handler.dart';
