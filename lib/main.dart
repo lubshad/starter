@@ -32,13 +32,15 @@ mainCommon() async {
   });
 
   // Setup crashletics
-  if (kDebugMode) {
-    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
-  } else {
-    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+  if (!kIsWeb) {
+    if (kDebugMode) {
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+    } else {
+      FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    }
   }
 
-    // notification setup
+  // notification setup
   FCMService.setupNotification();
 }
 
