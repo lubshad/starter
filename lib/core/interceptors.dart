@@ -2,10 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:starter/constants.dart';
 
+import '../exporter.dart';
 import '../services/shared_preferences_services.dart';
-import 'logger.dart';
 
 class LoggingInterceptor extends Interceptor {
   @override
