@@ -26,14 +26,18 @@ class AppRoute {
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     logInfo(settings.name);
     Uri uri = Uri.parse(settings.name ?? "");
+    final Widget screen;
     switch (uri.path) {
       case HomeScreen.path:
-        return pageRoute(settings, const HomeScreen());
+        screen = const HomeScreen();
+        break;
       case PhoneVerification.path:
-        return pageRoute(settings, const PhoneVerification());
+        screen = const PhoneVerification();
+        break;
       default:
-        return pageRoute(settings, const Scaffold());
+        return null;
     }
+    return pageRoute(settings, screen);
   }
 
   static MaterialPageRoute<T> pageRoute<T>(

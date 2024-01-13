@@ -6,7 +6,7 @@ import 'core/app_route.dart';
 import 'theme/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'utils/shared_preferences_utils.dart';
+import 'services/shared_preferences_services.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 

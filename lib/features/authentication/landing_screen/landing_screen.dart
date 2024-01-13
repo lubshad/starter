@@ -1,10 +1,10 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:starter/theme/theme.dart';
 
 import '../../../constants.dart';
 import '../../../gen/assets.gen.dart';
-import '../../../theme/t_style.dart';
 import '../../../widgets/loading_button.dart';
 import '../phone_auth/phone_auth_screen.dart';
 
@@ -67,13 +67,13 @@ class _LandingPageState extends State<LandingPage>
             const SizedBox(height: 20.0),
             Text(
               'Your extreme Classroom extension',
-              style: Tstyle.headMedium,
+              style: context.headlineMedium,
               textAlign: TextAlign.center,
             ),
             const Spacer(),
             Text(
               "Create  an account or login to enjoy a new learning experience",
-              style: Tstyle.labelLarge,
+              style: context.labelLarge,
               textAlign: TextAlign.center,
             ),
             gapLarge,

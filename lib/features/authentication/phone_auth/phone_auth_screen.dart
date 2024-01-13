@@ -9,7 +9,6 @@ import '../../../constants.dart';
 import '../../../core/logger.dart';
 import '../../../theme/theme.dart';
 import '../../../gen/assets.gen.dart';
-import '../../../theme/t_style.dart';
 import '../../screens/home_screen/home_screen.dart';
 import '../../../widgets/loading_button.dart';
 
@@ -213,7 +212,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                           const Spacer(),
                           Text(
                             "By continuing, you agree  to our Terms of Uses and Privacy policy ",
-                            style: Tstyle.labelLarge,
+                            style: context.labelLarge,
                             textAlign: TextAlign.center,
                           ),
                           gapLarge,
@@ -255,7 +254,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                                 children: [
                                   Text(
                                     "Change ",
-                                    style: Tstyle.labelLarge,
+                                    style: context.labelLarge,
                                   ),
                                   TextButton(
                                       style: shrinkedButton,
@@ -283,7 +282,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                                                     const Text("Resend OTP ")),
                                             if (!isTimeOut)
                                               Text("in $timeRemaining seconds",
-                                                  style: Tstyle.labelLarge),
+                                                  style: context.labelLarge),
                                           ],
                                         );
                                       })),

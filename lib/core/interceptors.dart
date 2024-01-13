@@ -1,14 +1,17 @@
-
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:starter/constants.dart';
 
-import '../utils/shared_preferences_utils.dart';
+import '../services/shared_preferences_services.dart';
 import 'logger.dart';
 
 class LoggingInterceptor extends Interceptor {
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+  void onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
+    if (kDebugMode) await delayed();
     logInfo('--> ${options.method} ${options.uri}');
     logInfo('Headers:');
     options.headers.forEach((key, value) => logInfo('$key: $value'));
@@ -37,8 +40,6 @@ class LoggingInterceptor extends Interceptor {
     super.onError(err, handler);
   }
 }
-
-
 
 class AuthenticationInterceptor extends Interceptor {
   @override
@@ -79,7 +80,7 @@ class AuthenticationInterceptor extends Interceptor {
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     switch (response.statusCode) {
       case 401:
-        FirebaseAuth.instance.signOut();
+        // FirebaseAuth.instance.signOut();
         break;
       default:
     }
