@@ -1,3 +1,5 @@
 class APIConstants {
-  static String fetchAIContent = "ai-content";
+  static String profileDetails = "fetch-profile-details";
+
+  static String updateDevice = "update-device";
 }

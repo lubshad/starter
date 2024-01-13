@@ -1,0 +1,44 @@
+
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+import '../exporter.dart';
+
+mixin FCMService {
+  static Future<String?> get token async =>
+      await FirebaseMessaging.instance.getToken();
+
+  static requestPermission() async {
+    NotificationSettings settings =
+        await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      announcement: true,
+      badge: true,
+      carPlay: true,
+      criticalAlert: true,
+      provisional: true,
+      sound: true,
+    );
+    logInfo('User granted permission: ${settings.authorizationStatus}');
+  }
+
+  static void setupNotification() async {
+    await requestPermission();
+    FirebaseMessaging.onMessage.listen((event) => onMessage(event));
+    FirebaseMessaging.onMessageOpenedApp
+        .listen((event) => onMessageOpenedApp(event));
+    FirebaseMessaging.onBackgroundMessage(
+        (message) => onBackgroundMessage(message));
+  }
+
+  static Future<void> onBackgroundMessage(RemoteMessage message) async {
+    logInfo("Handling a background message: ${message.notification?.title}");
+  }
+
+  static onMessage(RemoteMessage event) {
+    logInfo("Received message: ${event.notification?.title}");
+  }
+
+  static onMessageOpenedApp(RemoteMessage event) {
+    logInfo("App opened by notification: ${event.notification?.title}");
+  }
+}

@@ -11,6 +11,18 @@ class AppConfigDev extends AppConfig {
   @override
   // TODO: implement slugUrl
   String get slugUrl => throw UnimplementedError();
+  
+  @override
+  // TODO: implement privacyPolicy
+  String get privacyPolicy => throw UnimplementedError();
+  
+  @override
+  // TODO: implement refundPolicy
+  String get refundPolicy => throw UnimplementedError();
+  
+  @override
+  // TODO: implement termsAndConditions
+  String get termsAndConditions => throw UnimplementedError();
 }
 
 void main() async {

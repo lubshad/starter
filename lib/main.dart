@@ -1,6 +1,7 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import 'core/app_route.dart';
 import 'theme/theme.dart';
@@ -17,7 +18,7 @@ mainCommon() async {
   );
   await SharedPreferencesService.i.initialize();
 
-    FirebaseAuth.instance.userChanges().listen((user) async {
+  FirebaseAuth.instance.userChanges().listen((user) async {
     if (user == null) {
       SharedPreferencesService.i.clear();
     } else {
@@ -28,14 +29,28 @@ mainCommon() async {
   });
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    Animate.restartOnHotReload = true;
+    observer = FirebaseAnalyticsObserver(analytics: analytics);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      setSystemOverlay();
+    });
+  }
+
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  late FirebaseAnalyticsObserver observer;
+  @override
   Widget build(BuildContext context) {
-    FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-    FirebaseAnalyticsObserver observer =
-        FirebaseAnalyticsObserver(analytics: analytics);
     return MaterialApp(
       navigatorObservers: [observer],
       navigatorKey: navigatorKey,

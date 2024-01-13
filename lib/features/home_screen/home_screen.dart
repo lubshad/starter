@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../../widgets/loading_button.dart';
-import '../../authentication/phone_auth/phone_auth_screen.dart';
+import '../authentication/phone_auth/phone_auth_screen.dart';
+import '../profile_screen/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String path = "/home";
@@ -26,17 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: Drawer(
-        child: Center(
-            child: LoadingButton(
-                isLoading: false,
-                text: "LOGOUT",
-                onPressed: () {
-                  Navigator.pop(context);
-                  FirebaseAuth.instance.signOut();
-                })),
-      ),
+    return const Scaffold(
+      drawer: ProfileScreen(),
     );
   }
 }

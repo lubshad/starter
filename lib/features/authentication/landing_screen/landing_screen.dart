@@ -1,5 +1,6 @@
-import 'package:animations/animations.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../../widgets/loading_button.dart';
 import '../phone_auth/phone_auth_screen.dart';
 import '../../../exporter.dart';
@@ -15,17 +16,7 @@ class LandingPage extends StatefulWidget {
   State<LandingPage> createState() => _LandingPageState();
 }
 
-class _LandingPageState extends State<LandingPage>
-    with SingleTickerProviderStateMixin {
-  @override
-  void initState() {
-    super.initState();
-    controller = AnimationController(vsync: this, duration: animationDuration);
-
-    controller.drive(CurveTween(curve: Curves.fastOutSlowIn));
-    controller.forward();
-  }
-
+class _LandingPageState extends State<LandingPage> {
   late AnimationController controller;
   @override
   Widget build(BuildContext context) {
@@ -43,12 +34,11 @@ class _LandingPageState extends State<LandingPage>
                   child: AspectRatio(aspectRatio: 3, child: Placeholder())),
             ),
             const Spacer(),
-            FadeScaleTransition(
-              animation: controller,
-              child: const SizedBox(
-                  width: 200,
-                  child: AspectRatio(aspectRatio: 1, child: Placeholder())),
-            ),
+            const SizedBox(
+                    width: 200,
+                    child: AspectRatio(aspectRatio: 1, child: Placeholder()))
+                .animate()
+                .scaleXY(curve: Curves.fastOutSlowIn, begin: .8, end: 1),
             gapLarge,
             Text(
               'Your app description',
@@ -67,7 +57,7 @@ class _LandingPageState extends State<LandingPage>
                 Navigator.pushNamed(context, PhoneVerification.path);
               },
               text: ('Get Started'),
-              isLoading: false,
+              buttonLoading: false,
             ),
           ],
         ),

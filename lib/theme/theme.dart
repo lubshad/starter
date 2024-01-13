@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/utils.dart';
 
-
 ThemeData get themeData => ThemeData(
+    inputDecorationTheme: const InputDecorationTheme(
+      border: InputBorder.none,
+    ),
     fontFamily: "Roboto",
     useMaterial3: true,
     platform: TargetPlatform.iOS,
