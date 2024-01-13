@@ -1,7 +1,5 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import '../../../gen/assets.gen.dart';
 import '../../../widgets/loading_button.dart';
 import '../phone_auth/phone_auth_screen.dart';
 import '../../../exporter.dart';
@@ -38,39 +36,28 @@ class _LandingPageState extends State<LandingPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Align(
+            const Align(
               alignment: Alignment.centerLeft,
-              child: SvgPicture.asset(
-                Assets.svgs.appIcon,
-              ),
+              child: SizedBox(
+                  width: 100,
+                  child: AspectRatio(aspectRatio: 3, child: Placeholder())),
             ),
             const Spacer(),
             FadeScaleTransition(
               animation: controller,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  SvgPicture.asset(
-                    Assets.svgs.vector1,
-                  ),
-                  SvgPicture.asset(
-                    Assets.svgs.vector2,
-                  ),
-                  SvgPicture.asset(
-                    Assets.svgs.cycleMoon,
-                  ),
-                ],
-              ),
+              child: const SizedBox(
+                  width: 200,
+                  child: AspectRatio(aspectRatio: 1, child: Placeholder())),
             ),
-            const SizedBox(height: 20.0),
+            gapLarge,
             Text(
-              'Your extreme Classroom extension',
+              'Your app description',
               style: context.headlineMedium,
               textAlign: TextAlign.center,
             ),
             const Spacer(),
             Text(
-              "Create  an account or login to enjoy a new learning experience",
+              "Create  an account or login",
               style: context.labelLarge,
               textAlign: TextAlign.center,
             ),

@@ -32,10 +32,10 @@
               "client_type": 3
             },
             {
-              "client_id": "1024919465405-14dmqaq0llcv3rpdi5podg0uqpi9k0ec.apps.googleusercontent.com",
+              "client_id": "1024919465405-0nl7jlevaaf84ja3qcjkrg195t12lk3g.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.gsconrad.expenseTracker"
+                "bundle_id": "com.example.clezz"
               }
             }
           ]
@@ -84,10 +84,10 @@
               "client_type": 3
             },
             {
-              "client_id": "1024919465405-14dmqaq0llcv3rpdi5podg0uqpi9k0ec.apps.googleusercontent.com",
+              "client_id": "1024919465405-0nl7jlevaaf84ja3qcjkrg195t12lk3g.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.gsconrad.expenseTracker"
+                "bundle_id": "com.example.clezz"
               }
             }
           ]
@@ -136,10 +136,10 @@
               "client_type": 3
             },
             {
-              "client_id": "1024919465405-14dmqaq0llcv3rpdi5podg0uqpi9k0ec.apps.googleusercontent.com",
+              "client_id": "1024919465405-0nl7jlevaaf84ja3qcjkrg195t12lk3g.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.gsconrad.expenseTracker"
+                "bundle_id": "com.example.clezz"
               }
             }
           ]
