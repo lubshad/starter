@@ -107,7 +107,7 @@ mixin FirebasePhoneAuthMixin<T extends StatefulWidget> on State<T> {
       SharedPreferencesService.i.setValue(
           value:
               await FirebaseAuth.instance.currentUser?.getIdToken(true) ?? "");
-      await updateDevice();
+      // await updateDevice();
       Navigator.pushNamedAndRemoveUntil(
           context, SplashScreen.path, (route) => false);
     } on FirebaseAuthException catch (e) {
