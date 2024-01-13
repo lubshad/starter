@@ -1,5 +1,5 @@
-    #!/bin/bash
-
+#!/bin/bash
+set -e
 # Prompt for project name
 read -p "Enter the project name: " project_name
 
