@@ -15,9 +15,12 @@ Welcome to the Flutter Starter Template, a quick and easy way to kickstart your 
    nano create_starter.sh
 
 3. **Give permission for execution**
+   ```bash
     chmod +x create_starter.sh
 
 4. **Execute the script**
+   ```bash
     ./create_starter.sh
-    script will ask for your project details ...
     
+    "script will ask for your project details ..."
+
