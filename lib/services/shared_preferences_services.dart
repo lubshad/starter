@@ -1,6 +1,9 @@
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:starter/core/logger.dart';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 
 class SharedPreferencesService {
   static const String token = "token";
@@ -12,42 +15,61 @@ class SharedPreferencesService {
   static final SharedPreferencesService _instance =
       SharedPreferencesService._private();
 
-  SharedPreferences? _prefs;
-
-  // StreamController<String> _valueController = StreamController<String>.broadcast();
-  // Stream<String> get valueStream => _valueController.stream;
+  late final Box _prefs;
 
   Future<void> initialize() async {
-    try {
-      _prefs = await SharedPreferences.getInstance();
-    } catch (e) {
-      logError("Error initializing SharedPreferences: $e");
-      // Handle the initialization error as needed
+    final key = [
+      108,
+      12,
+      208,
+      199,
+      135,
+      235,
+      129,
+      7,
+      43,
+      230,
+      252,
+      237,
+      38,
+      244,
+      146,
+      16,
+      29,
+      102,
+      205,
+      186,
+      135,
+      245,
+      124,
+      35,
+      231,
+      42,
+      140,
+      198,
+      211,
+      229,
+      53,
+      186
+    ];
+    Directory? appDir;
+    if (!kIsWeb) {
+      appDir = await getApplicationDocumentsDirectory();
     }
+    final encryptionCipher = HiveAesCipher(key);
+    _prefs = await Hive.openBox("my-box",
+        encryptionCipher: encryptionCipher, path: appDir?.path);
   }
 
   String getValue({String key = token}) {
-    if (_prefs == null) {
-      // Handle the case where _prefs is not initialized
-      return '';
-    }
-    return _prefs!.getString(key) ?? '';
+    return _prefs.get(key) ?? '';
   }
 
-  Future<void> clearValue({String key = token}) async {
-    if (_prefs != null) {
-      await _prefs!.remove(key);
-    }
+  Future<void> clear() async {
+    await _prefs.clear();
   }
 
   Future<void> setValue({String key = token, required String value}) async {
-    if (_prefs != null) {
-      await _prefs!.setString(key, value);
-      // _valueController.sink.add(value);
-    }
+    await _prefs.put(key, value);
   }
-
-  // void dispose() {
-  //   _valueController.close();
-  // }
 }

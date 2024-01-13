@@ -19,7 +19,7 @@ mainCommon() async {
 
     FirebaseAuth.instance.userChanges().listen((user) async {
     if (user == null) {
-      SharedPreferencesService.i.clearValue();
+      SharedPreferencesService.i.clear();
     } else {
       SharedPreferencesService.i.setValue(
           value:
