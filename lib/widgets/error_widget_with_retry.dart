@@ -16,7 +16,7 @@ class ErrorWidgetWithRetry extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget widget = Container();
     switch (exception.runtimeType) {
-      case DioException _:
+      case const (DioException):
         widget = DioExceptionWidget(exception: exception as DioException);
       default:
         widget = Center(
