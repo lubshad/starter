@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -11,6 +13,7 @@ import 'theme/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'services/shared_preferences_services.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -20,7 +23,9 @@ mainCommon() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await SharedPreferencesService.i.initialize();
-
+  if (kIsWeb) {
+    usePathUrlStrategy();
+  }
   FirebaseAuth.instance.userChanges().listen((user) async {
     if (user == null) {
       SharedPreferencesService.i.clear();

@@ -4,8 +4,13 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import '../exporter.dart';
 
 mixin FCMService {
-  static Future<String?> get token async =>
-      await FirebaseMessaging.instance.getToken();
+  static Future<String?> get token async {
+    try {
+      return await FirebaseMessaging.instance.getToken();
+    } catch (e) {
+      return "";
+    }
+  }
 
   static requestPermission() async {
     NotificationSettings settings =
