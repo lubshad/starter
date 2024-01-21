@@ -6,7 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
 class SharedPreferencesService {
-  static const String token = "token";
+  static const String _token = "token";
 
   SharedPreferencesService._private();
 
@@ -16,6 +16,8 @@ class SharedPreferencesService {
       SharedPreferencesService._private();
 
   late final Box _prefs;
+
+  String get token => _prefs.get(_token) ??"";
 
   Future<void> initialize() async {
     final key = [
@@ -61,7 +63,7 @@ class SharedPreferencesService {
         encryptionCipher: encryptionCipher, path: appDir?.path);
   }
 
-  String getValue({String key = token}) {
+  String getValue({String key = _token}) {
     return _prefs.get(key) ?? '';
   }
 
@@ -69,7 +71,7 @@ class SharedPreferencesService {
     await _prefs.clear();
   }
 
-  Future<void> setValue({String key = token, required String value}) async {
+  Future<void> setValue({String key = _token, required String value}) async {
     await _prefs.put(key, value);
   }
 }

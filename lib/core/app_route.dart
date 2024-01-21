@@ -1,6 +1,7 @@
 import 'package:animations/animations.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:starter/services/shared_preferences_services.dart';
 
 import '../constants.dart';
 import '../features/authentication/landing_screen/landing_screen.dart';
@@ -13,14 +14,16 @@ class AppRoute {
   static List<Route<dynamic>> onGenerateInitialRoute(String path) {
     Uri uri = Uri.parse(path);
     logInfo(uri);
-    if (FirebaseAuth.instance.currentUser == null) {
+    if (SharedPreferencesService.i.token == "") {
+      // if (FirebaseAuth.instance.currentUser == null) {
       return [
         pageRoute(
             const RouteSettings(name: LandingPage.path), const LandingPage())
       ];
     }
     return [
-      pageRoute(const RouteSettings(name: SplashScreen.path), const SplashScreen())
+      pageRoute(
+          const RouteSettings(name: SplashScreen.path), const SplashScreen())
     ];
   }
 
