@@ -24,3 +24,15 @@ Welcome to the Flutter Starter Template, a quick and easy way to kickstart your 
     
     "script will ask for your project details ..."
 
+5. **Add Project in Firebase(OPTIONAL)**
+
+6. **Set main.dart to main_local.dart**
+   Add entrypoint main_local.dart
+   ```bash
+         {
+            "name": "project_name",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main_local.dart"
+        },
+
