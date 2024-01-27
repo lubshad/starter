@@ -57,6 +57,7 @@ dependencies:
   package_info_plus: ^5.0.1
   firebase_crashlytics: ^3.4.9
   gap: ^3.0.1
+  lottie: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -84,6 +85,7 @@ flutter:
   assets:
     # - assets/pngs/
     - assets/svgs/
+    - assets/lotties/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -11,6 +11,7 @@ bool validateStatus(int? status) {
     304,
     200,
     201,
+    204
   ];
   return validStatusCodes.contains(status);
 }

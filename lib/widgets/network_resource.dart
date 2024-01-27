@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'default_loading_widget.dart';
+
 class NetworkResource<Type> extends StatelessWidget {
   const NetworkResource(this.future,
       {super.key,
-      required this.loading,
+      this.loading = const LoadingWidget(),
       required this.error,
       required this.success});
 

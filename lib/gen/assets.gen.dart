@@ -9,31 +9,60 @@
 
 import 'package:flutter/widgets.dart';
 
+class $AssetsLottiesGen {
+  const $AssetsLottiesGen();
+
+  /// File path: assets/lotties/invalid.json
+  String get invalid => 'assets/lotties/invalid.json';
+
+  /// File path: assets/lotties/network_connection.json
+  String get networkConnection => 'assets/lotties/network_connection.json';
+
+  /// File path: assets/lotties/offer_applied.json
+  String get offerApplied => 'assets/lotties/offer_applied.json';
+
+  /// File path: assets/lotties/payment-failed.json
+  String get paymentFailed => 'assets/lotties/payment-failed.json';
+
+  /// File path: assets/lotties/payment-success.json
+  String get paymentSuccess => 'assets/lotties/payment-success.json';
+
+  /// File path: assets/lotties/swipe.json
+  String get swipe => 'assets/lotties/swipe.json';
+
+  /// File path: assets/lotties/update.json
+  String get update => 'assets/lotties/update.json';
+
+  /// File path: assets/lotties/warning.json
+  String get warning => 'assets/lotties/warning.json';
+
+  /// List of all assets
+  List<String> get values => [
+        invalid,
+        networkConnection,
+        offerApplied,
+        paymentFailed,
+        paymentSuccess,
+        swipe,
+        update,
+        warning
+      ];
+}
+
 class $AssetsSvgsGen {
   const $AssetsSvgsGen();
-
-  /// File path: assets/svgs/app_icon.svg
-  String get appIcon => 'assets/svgs/app_icon.svg';
-
-  /// File path: assets/svgs/cycle_moon.svg
-  String get cycleMoon => 'assets/svgs/cycle_moon.svg';
 
   /// File path: assets/svgs/retry.svg
   String get retry => 'assets/svgs/retry.svg';
 
-  /// File path: assets/svgs/vector_1.svg
-  String get vector1 => 'assets/svgs/vector_1.svg';
-
-  /// File path: assets/svgs/vector_2.svg
-  String get vector2 => 'assets/svgs/vector_2.svg';
-
   /// List of all assets
-  List<String> get values => [appIcon, cycleMoon, retry, vector1, vector2];
+  List<String> get values => [retry];
 }
 
 class Assets {
   Assets._();
 
+  static const $AssetsLottiesGen lotties = $AssetsLottiesGen();
   static const $AssetsSvgsGen svgs = $AssetsSvgsGen();
 }
 
