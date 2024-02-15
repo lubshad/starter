@@ -3,7 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/utils.dart';
 
+import '../constants.dart';
+
 ThemeData get themeData => ThemeData(
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(200, 54),
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(padding)),
+      ),
+    ),
     inputDecorationTheme: const InputDecorationTheme(
       border: InputBorder.none,
     ),
