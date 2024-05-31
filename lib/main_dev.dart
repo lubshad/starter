@@ -5,24 +5,25 @@ import 'main.dart';
 
 class AppConfigDev extends AppConfig {
   @override
-  // TODO: implement domain
-  String get domain => throw UnimplementedError();
+  String get domain => "159.89.100.251";
 
   @override
-  // TODO: implement slugUrl
-  String get slugUrl => throw UnimplementedError();
-  
+  String get slugUrl => "/employee/";
+
   @override
-  // TODO: implement privacyPolicy
   String get privacyPolicy => throw UnimplementedError();
-  
+
   @override
-  // TODO: implement refundPolicy
   String get refundPolicy => throw UnimplementedError();
-  
+
   @override
-  // TODO: implement termsAndConditions
   String get termsAndConditions => throw UnimplementedError();
+
+  @override
+  String get port => "8010";
+
+  @override
+  String get scheme => "http";
 }
 
 void main() async {

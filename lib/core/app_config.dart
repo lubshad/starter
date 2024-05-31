@@ -1,5 +1,8 @@
 late final AppConfig appConfig;
+
 abstract class AppConfig {
+  String get scheme;
+  String get port;
   String get refundPolicy;
 
   String get termsAndConditions;
@@ -8,5 +11,5 @@ abstract class AppConfig {
 
   String get domain;
   String get slugUrl;
-  String get baseUrl => domain + slugUrl;
+  String get baseUrl => "$scheme://$domain:$port$slugUrl";
 }

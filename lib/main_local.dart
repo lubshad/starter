@@ -23,6 +23,14 @@ class AppConfigLocal extends AppConfig {
   @override
   // TODO: implement termsAndConditions
   String get termsAndConditions => throw UnimplementedError();
+  
+  @override
+  // TODO: implement port
+  String get port => throw UnimplementedError();
+  
+  @override
+  // TODO: implement scheme
+  String get scheme => throw UnimplementedError();
 }
 
 void main() async {
