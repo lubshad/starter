@@ -1,7 +1,11 @@
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../exporter.dart';
+
+@pragma('vm:entry-point')
+Future<void> onBackgroundMessage(RemoteMessage message) async {
+  logInfo("Handling a background message: ${message.notification?.title}");
+}
 
 mixin FCMService {
   static Future<String?> get token async {
@@ -31,12 +35,7 @@ mixin FCMService {
     FirebaseMessaging.onMessage.listen((event) => onMessage(event));
     FirebaseMessaging.onMessageOpenedApp
         .listen((event) => onMessageOpenedApp(event));
-    FirebaseMessaging.onBackgroundMessage(
-        (message) => onBackgroundMessage(message));
-  }
-
-  static Future<void> onBackgroundMessage(RemoteMessage message) async {
-    logInfo("Handling a background message: ${message.notification?.title}");
+    FirebaseMessaging.onBackgroundMessage(onBackgroundMessage);
   }
 
   static onMessage(RemoteMessage event) {
