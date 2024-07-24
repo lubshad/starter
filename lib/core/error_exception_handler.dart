@@ -3,7 +3,11 @@ import 'package:dio/dio.dart';
 
 class CustomException implements Exception {
   final dynamic message;
-  CustomException(this.message);
+  final int? statusCode;
+  CustomException(
+    this.message, {
+    this.statusCode,
+  });
   @override
   String toString() {
     return message;
@@ -25,11 +29,21 @@ mixin ErrorExceptionHandler {
           case DioExceptionType.badCertificate:
             break;
           case DioExceptionType.badResponse:
-            exception = CustomException(dioException.response?.data);
+            var data = dioException.response?.data;
+            final String message;
+            if (data is Map) {
+              message = data["message"] ?? data["error"]["message"] ?? "";
+            } else {
+              message = data.toString();
+            }
+            exception = CustomException(
+              statusCode: dioException.response?.statusCode,
+              message,
+            );
             break;
         }
       default:
-        exception = CustomException(exception);
+        exception = CustomException(exception.toString());
     }
     return exception;
   }
