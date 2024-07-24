@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:intl/intl.dart';
 
 delayed({Duration duration = const Duration(seconds: 2)}) async {
   return await Future.delayed(duration);
@@ -48,3 +49,7 @@ String get randomProfileImage {
   newList.shuffle();
   return newList.first;
 }
+
+
+DateFormat get dateTimeFormat => DateFormat("E, MMM, d, y, hh:mm aa");
+DateFormat get dateFormat => DateFormat("E, MMM, d, y");
