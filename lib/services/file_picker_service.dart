@@ -43,7 +43,7 @@ class FilePickerService {
   Future<File?> pickImage({
     double? width,
     double? height,
-    List<CropAspectRatioPreset>? aspectRatio,
+    CropAspectRatio? aspectRatio,
     ImageSource imageSource = ImageSource.gallery,
     bool crop = true,
   }) async {
@@ -82,12 +82,12 @@ class FilePickerService {
   Future<File?> cropImage(File imageFile,
       {double? maxWidth,
       double? maxHeight,
-      List<CropAspectRatioPreset>? aspectRatio}) async {
+      CropAspectRatio? aspectRatio}) async {
     CroppedFile? croppedFile = await ImageCropper().cropImage(
       maxWidth: maxWidth?.toInt() ?? 300,
       maxHeight: maxHeight?.toInt() ?? 300,
       sourcePath: imageFile.path,
-      aspectRatioPresets: aspectRatio ?? [CropAspectRatioPreset.square],
+      aspectRatio: aspectRatio,
       uiSettings: [
         AndroidUiSettings(
             toolbarTitle: 'Cropper',

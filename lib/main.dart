@@ -6,6 +6,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:starter/services/size_utils.dart';
 
 import 'core/app_route.dart';
 import 'services/fcm_service.dart';
@@ -71,13 +72,16 @@ class _MyAppState extends State<MyApp> {
   late FirebaseAnalyticsObserver observer;
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorObservers: [observer],
-      navigatorKey: navigatorKey,
-      debugShowCheckedModeBanner: false,
-      onGenerateRoute: AppRoute.onGenerateRoute,
-      onGenerateInitialRoutes: AppRoute.onGenerateInitialRoute,
-      theme: themeData,
-    );
+    return Sizer(builder:
+        (BuildContext context, Orientation orientation, DeviceType deviceType) {
+      return MaterialApp(
+        navigatorObservers: [observer],
+        navigatorKey: navigatorKey,
+        debugShowCheckedModeBanner: false,
+        onGenerateRoute: AppRoute.onGenerateRoute,
+        onGenerateInitialRoutes: AppRoute.onGenerateInitialRoute,
+        theme: themeData,
+      );
+    });
   }
 }

@@ -5,8 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
+const String _token = "token";
+const String domainKey = "domain";
+
 class SharedPreferencesService {
-  static const String _token = "token";
+  String get domainUrl => getValue(key: domainKey);
 
   SharedPreferencesService._private();
 
@@ -17,7 +20,7 @@ class SharedPreferencesService {
 
   late final Box _prefs;
 
-  String get token => _prefs.get(_token) ??"";
+  String get token => _prefs.get(_token) ?? "";
 
   Future<void> initialize() async {
     final key = [
