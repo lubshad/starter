@@ -69,6 +69,7 @@ dependencies:
   geocoding: ^3.0.0
   dotted_border: ^2.1.0
   cached_network_image: ^3.3.1
+  flutter_typeahead: ^5.2.0
 
 dev_dependencies:
   flutter_test:
