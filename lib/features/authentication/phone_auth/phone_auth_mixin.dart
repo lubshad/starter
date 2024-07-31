@@ -23,7 +23,7 @@ class PhoneAuthApiConstants {
   static String verifyOtp = "verify-otp";
 }
 
-class PhoneAuthInterceptor extends Interceptor {
+class TokenAuthInterceptor extends Interceptor {
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
