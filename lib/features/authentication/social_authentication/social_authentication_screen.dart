@@ -149,3 +149,31 @@ class _SocialAuthenticationScreenState extends State<SocialAuthenticationScreen>
 
   void signupAction() {}
 }
+
+
+String? domainValidator(
+  TextEditingController controller, {
+  bool required = false,
+}) {
+  if (required && controller.text.isEmpty) {
+    return "Domain is required";
+  } else if (controller.text.isNotEmpty) {
+    var uri = Uri.tryParse(controller.text);
+    if (uri?.hasScheme == false) {
+      controller.text = "https://${controller.text}";
+      uri = Uri.tryParse(controller.text);
+      controller.text = controller.text;
+    }
+
+    if (uri == null ||
+        !uri.hasScheme ||
+        !["https", "http"].contains(uri.scheme) ||
+        uri.authority == "" ||
+        !uri.authority.contains(".") ||
+        uri.authority.split(".").last.length < 2) {
+      return "Enter a valid url eg:(www.touch2scan.com)";
+    }
+    return null;
+  }
+  return null;
+}
