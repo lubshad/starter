@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 // import 'package:flutter_svg/svg.dart';
@@ -93,11 +92,11 @@ class TypeAheadMultiSelectionSearchField extends StatelessWidget {
                   ? null
                   : (value) => validator!(selectedItems),
               // controller: TextEditingController(text: selected?.name),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 // hintStyle: hintStyle.copyWith(
                 //   fontSize: 12.fSize,
                 // ),
-                contentPadding: const EdgeInsets.only(top: paddingLarge),
+                contentPadding: EdgeInsets.only(top: paddingLarge),
                 // hintText: "Eg : $hint",
                 // suffixIcon: Builder(
                 //   builder: (context) {
