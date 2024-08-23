@@ -47,7 +47,9 @@ class AppRoute {
     return pageRoute(settings, screen);
   }
 
-  static MaterialPageRoute<T> pageRoute<T>(
+
+}
+   MaterialPageRoute<T> pageRoute<T>(
       RouteSettings settings, Widget screen) {
     return MaterialPageRoute(
       settings: settings,
@@ -55,7 +57,7 @@ class AppRoute {
     );
   }
 
-  static PageRouteBuilder downToTop(RouteSettings settings, Widget screen) {
+   PageRouteBuilder downToTop(RouteSettings settings, Widget screen) {
     return PageRouteBuilder(
       transitionDuration: animationDurationLarge,
       settings: settings,
@@ -76,7 +78,7 @@ class AppRoute {
     );
   }
 
-  static PageRouteBuilder fadeScale(RouteSettings settings, Widget screen) {
+   PageRouteBuilder fadeScale(RouteSettings settings, Widget screen) {
     return PageRouteBuilder(
       settings: settings,
       pageBuilder: (context, animation, secondaryAnimation) => screen,
@@ -88,4 +90,3 @@ class AppRoute {
       },
     );
   }
-}
