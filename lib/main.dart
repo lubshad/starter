@@ -1,12 +1,13 @@
 // ignore_for_file: depend_on_referenced_packages
 
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/app_route.dart';
 import 'services/fcm_service.dart';
@@ -76,6 +77,11 @@ class _MyAppState extends State<MyApp> {
     return Sizer(builder:
         (BuildContext context, Orientation orientation, DeviceType deviceType) {
       return MaterialApp(
+        localizationsDelegates: const [
+          CountryLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
         navigatorObservers: [observer],
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,

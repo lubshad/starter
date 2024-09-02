@@ -71,6 +71,8 @@ dependencies:
   cached_network_image: ^3.3.1
   flutter_typeahead: ^5.2.0
   infinite_scroll_pagination: ^4.0.0
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
