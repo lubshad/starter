@@ -1,8 +1,9 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
-import 'package:starter/features/home_screen/home_screen.dart';
+
 
 import '../../../core/app_route.dart';
+import '../../home_screen/home_screen.dart';
 
 final homeNavigatorKey = GlobalKey<NavigatorState>(debugLabel: "home");
 final settingsNavigationKey = GlobalKey<NavigatorState>(debugLabel: "settings");
