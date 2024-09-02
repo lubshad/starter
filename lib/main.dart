@@ -6,10 +6,11 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:starter/services/size_utils.dart';
+
 
 import 'core/app_route.dart';
 import 'services/fcm_service.dart';
+import 'services/size_utils.dart';
 import 'theme/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
