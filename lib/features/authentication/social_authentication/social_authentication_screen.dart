@@ -95,14 +95,14 @@ class _SocialAuthenticationScreenState extends State<SocialAuthenticationScreen>
                               )),
                         ),
                         gapLarge,
-                        LoadingButtonV2(
+                        LoadingButton(
                             buttonLoading: loginButtonLoading,
                             text: "Log In",
                             onPressed: signInWithEmailAndPassword),
                         gap,
                         const Text("OR"),
                         gap,
-                        LoadingButtonV2(
+                        LoadingButton(
                           icon: SvgPicture.asset(
                             Assets.svgs.icons8Google,
                             height: paddingXL,
