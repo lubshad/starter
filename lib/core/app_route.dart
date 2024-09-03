@@ -1,12 +1,13 @@
 import 'package:animations/animations.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:starter/features/navigation/navigation_screen.dart';
+
 
 import '../constants.dart';
 import '../features/authentication/landing_screen/landing_screen.dart';
 import '../features/authentication/phone_auth/phone_auth_screen.dart';
 import '../features/home_screen/home_screen.dart';
+import '../features/navigation/navigation_screen.dart';
 import '../features/splash_screen/splash_screen.dart';
 import '../services/shared_preferences_services.dart';
 import 'logger.dart';

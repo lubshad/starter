@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:starter/features/navigation/navigation_screen.dart';
+
 import '../../exporter.dart';
 import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/network_resource.dart';
-import '../home_screen/home_screen.dart';
+
+import '../navigation/navigation_screen.dart';
 import 'models/registration_state.dart';
 
 class SplashScreen extends StatefulWidget {
