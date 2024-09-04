@@ -66,6 +66,15 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/icons8-google.svg
   String get icons8Google => 'assets/svgs/icons8-google.svg';
 
+  /// File path: assets/svgs/landing one.svg
+  String get landingOne => 'assets/svgs/landing one.svg';
+
+  /// File path: assets/svgs/landing three.svg
+  String get landingThree => 'assets/svgs/landing three.svg';
+
+  /// File path: assets/svgs/landing two.svg
+  String get landingTwo => 'assets/svgs/landing two.svg';
+
   /// File path: assets/svgs/retry.svg
   String get retry => 'assets/svgs/retry.svg';
 
@@ -73,7 +82,8 @@ class $AssetsSvgsGen {
   String get study => 'assets/svgs/study.svg';
 
   /// List of all assets
-  List<String> get values => [icons8Google, retry, study];
+  List<String> get values =>
+      [icons8Google, landingOne, landingThree, landingTwo, retry, study];
 }
 
 class Assets {

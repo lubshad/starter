@@ -1,9 +1,8 @@
-
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../../widgets/loading_button.dart';
 import '../phone_auth/phone_auth_screen.dart';
 import '../../../exporter.dart';
+import 'widgets/landing_screen_item.dart';
 
 class LandingPage extends StatefulWidget {
   static const String path = "/landing-page";
@@ -17,51 +16,107 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
-  late AnimationController controller;
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  @override
+  void initState() {
+    super.initState();
+    _pageController.addListener(() {
+      int next = _pageController.page!.round();
+      if (_currentPage != next) {
+        setState(() {
+          _currentPage = next;
+        });
+      }
+    });
+  }
+
+  void _goToNextPage() {
+    if (_currentPage < 2) {
+      _pageController.animateToPage(
+        _currentPage + 1,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(paddingXL),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: SizedBox(
-                  width: 100,
-                  child: AspectRatio(aspectRatio: 3, child: Placeholder())),
-            ),
-            const Spacer(),
-            const SizedBox(
-                    width: 200,
-                    child: AspectRatio(aspectRatio: 1, child: Placeholder()))
-                .animate()
-                .scaleXY(curve: Curves.fastOutSlowIn, begin: .8, end: 1),
-            gapLarge,
-            Text(
-              'Your app description',
-              style: context.headlineMedium,
-              textAlign: TextAlign.center,
-            ),
-            const Spacer(),
-            Text(
-              "Create  an account or login",
-              style: context.labelLarge,
-              textAlign: TextAlign.center,
-            ),
-            gapLarge,
-            LoadingButton(
-              onPressed: () {
-                Navigator.pushNamed(context, PhoneVerification.path);
-              },
-              text: ('Get Started'),
-              buttonLoading: false,
-            ),
-          ],
+            child: Column(
+      children: [
+        const Spacer(),
+        AspectRatio(
+          aspectRatio: 0.9,
+          child: PageView(
+            controller: _pageController,
+            children: <Widget>[
+              LandingScreenItem(
+                description:
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt dolore magna aliqua",
+                title: "Welcome to Keen Learning",
+                image: Assets.svgs.landingOne,
+              ),
+              LandingScreenItem(
+                description:
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt dolore magna aliqua",
+                title: "Welcome to Keen Learning",
+                image: Assets.svgs.landingTwo,
+              ),
+              LandingScreenItem(
+                description:
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt dolore magna aliqua",
+                title: "Welcome to Keen Learning",
+                image: Assets.svgs.landingThree,
+              ),
+            ],
+          ),
         ),
-      ),
-    ));
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(3, (index) {
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: paddingSmall),
+              height: padding,
+              width: _currentPage == index ? 24.0 : 8.0,
+              decoration: BoxDecoration(
+                color: _currentPage == index
+                    ? const Color(0xff2ECC71)
+                    : const Color(0xffD9D9D9),
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+            );
+          }),
+        ),
+        const Spacer(
+          flex: 3,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: paddingXXL),
+          child: LoadingButton(
+            // padding: const EdgeInsets.symmetric(horizontal: paddingLarge),
+            onPressed: () {
+              Navigator.pushNamed(context, PhoneVerification.path);
+            },
+            text: ('Get Started'),
+            buttonLoading: false,
+          ),
+        ),
+        gap,
+        Opacity(
+          opacity: _currentPage < 2 ? 1 : 0,
+          child: TextButton(
+            onPressed: _goToNextPage,
+            child: const Text(
+              'Next',
+            ),
+          ),
+        ),
+        gapXL
+      ],
+    )));
   }
 }
