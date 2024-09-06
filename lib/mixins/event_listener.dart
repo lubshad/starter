@@ -42,6 +42,8 @@ class EventListener {
 mixin EventListenerMixin<T extends StatefulWidget> on State<T> {
   StreamSubscription<Event>? subscription;
 
+  List<EventType> allowedEvents = [];
+
   listenForEvents(Function(Event) callback) {
     subscription = EventListener.i.eventStream.listen((event) {
       callback(event);
