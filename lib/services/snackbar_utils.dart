@@ -1,19 +1,32 @@
-
-import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
 
 import '../exporter.dart';
 import '../main.dart';
 import '../widgets/default_loading_widget.dart';
 
-void showErrorMessage(message, {bool show = false}) {
-  if (!show) {
-    if (!kDebugMode) return;
-  }
-  ScaffoldMessenger.of(navigatorKey.currentState!.context)
-      .showSnackBar(SnackBar(content: Text(message.toString())));
+void showErrorMessage(message) {
+  HapticFeedback.heavyImpact();
+  Fluttertoast.showToast(
+    backgroundColor: Colors.red,
+    msg: message.toString(),
+    toastLength: Toast.LENGTH_LONG,
+  );
+}
+
+String messageFromResponse(Response response) {
+  return response.data["message"] ?? "";
+}
+
+void showSuccessMessage(message) {
+  Fluttertoast.showToast(
+    backgroundColor: Colors.green,
+    msg: message.toString(),
+    toastLength: Toast.LENGTH_LONG,
+  );
 }
 
 showLoading() {
