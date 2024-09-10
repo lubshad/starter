@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:neopop/neopop.dart';
 import '../exporter.dart';
 
 class LoadingButton extends StatelessWidget {
@@ -33,7 +32,13 @@ class LoadingButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor,
       ),
-      onPressed: buttonLoading ? null : onPressed,
+      onPressed: buttonLoading
+          ? null
+          : () {
+              HapticFeedback.lightImpact();
+              FocusScope.of(context).unfocus();
+              onPressed();
+            },
       child: Builder(builder: (context) {
         if (buttonLoading) return const CircularProgressIndicator();
         final textWidget = Text(text);
