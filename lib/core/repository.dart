@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import '../features/profile_screen/profile_details_model.dart';
@@ -5,6 +7,8 @@ import 'api_constants.dart';
 import 'app_config.dart';
 import 'error_exception_handler.dart';
 import 'interceptors.dart';
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 bool validateStatus(int? status) {
   List validStatusCodes = [
@@ -27,6 +31,8 @@ class DataRepository with ErrorExceptionHandler {
   static final DataRepository _instance = DataRepository._private();
 
   DataRepository._private() {
+        var cookieJar = CookieJar(ignoreExpires: false);
+    _client.interceptors.add(CookieManager(cookieJar));
     _client.interceptors.add(AuthenticationInterceptor());
     _client.interceptors.add(LoggingInterceptor());
   }
