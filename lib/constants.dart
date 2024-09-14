@@ -51,5 +51,14 @@ String get randomProfileImage {
 }
 
 
+const List<BoxShadow> defaultShadow = [
+  BoxShadow(
+    color: Colors.black12,
+    blurRadius: 10,
+    offset: Offset(1.1, 1.1),
+  )
+];
+
+
 DateFormat get dateTimeFormat => DateFormat("E, MMM, d, y, hh:mm aa");
 DateFormat get dateFormat => DateFormat("E, MMM, d, y");
