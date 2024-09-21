@@ -24,7 +24,7 @@ class _PhoneVerificationState extends State<PhoneVerification>
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
         if (pageController.page == 1) {
           pageController.previousPage(

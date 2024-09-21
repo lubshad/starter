@@ -5,7 +5,7 @@ import 'package:image_cropper/image_cropper.dart';
 
 import '../../../exporter.dart';
 import '../../../services/file_picker_service.dart';
-import '../../../services/size_utils.dart';
+
 import '../widgets/upload_image_widget.dart';
 import '../widgets/user_avatar.dart';
 

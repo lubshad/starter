@@ -62,7 +62,7 @@ class _NavigationScreenState extends State<NavigationScreen>
         animation: navigationController,
         builder: (context, child) {
           return PopScope(
-            onPopInvoked: onPopInvoked,
+            onPopInvokedWithResult: onPopInvoked,
             canPop: false,
             child: Scaffold(
               drawerEnableOpenDragGesture: false,
@@ -98,7 +98,7 @@ class _NavigationScreenState extends State<NavigationScreen>
         });
   }
 
-  void onPopInvoked(bool didPop) async {
+  void onPopInvoked(bool didPop, dynamic result) async {
     if (Navigator.canPop(navigationController.value.context)) {
       Navigator.maybePop(navigationController.value.context);
     } else {
