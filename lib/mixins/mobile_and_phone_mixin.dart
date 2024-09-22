@@ -4,12 +4,14 @@ mixin MobileAndPhoneMixin<T extends StatefulWidget> on State<T> {
   final mobileController = TextEditingController();
   final phoneController = TextEditingController();
 
-  Widget phoneField({
-    String hintText = "Phone",
-    String labelText = "Phone",
-    Function(String)? onChanged
-  }) =>
+  Widget phoneField(
+          {String hintText = "Phone",
+          String labelText = "Phone",
+          Function(String)? onChanged,
+          String? Function(String?)? validator}) =>
       TextFormField(
+        keyboardType: TextInputType.phone,
+        validator: validator,
         onChanged: onChanged,
         controller: phoneController,
         decoration: InputDecoration(
@@ -17,12 +19,14 @@ mixin MobileAndPhoneMixin<T extends StatefulWidget> on State<T> {
           labelText: labelText,
         ),
       );
-  Widget mobileFiled({
-    String hintText = "Mobile",
-    String labelText = "Mobile",
-    Function(String)? onChanged
-  }) =>
+  Widget mobileFiled(
+          {String hintText = "Mobile",
+          String labelText = "Mobile",
+          Function(String)? onChanged,
+          String? Function(String?)? validator}) =>
       TextFormField(
+        keyboardType: TextInputType.phone,
+        validator: validator,
         onChanged: onChanged,
         controller: mobileController,
         decoration: InputDecoration(
@@ -30,6 +34,4 @@ mixin MobileAndPhoneMixin<T extends StatefulWidget> on State<T> {
           labelText: labelText,
         ),
       );
-
-
 }
