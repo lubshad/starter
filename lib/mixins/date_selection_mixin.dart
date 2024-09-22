@@ -8,6 +8,7 @@ mixin DateSelectionMixin<T extends StatefulWidget> on State<T> {
   pickDate({
     required DateTime firstDate,
     required DateTime lastDate,
+    Function(DateTime)? onChanged,
   }) async {
     var result = await showDatePicker(
       context: context,
@@ -17,16 +18,28 @@ mixin DateSelectionMixin<T extends StatefulWidget> on State<T> {
     if (result == null) return;
     primaryDate = result;
     setState(() {});
+    if (onChanged != null) {
+      onChanged(primaryDate!);
+    }
   }
 
-  Widget dateSelectionField(
-          {String? title, DateTime? firstDate, DateTime? lastDate}) =>
+  Widget dateSelectionField({
+    String? title,
+    DateTime? firstDate,
+    DateTime? lastDate,
+    Function(DateTime)? onChanged,
+    String? Function(String?)? validator,
+
+  }) =>
       TextFormField(
+        validator: validator,
         onTap: () => pickDate(
+          onChanged: onChanged,
             firstDate: firstDate ?? DateTime.now(),
-            lastDate: DateTime.now().add(const Duration(
-              days: 365,
-            ))),
+            lastDate: lastDate ??
+                DateTime.now().add(const Duration(
+                  days: 365,
+                ))),
         readOnly: true,
         controller: TextEditingController(
             text: primaryDate == null ? "" : dateFormat.format(primaryDate!)),

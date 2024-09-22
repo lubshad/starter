@@ -4,21 +4,23 @@ mixin MobileAndPhoneMixin<T extends StatefulWidget> on State<T> {
   final mobileController = TextEditingController();
   final phoneController = TextEditingController();
 
-
-  Widget get phoneField => TextFormField(
+  Widget phoneField({
+    String hintText = "Phone",
+    String labelText = "Phone",
+    Function(String)? onChanged
+  }) =>
+      TextFormField(
+        onChanged: onChanged,
         controller: phoneController,
-        decoration: const InputDecoration(
-          hintText: "Phone",
+        decoration: InputDecoration(
+          hintText: hintText,
+          labelText: labelText,
         ),
       );
 
   Widget get mobileField => TextFormField(
         controller: mobileController,
         decoration: const InputDecoration(
-          hintText: "Mobile",
-        ),
+            hintText: "Mobile Number", label: Text("Mobile Number")),
       );
 }
-
-
-
