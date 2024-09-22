@@ -17,10 +17,19 @@ mixin MobileAndPhoneMixin<T extends StatefulWidget> on State<T> {
           labelText: labelText,
         ),
       );
-
-  Widget get mobileField => TextFormField(
+  Widget mobileFiled({
+    String hintText = "Mobile",
+    String labelText = "Mobile",
+    Function(String)? onChanged
+  }) =>
+      TextFormField(
+        onChanged: onChanged,
         controller: mobileController,
-        decoration: const InputDecoration(
-            hintText: "Mobile Number", label: Text("Mobile Number")),
+        decoration: InputDecoration(
+          hintText: hintText,
+          labelText: labelText,
+        ),
       );
+
+
 }
