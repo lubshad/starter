@@ -49,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             LoadingButton(
                 buttonLoading: false,
                 text: "LOGOUT",
-                onPressed: () => signOut(context)),
+                onPressed: () => signOut()),
             if (packageInfo != null)
               Padding(
                   padding: const EdgeInsets.only(bottom: paddingXL),
@@ -88,9 +88,9 @@ void showPrivacyPolicy() {
       }).toString());
 }
 
-void signOut(context) {
+void signOut() {
   SharedPreferencesService.i.setValue(value: "");
   FirebaseAuth.instance.signOut();
   Navigator.pushNamedAndRemoveUntil(
-      context, PhoneVerification.path, (route) => false);
+      navigatorKey.currentContext!, PhoneVerification.path, (route) => false);
 }

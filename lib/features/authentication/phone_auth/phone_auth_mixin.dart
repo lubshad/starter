@@ -12,7 +12,6 @@ import '../../../core/interceptors.dart';
 import '../../../core/repository.dart';
 import '../../../core/universal_argument.dart';
 import '../../../exporter.dart';
-import '../../../main.dart';
 import '../../../services/fcm_service.dart';
 import '../../../services/shared_preferences_services.dart';
 import '../../profile_screen/profile_screen.dart';
@@ -46,7 +45,7 @@ class TokenAuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     switch (err.response?.statusCode) {
       case 401:
-        signOut(navigatorKey.currentContext);
+        signOut();
         break;
       default:
         break;

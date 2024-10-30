@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 // These are the Viewport values of your Figma Design.
 // These are used in the code as a reference to create your UI Responsively.
-const num FIGMA_DESIGN_WIDTH = 430;
-const num FIGMA_DESIGN_HEIGHT = 933;
+const num FIGMA_DESIGN_WIDTH = 1728;
+const num FIGMA_DESIGN_HEIGHT = 1117;
 const num FIGMA_DESIGN_STATUS_BAR = 0;
 typedef ResponsiveBuild = Widget Function(
   BuildContext context,
@@ -59,16 +59,17 @@ class SizeUtils {
     orientation = currentOrientation;
 
     // Sets screen width and height
-    if (orientation == Orientation.portrait) {
-      width =
-          boxConstraints.maxWidth.isNonZero(defaultValue: FIGMA_DESIGN_WIDTH);
-      height = boxConstraints.maxHeight.isNonZero();
+    width = boxConstraints.maxWidth.isNonZero(defaultValue: FIGMA_DESIGN_WIDTH);
+    height =
+        boxConstraints.maxHeight.isNonZero(defaultValue: FIGMA_DESIGN_HEIGHT);
+
+    if (width >= 1024) {
+      deviceType = DeviceType.desktop;
+    } else if (width >= 600) {
+      deviceType = DeviceType.tablet;
     } else {
-      width =
-          boxConstraints.maxHeight.isNonZero(defaultValue: FIGMA_DESIGN_WIDTH);
-      height = boxConstraints.maxWidth.isNonZero();
+      deviceType = DeviceType.mobile;
     }
-    deviceType = DeviceType.mobile;
   }
 }
 
