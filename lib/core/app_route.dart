@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../features/authentication/landing_screen/landing_screen.dart';
 import '../features/authentication/phone_auth/phone_auth_screen.dart';
+import '../features/authentication/social_authentication/social_authentication_screen.dart';
 import '../features/home_screen/home_screen.dart';
 import '../features/navigation/navigation_screen.dart';
 import '../features/splash_screen/splash_screen.dart';
@@ -36,6 +37,9 @@ class AppRoute {
     switch (uri.path) {
       case SplashScreen.path:
         screen = const SplashScreen();
+        break;
+      case SocialAuthenticationScreen.path:
+        screen = const SocialAuthenticationScreen();
         break;
       case HomeScreen.path:
         screen = const HomeScreen();
