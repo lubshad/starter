@@ -29,7 +29,7 @@ class TokenAuthInterceptor extends Interceptor {
     String token = SharedPreferencesService.i.getValue();
     if (token != "") {
       options.headers.addAll({
-        "Authorization": "Token $token",
+        "Authorization": "Bearer $token",
       });
     }
     options.headers.addAll(
