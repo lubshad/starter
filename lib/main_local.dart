@@ -31,6 +31,10 @@ class AppConfigLocal extends AppConfig {
   @override
   // TODO: implement scheme
   String get scheme => throw UnimplementedError();
+  
+  @override
+  // TODO: implement env
+  ENV get env => ENV.local;
 }
 
 void main() async {
