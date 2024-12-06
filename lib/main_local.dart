@@ -35,6 +35,12 @@ class AppConfigLocal extends AppConfig {
   @override
   // TODO: implement env
   ENV get env => ENV.local;
+  // TODO: implement password
+  String get password => "username";
+  
+  @override
+  // TODO: implement username
+  String get username => "password";
 }
 
 void main() async {

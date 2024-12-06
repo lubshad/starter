@@ -31,5 +31,7 @@ abstract class AppConfig {
 
   String get domain;
   String get slugUrl;
+  String get username;
+  String get password;
   String get baseUrl => "$scheme://$domain:$port$slugUrl";
 }

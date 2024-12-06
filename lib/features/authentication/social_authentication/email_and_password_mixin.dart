@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/utils.dart';
+import 'package:starter/core/app_config.dart';
 
 import '../../../exporter.dart';
 import '../../splash_screen/splash_screen.dart';
@@ -31,10 +32,10 @@ mixin EmailPasswordMixin<T extends StatefulWidget> on State<T> {
   }
 
   final TextEditingController emailController = TextEditingController(
-    text: kDebugMode ? "lubshad@gmail.com" : "",
+    text: kDebugMode ? appConfig.username : "",
   );
   final TextEditingController passwordController = TextEditingController(
-    text: kDebugMode ? "lubshad@gmail.com" : "",
+    text: kDebugMode ? appConfig.password : "",
   );
   final formKey = GlobalKey<FormState>(debugLabel: 'login_form_key');
   bool validate() {

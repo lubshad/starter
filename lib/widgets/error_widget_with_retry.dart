@@ -22,7 +22,6 @@ class ErrorWidgetWithRetry extends StatelessWidget {
         widget = Center(
           child: Column(
             children: [
-              Text(exception.runtimeType.toString()),
               Text(
                 exception.toString(),
                 textAlign: TextAlign.center,
