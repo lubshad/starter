@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -11,7 +10,7 @@ import 'google_oauth_mixin.dart';
 class SocialAuthenticationScreen extends StatefulWidget {
   static const String path = "/social-authentication";
 
-  const SocialAuthenticationScreen({Key? key}) : super(key: key);
+  const SocialAuthenticationScreen({super.key});
 
   @override
   State<SocialAuthenticationScreen> createState() =>
@@ -149,7 +148,6 @@ class _SocialAuthenticationScreenState extends State<SocialAuthenticationScreen>
 
   void signupAction() {}
 }
-
 
 String? domainValidator(
   TextEditingController controller, {
