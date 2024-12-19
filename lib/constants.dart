@@ -80,6 +80,11 @@ const List<BoxShadow> defaultShadow = [
   )
 ];
 
-
-DateFormat get dateTimeFormat => DateFormat("E, MMM, d, y, hh:mm aa");
-DateFormat get dateFormat => DateFormat("E, MMM, d, y");
+extension DateTimeExtension on DateTime? {
+  String? get odooDateFormat =>
+      this == null ? null : DateFormat("yyyy-MM-dd").format(this!);
+  String? get dateTimeFormat =>
+      this == null ? null : DateFormat("E, MMM, d, y, hh:mm aa").format(this!);
+  String? get dateFormat =>
+      this == null ? null : DateFormat("E, MMM, d, y").format(this!);
+}
