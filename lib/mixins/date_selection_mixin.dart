@@ -29,12 +29,11 @@ mixin DateSelectionMixin<T extends StatefulWidget> on State<T> {
     DateTime? lastDate,
     Function(DateTime)? onChanged,
     String? Function(String?)? validator,
-
   }) =>
       TextFormField(
         validator: validator,
         onTap: () => pickDate(
-          onChanged: onChanged,
+            onChanged: onChanged,
             firstDate: firstDate ?? DateTime.now(),
             lastDate: lastDate ??
                 DateTime.now().add(const Duration(
@@ -42,7 +41,8 @@ mixin DateSelectionMixin<T extends StatefulWidget> on State<T> {
                 ))),
         readOnly: true,
         controller: TextEditingController(
-            text: primaryDate == null ? "" : dateFormat.format(primaryDate!)),
+          text: primaryDate == null ? "" : primaryDate.dateFormat,
+        ),
         decoration: InputDecoration(
           label: Text(title ?? "Date"),
         ),
