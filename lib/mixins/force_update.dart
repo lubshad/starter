@@ -2,8 +2,11 @@
 
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -11,6 +14,7 @@ import '../../../exporter.dart';
 import '../../../widgets/loading_button.dart';
 import 'dart:convert';
 
+import '../core/universal_argument.dart';
 import '../widgets/common_sheet.dart';
 
 // ignore_for_file: public_member_api_docs, sort_constructors_first
@@ -67,13 +71,31 @@ mixin ForceUpdateMixin<T extends StatefulWidget> on State<T> {
           "minimum_version": appVersion,
           "url": "https://google.com",
           "message": "New version is available!",
+          "app_available": true,
+          "availability_description":
+              "App is temporarily unavailable.please try again later",
+          "availablity_image":
+              "https://firebasestorage.googleapis.com/v0/b/eventxpro-66c0b.appspot.com/o/CRM%2Fserverdown.png?alt=media&token=812e8645-5cbe-46af-b185-e9e93170d924"
         });
         return;
       }
 
       bool isUpdateAvailable = data["current_version"] > appVersion;
 
-      if (!isUpdateAvailable) return;
+      if (!isUpdateAvailable) {
+        //TODO
+        bool isAppAvailable = data["app_available"] == true;
+        if (isAppAvailable) return;
+        String image = data["availablity_image"] is String
+            ? data["availablity_image"]
+            : "";
+
+        String description = data["availability_description"] ?? "";
+        Navigator.pushNamed(context, UnavailabilityScreen.path,
+            arguments: UniversalArgument(
+                extra: {"image": image, "description": description}));
+        return;
+      }
 
       final versionModel = VersionCheckResponseModel(
           url: data["url"],
@@ -154,5 +176,75 @@ class ForceUpdateBottomSheet extends StatelessWidget {
     final url = Uri.parse(versionData.url);
     if (!await canLaunchUrl(url)) return;
     launchUrl(url);
+  }
+}
+
+class UnavailabilityScreen extends StatefulWidget {
+  static const String path = "/availability-screen";
+
+  const UnavailabilityScreen({
+    super.key,
+    this.argument,
+  });
+
+  final UniversalArgument? argument;
+
+  @override
+  State<UnavailabilityScreen> createState() => _UnavailabilityScreenState();
+}
+
+class _UnavailabilityScreenState extends State<UnavailabilityScreen> {
+  String get image =>
+      widget.argument?.extra?["image"] ?? Assets.svgs.serverdown;
+
+  String get description =>
+      widget.argument?.extra?["description"] ??
+      "App is temporarily unavailable.\nplease try again later";
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: paddingXL, vertical: paddingLarge),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: 140,
+                  width: 140,
+                  child: Builder(builder: (context) {
+                    bool isSvg = Uri.parse(image).path.split(".").last == "svg";
+                    if (isSvg) {
+                      return SvgPicture.asset(
+                        image,
+                      );
+                    } else {
+                      return CachedNetworkImage(imageUrl: image);
+                    }
+                  }),
+                ),
+                gap,
+                Text(
+                  textAlign: TextAlign.center,
+                  description,
+                ),
+                gapLarge,
+                LoadingButton(
+                    buttonLoading: false,
+                    text: "0K",
+                    onPressed: () async {
+                      await SystemNavigator.pop();
+                    })
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

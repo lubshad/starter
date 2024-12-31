@@ -78,12 +78,22 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/retry.svg
   String get retry => 'assets/svgs/retry.svg';
 
+  /// File path: assets/svgs/serverdown.svg
+  String get serverdown => 'assets/svgs/serverdown.svg';
+
   /// File path: assets/svgs/study.svg
   String get study => 'assets/svgs/study.svg';
 
   /// List of all assets
-  List<String> get values =>
-      [icons8Google, landingOne, landingThree, landingTwo, retry, study];
+  List<String> get values => [
+        icons8Google,
+        landingOne,
+        landingThree,
+        landingTwo,
+        retry,
+        serverdown,
+        study
+      ];
 }
 
 class Assets {
@@ -95,9 +105,16 @@ class Assets {
 }
 
 class AssetGenImage {
-  const AssetGenImage(this._assetName);
+  const AssetGenImage(
+    this._assetName, {
+    this.size,
+    this.flavors = const {},
+  });
 
   final String _assetName;
+
+  final Size? size;
+  final Set<String> flavors;
 
   Image image({
     Key? key,
@@ -117,7 +134,7 @@ class AssetGenImage {
     ImageRepeat repeat = ImageRepeat.noRepeat,
     Rect? centerSlice,
     bool matchTextDirection = false,
-    bool gaplessPlayback = false,
+    bool gaplessPlayback = true,
     bool isAntiAlias = false,
     String? package,
     FilterQuality filterQuality = FilterQuality.low,

@@ -18,7 +18,7 @@ class Shimwrapper extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(paddingLarge),
-          color: Colors.grey.withOpacity(.1)),
+          color: Colors.grey.withValues(alpha: .1)),
       child: Opacity(
         opacity: 0,
         child: child,

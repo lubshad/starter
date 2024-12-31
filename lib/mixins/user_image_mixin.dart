@@ -75,7 +75,7 @@ mixin UserImageMixin<T extends StatefulWidget> on State<T> {
                     Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(.3),
+                        color: Colors.white.withValues( alpha:  .3),
                       ),
                       padding: const EdgeInsets.all(paddingLarge),
                       child: const Icon(

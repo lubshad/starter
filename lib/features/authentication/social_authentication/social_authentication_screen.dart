@@ -119,7 +119,7 @@ class _SocialAuthenticationScreenState extends State<SocialAuthenticationScreen>
                     Text(
                       "Do not have an account?",
                       style: context.labelLarge.copyWith(
-                        color: Colors.black.withOpacity(.5),
+                        color: Colors.black.withValues(alpha:  .5),
                       ),
                     ),
                     // gapSmall,
