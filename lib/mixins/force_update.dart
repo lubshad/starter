@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -16,6 +14,7 @@ import 'dart:convert';
 
 import '../core/universal_argument.dart';
 import '../widgets/common_sheet.dart';
+import 'form_validator_mixin.dart';
 
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class VersionCheckResponseModel {
@@ -83,7 +82,6 @@ mixin ForceUpdateMixin<T extends StatefulWidget> on State<T> {
       bool isUpdateAvailable = data["current_version"] > appVersion;
 
       if (!isUpdateAvailable) {
-        //TODO
         bool isAppAvailable = data["app_available"] == true;
         if (isAppAvailable) return;
         String image = data["availablity_image"] is String
@@ -179,6 +177,8 @@ class ForceUpdateBottomSheet extends StatelessWidget {
   }
 }
 
+
+
 class UnavailabilityScreen extends StatefulWidget {
   static const String path = "/availability-screen";
 
@@ -193,7 +193,8 @@ class UnavailabilityScreen extends StatefulWidget {
   State<UnavailabilityScreen> createState() => _UnavailabilityScreenState();
 }
 
-class _UnavailabilityScreenState extends State<UnavailabilityScreen> {
+class _UnavailabilityScreenState extends State<UnavailabilityScreen>
+    with FormValidatorMixin {
   String get image =>
       widget.argument?.extra?["image"] ?? Assets.svgs.serverdown;
 
@@ -222,6 +223,7 @@ class _UnavailabilityScreenState extends State<UnavailabilityScreen> {
                     if (isSvg) {
                       return SvgPicture.asset(
                         image,
+                        // color: Colors.yellow[600],
                       );
                     } else {
                       return CachedNetworkImage(imageUrl: image);
@@ -232,10 +234,11 @@ class _UnavailabilityScreenState extends State<UnavailabilityScreen> {
                 Text(
                   textAlign: TextAlign.center,
                   description,
+                  style: baseStyle,
                 ),
                 gapLarge,
                 LoadingButton(
-                    buttonLoading: false,
+                    buttonLoading: buttonLoading,
                     text: "0K",
                     onPressed: () async {
                       await SystemNavigator.pop();

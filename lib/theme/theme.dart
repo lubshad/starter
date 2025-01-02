@@ -5,6 +5,12 @@ import 'package:get/utils.dart';
 
 import '../constants.dart';
 
+TextStyle baseStyle  = const TextStyle(
+  fontSize: 16,
+  fontWeight: FontWeight.w400,
+  color: Colors.black,
+);
+
 ThemeData get themeData => ThemeData(
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
