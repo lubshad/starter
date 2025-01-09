@@ -1,10 +1,14 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:starter/features/navigation/models/screens.dart';
+import 'package:starter/features/navigation/navigation_screen.dart';
 
 import '../exporter.dart';
+import '../mixins/event_listener.dart';
+import 'snackbar_utils.dart';
 
 @pragma('vm:entry-point')
 Future<void> onBackgroundMessage(RemoteMessage message) async {
-  logInfo("Handling a background message: ${message.notification?.title}");
+  logInfo("Handling a background message: ${message.notification?.toMap()}");
 }
 
 mixin FCMService {
@@ -39,10 +43,14 @@ mixin FCMService {
   }
 
   static onMessage(RemoteMessage event) {
-    logInfo("Received message: ${event.notification?.title}");
+    logInfo("Received message: ${event.notification?.toMap()}");
+    logInfo("Received message: ${event.notification?.toMap()}");
+    showSuccessMessage(event.notification?.body);
+    navigationController.value = Screens.home;
+    EventListener.i.sendEvent(Event(eventType: EventType.notification));
   }
 
   static onMessageOpenedApp(RemoteMessage event) {
-    logInfo("App opened by notification: ${event.notification?.title}");
+    logInfo("App opened by notification: ${event.notification?.toMap()}");
   }
 }

@@ -14,7 +14,7 @@ class Event {
   });
 }
 
-enum EventType { tagUpdate, updateState }
+enum EventType { tagUpdate, updateState, notification }
 
 class EventListener {
   EventListener._private();
