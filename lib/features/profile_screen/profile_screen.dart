@@ -66,7 +66,7 @@ void showRefundPolicy() {
       navigatorKey.currentContext!,
       Uri(path: WebViewScreen.path, queryParameters: {
         "title": "Refund Policy",
-        "url": appConfig.baseUrl + appConfig.refundPolicy
+        "url": appConfig.baseUrl
       }).toString());
 }
 
@@ -75,7 +75,7 @@ void showTermsAndConditions() {
       navigatorKey.currentContext!,
       Uri(path: WebViewScreen.path, queryParameters: {
         "title": "Terms & Conditions",
-        "url": appConfig.baseUrl + appConfig.termsAndConditions
+        "url": appConfig.baseUrl
       }).toString());
 }
 
@@ -84,7 +84,7 @@ void showPrivacyPolicy() {
       navigatorKey.currentContext!,
       Uri(path: WebViewScreen.path, queryParameters: {
         "title": "Privacy Policy",
-        "url": appConfig.baseUrl + appConfig.privacyPolicy
+        "url": appConfig.baseUrl
       }).toString());
 }
 

@@ -9,16 +9,7 @@ class AppConfigLocal extends AppConfig {
 
   @override
   String get slugUrl => throw UnimplementedError();
-  
-  @override
-  String get privacyPolicy => throw UnimplementedError();
-  
-  @override
-  String get refundPolicy => throw UnimplementedError();
-  
-  @override
-  String get termsAndConditions => throw UnimplementedError();
-  
+
   @override
   String get port => throw UnimplementedError();
   
