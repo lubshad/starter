@@ -16,7 +16,7 @@ class LocationService {
     return _instance!;
   }
 
-  Future<void> getCountryCode() async {
+  Future<void> setCountryCode() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -58,7 +58,7 @@ class LocationService {
 
   void init() {
     if (initialized) return;
-    getCountryCode();
+    setCountryCode();
     initialized = true;
   }
 }

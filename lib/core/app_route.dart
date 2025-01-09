@@ -2,7 +2,6 @@ import 'package:animations/animations.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-
 import '../constants.dart';
 import '../features/authentication/landing_screen/landing_screen.dart';
 import '../features/authentication/phone_auth/phone_auth_screen.dart';
@@ -55,47 +54,56 @@ class AppRoute {
     }
     return pageRoute(settings, screen);
   }
-
-
 }
-   MaterialPageRoute<T> pageRoute<T>(
-      RouteSettings settings, Widget screen) {
-    return MaterialPageRoute(
-      settings: settings,
-      builder: (context) => screen,
-    );
-  }
 
-   PageRouteBuilder downToTop(RouteSettings settings, Widget screen) {
-    return PageRouteBuilder(
-      transitionDuration: animationDurationLarge,
-      settings: settings,
-      pageBuilder: (context, animation, secondaryAnimation) => screen,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = const Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var curve = Curves.fastOutSlowIn;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        var offsetAnimation = animation.drive(tween);
+MaterialPageRoute<T> pageRoute<T>(RouteSettings settings, Widget screen) {
+  return MaterialPageRoute(
+    settings: settings,
+    builder: (context) => screen,
+  );
+}
 
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
-    );
-  }
+PageRouteBuilder downToTop(RouteSettings settings, Widget screen) {
+  return PageRouteBuilder(
+    transitionDuration: animationDurationLarge,
+    settings: settings,
+    pageBuilder: (context, animation, secondaryAnimation) => screen,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      var begin = const Offset(0.0, 1.0);
+      var end = Offset.zero;
+      var curve = Curves.fastOutSlowIn;
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+      var offsetAnimation = animation.drive(tween);
 
-   PageRouteBuilder fadeScale(RouteSettings settings, Widget screen) {
-    return PageRouteBuilder(
-      settings: settings,
-      pageBuilder: (context, animation, secondaryAnimation) => screen,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return FadeScaleTransition(
-          animation: animation,
-          child: child,
-        );
-      },
-    );
-  }
+      return SlideTransition(
+        position: offsetAnimation,
+        child: child,
+      );
+    },
+  );
+}
+
+PageRouteBuilder fadeScale(RouteSettings settings, Widget screen) {
+  return PageRouteBuilder(
+    settings: settings,
+    pageBuilder: (context, animation, secondaryAnimation) => screen,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeScaleTransition(
+        animation: animation,
+        child: child,
+      );
+    },
+  );
+}
+
+Future<T?> navigate<T extends Object?>(
+  BuildContext context,
+  String routeName, {
+  Object? arguments,
+  bool duplicate = false,
+}) async {
+  final currentRoute = ModalRoute.of(context)?.settings.name;
+  logInfo(currentRoute);
+  if (routeName == currentRoute && !duplicate) return null;
+  return Navigator.of(context).pushNamed<T>(routeName, arguments: arguments);
+}
