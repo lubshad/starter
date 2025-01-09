@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:intl/intl.dart';
 
 delayed({Duration duration = const Duration(seconds: 2)}) async {
   return await Future.delayed(duration);
@@ -80,26 +79,3 @@ const List<BoxShadow> defaultShadow = [
   )
 ];
 
-extension DateTimeExtension on DateTime? {
-  String? get odooDateFormat =>
-      this == null ? null : DateFormat("yyyy-MM-dd").format(this!);
-  String? get dateTimeFormat =>
-      this == null ? null : DateFormat("E, MMM, d, y, hh:mm aa").format(this!);
-  String? get dateFormat {
-    if (this == null) return null;
-
-    DateTime today = DateTime.now().copyWith(hour: 0, minute: 0, second: 0);
-    int daysDifference =
-        today.difference(this!.copyWith(hour: 0, minute: 0, second: 0)).inDays;
-    if (daysDifference == 1) {
-      return "Yesterday";
-    }
-    if (daysDifference == -1) {
-      return "Tomorrow";
-    }
-    if (daysDifference == 0) {
-      return "Today";
-    }
-    return DateFormat("E, MMM, d, y").format(this!);
-  }
-}

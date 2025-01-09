@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../constants.dart';
+import 'package:starter/extensions.dart';
 
 mixin DateSelectionMixin<T extends StatefulWidget> on State<T> {
   DateTime? primaryDate;
@@ -41,7 +40,7 @@ mixin DateSelectionMixin<T extends StatefulWidget> on State<T> {
                 ))),
         readOnly: true,
         controller: TextEditingController(
-          text: primaryDate == null ? "" : primaryDate.dateFormat,
+          text: primaryDate == null ? "" : primaryDate?.dateFormat,
         ),
         decoration: InputDecoration(
           label: Text(title ?? "Date"),
