@@ -101,9 +101,17 @@ Future<T?> navigate<T extends Object?>(
   String routeName, {
   Object? arguments,
   bool duplicate = false,
+  bool replace = false,
 }) async {
   final currentRoute = ModalRoute.of(context)?.settings.name;
-  logInfo(currentRoute);
   if (routeName == currentRoute && !duplicate) return null;
-  return Navigator.of(context).pushNamed<T>(routeName, arguments: arguments);
+  if (replace) {
+    return Navigator.of(context).pushNamedAndRemoveUntil<T>(
+      routeName,
+      (route) => false,
+      arguments: arguments,
+    );
+  } else {
+    return Navigator.of(context).pushNamed<T>(routeName, arguments: arguments);
+  }
 }
