@@ -69,10 +69,6 @@ mixin FormValidatorMixin<T extends StatefulWidget> on State<T> {
   bool validate() {
     if (formKey == null) return false;
     bool valid = false;
-    if (!dataChanged) {
-      showErrorMessage("No Change");
-      return valid;
-    }
     if (!formKey!.currentState!.validate()) {
     } else {
       valid = true;
