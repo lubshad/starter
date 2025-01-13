@@ -1,5 +1,6 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -32,11 +33,22 @@ class UserAvatar extends StatelessWidget {
         imageUrl!.contains("localhost")) {
       imageUrl = imageUrl!.replaceAll("localhost", appConfig.domain);
     }
+    bool isBytes = imageUrl?.startsWith("b'") == true;
+
     return SizedBox(
       height: size,
       width: size,
       child: ClipOval(
         child: Builder(builder: (context) {
+          if (isBytes && (imageUrl != null)) {
+            return Image.memory(
+              base64Decode(imageUrl!.substring(
+                2,
+                imageUrl!.length - 1,
+              )),
+              fit: BoxFit.cover,
+            );
+          }
           if (imageFile != null) {
             return Image.file(
               imageFile!,
