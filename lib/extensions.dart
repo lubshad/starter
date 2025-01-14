@@ -1,4 +1,3 @@
-
 import 'package:intl/intl.dart';
 
 extension DateTimeExtension on DateTime? {
@@ -6,6 +5,10 @@ extension DateTimeExtension on DateTime? {
       this == null ? null : DateFormat("yyyy-MM-dd").format(this!);
   String? get dateTimeFormat =>
       this == null ? null : DateFormat("E, MMM, d, y, hh:mm aa").format(this!);
+
+  String? get timeFormat =>
+      this == null ? null : DateFormat("hh:mm aa").format(this!);
+
   String? get dateFormat {
     if (this == null) return null;
 
