@@ -1,6 +1,13 @@
 import 'package:intl/intl.dart';
 
 extension DateTimeExtension on DateTime? {
+  bool get isToday {
+    DateTime now = DateTime.now();
+    return this?.day == now.day &&
+        this?.month == now.month &&
+        this?.year == now.year;
+  }
+
   String? get odooDateFormat =>
       this == null ? null : DateFormat("yyyy-MM-dd").format(this!);
   String? get dateTimeFormat =>
