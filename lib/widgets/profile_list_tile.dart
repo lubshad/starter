@@ -98,7 +98,7 @@ class _ProfileListTileState extends State<ProfileListTile>
                   Expanded(
                     child: Text(
                       widget.title,
-                      style: context.inter40015.copyWith(
+                      style: context.labelLarge.copyWith(
                         color: widget.textColor,
                       ),
                     ),
