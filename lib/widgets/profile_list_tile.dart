@@ -70,20 +70,22 @@ class _ProfileListTileState extends State<ProfileListTile>
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return Container(
+      margin: widget.margin,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(widget.borderRadius),
+        gradient: widget.selected ? widget.selectionColor : null,
+      ),
       child: InkWell(
+        borderRadius: BorderRadius.circular(widget.borderRadius),
         onTap: widget.expandable
             ? tougleExpansion
             : () {
+                if (widget.onTap == null) return;
                 Scaffold.of(context).closeDrawer();
                 widget.onTap!();
               },
-        child: Container(
-          margin: widget.margin,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(widget.borderRadius),
-            gradient: widget.selected ? widget.selectionColor : null,
-          ),
+        child: Padding(
           padding: widget.contentPadding ??
               const EdgeInsets.symmetric(
                   horizontal: padding * 3, vertical: paddingSmall * 3),
