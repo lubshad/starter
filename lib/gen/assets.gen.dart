@@ -63,6 +63,9 @@ class $AssetsPngsGen {
 class $AssetsSvgsGen {
   const $AssetsSvgsGen();
 
+  /// File path: assets/svgs/arrow_right.svg
+  String get arrowRight => 'assets/svgs/arrow_right.svg';
+
   /// File path: assets/svgs/icons8-google.svg
   String get icons8Google => 'assets/svgs/icons8-google.svg';
 
@@ -86,6 +89,7 @@ class $AssetsSvgsGen {
 
   /// List of all assets
   List<String> get values => [
+        arrowRight,
         icons8Google,
         landingOne,
         landingThree,
