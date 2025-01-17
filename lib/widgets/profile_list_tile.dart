@@ -16,6 +16,12 @@ class ProfileListTile extends StatefulWidget {
     this.trailing,
     this.expandable = false,
     this.selected = false,
+    this.textColor = const Color(0xff535763),
+    this.selectionColor =
+        const LinearGradient(colors: [Colors.blue, Colors.blue]),
+    this.borderRadius = padding,
+    this.margin,
+    this.isExpaned = false,
   });
 
   final String title;
@@ -26,6 +32,11 @@ class ProfileListTile extends StatefulWidget {
   final Widget? trailing;
   final bool expandable;
   final bool selected;
+  final Color textColor;
+  final Gradient selectionColor;
+  final double borderRadius;
+  final EdgeInsets? margin;
+  final bool isExpaned;
 
   @override
   State<ProfileListTile> createState() => _ProfileListTileState();
@@ -40,6 +51,9 @@ class _ProfileListTileState extends State<ProfileListTile>
       vsync: this,
       duration: Animate.defaultDuration,
     );
+    if (widget.isExpaned) {
+      tougleExpansion();
+    }
   }
 
   late AnimationController animationController;
@@ -57,9 +71,6 @@ class _ProfileListTileState extends State<ProfileListTile>
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: widget.selected
-          ? Colors.white.withValues(alpha: .2)
-          : Colors.transparent,
       child: InkWell(
         onTap: widget.expandable
             ? tougleExpansion
@@ -67,7 +78,12 @@ class _ProfileListTileState extends State<ProfileListTile>
                 Scaffold.of(context).closeDrawer();
                 widget.onTap!();
               },
-        child: Padding(
+        child: Container(
+          margin: widget.margin,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(widget.borderRadius),
+            gradient: widget.selected ? widget.selectionColor : null,
+          ),
           padding: widget.contentPadding ??
               const EdgeInsets.symmetric(
                   horizontal: padding * 3, vertical: paddingSmall * 3),
@@ -82,15 +98,18 @@ class _ProfileListTileState extends State<ProfileListTile>
                   Expanded(
                     child: Text(
                       widget.title,
-                      style: context.labelLarge.copyWith(
-                        color: Colors.white,
+                      style: context.inter40015.copyWith(
+                        color: widget.textColor,
                       ),
                     ),
                   ),
                   AnimatedBuilder(
                       animation: animationController,
                       child: widget.trailing ??
-                          SvgPicture.asset(Assets.svgs.arrowRight),
+                          SvgPicture.asset(
+                            Assets.svgs.arrowRight,
+                            color: widget.textColor,
+                          ),
                       builder: (context, child) {
                         return Transform.rotate(
                             angle: animationController
