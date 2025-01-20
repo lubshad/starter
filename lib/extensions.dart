@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 
 extension DateTimeExtension on DateTime? {
@@ -33,4 +34,8 @@ extension DateTimeExtension on DateTime? {
     }
     return DateFormat("E, MMM, d, y").format(this!);
   }
+}
+
+extension ResponseExtension on Response {
+  String get message => data["message"] ?? "";
 }

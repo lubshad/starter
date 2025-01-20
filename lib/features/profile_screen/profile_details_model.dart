@@ -44,4 +44,22 @@ class ProfileDetailsModel {
 
   factory ProfileDetailsModel.fromJson(String source) =>
       ProfileDetailsModel.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  ProfileDetailsModel copyWith({
+    String? name,
+    String? image,
+    String? phone,
+    String? program,
+    String? semester,
+    String? email,
+  }) {
+    return ProfileDetailsModel(
+      name: name ?? this.name,
+      image: image ?? this.image,
+      phone: phone ?? this.phone,
+      program: program ?? this.program,
+      semester: semester ?? this.semester,
+      email: email ?? this.email,
+    );
+  }
 }

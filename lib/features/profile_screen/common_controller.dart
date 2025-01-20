@@ -33,6 +33,8 @@ class CommonController extends ChangeNotifier {
     );
   }
 
+ 
+
   clear() {
     initialized = false;
   }

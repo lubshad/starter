@@ -88,6 +88,19 @@ class DataRepository with ErrorExceptionHandler {
     }
   }
 
+  Future<Response> updateProfileDetails(
+      ProfileDetailsModel profileDetails) async {
+    try {
+      final response = await _client.put(
+        APIConstants.updateprofile,
+        data: profileDetails.toMap(),
+      );
+      return response;
+    } catch (e) {
+      throw handleError(e);
+    }
+  }
+
   Future<ProfileDetailsModel> fetchProfileDetails() async {
     try {
       final response = await _client.get(APIConstants.profileDetails);
