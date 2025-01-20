@@ -47,15 +47,50 @@ String get randomProfileImage {
   return newList.first;
 }
 
-
 List<String> firstNames = [
-  "Emma", "Olivia", "Ava", "Isabella", "Sophia", "Mia", "Charlotte", "Amelia", "Harper", "Evelyn",
-  "Liam", "Noah", "Oliver", "Elijah", "William", "James", "Benjamin", "Lucas", "Henry", "Alexander"
+  "Emma",
+  "Olivia",
+  "Ava",
+  "Isabella",
+  "Sophia",
+  "Mia",
+  "Charlotte",
+  "Amelia",
+  "Harper",
+  "Evelyn",
+  "Liam",
+  "Noah",
+  "Oliver",
+  "Elijah",
+  "William",
+  "James",
+  "Benjamin",
+  "Lucas",
+  "Henry",
+  "Alexander"
 ];
 
 List<String> lastNames = [
-  "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez",
-  "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin"
+  "Smith",
+  "Johnson",
+  "Williams",
+  "Brown",
+  "Jones",
+  "Garcia",
+  "Miller",
+  "Davis",
+  "Rodriguez",
+  "Martinez",
+  "Hernandez",
+  "Lopez",
+  "Gonzalez",
+  "Wilson",
+  "Anderson",
+  "Thomas",
+  "Taylor",
+  "Moore",
+  "Jackson",
+  "Martin"
 ];
 
 String get randomName {
@@ -71,6 +106,11 @@ String get randomName {
 const dummyProfile =
     "https://t3.ftcdn.net/jpg/05/16/27/58/240_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg";
 
+const buttonGradient = LinearGradient(colors: [
+  Color(0xffae8616),
+  Color(0xffedc246),
+]);
+
 const List<BoxShadow> defaultShadow = [
   BoxShadow(
     color: Colors.black12,
@@ -78,4 +118,3 @@ const List<BoxShadow> defaultShadow = [
     offset: Offset(1.1, 1.1),
   )
 ];
-
