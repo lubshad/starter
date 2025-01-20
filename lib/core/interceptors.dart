@@ -42,6 +42,7 @@ class LoggingInterceptor extends Interceptor {
     logError('Response: ${err.response?.statusCode}');
     logError('Message: ${err.message}');
     logError('Error: ${err.error}');
+    logError('Data: ${err.response?.data}');
     super.onError(err, handler);
   }
 }
