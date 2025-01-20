@@ -15,7 +15,13 @@ class LoggingInterceptor extends Interceptor {
     logInfo('Headers:');
     options.headers.forEach((key, value) => logInfo('$key: $value'));
     logInfo('Data:');
-    logInfo(options.data);
+    logInfo((options.data is FormData)
+        ? (options.data as FormData).fields
+        : options.data);
+    if ((options.data is FormData) &&
+        (options.data as FormData).files.isNotEmpty) {
+      logInfo((options.data as FormData).files.map((e) => e.value.filename));
+    }
     super.onRequest(options, handler);
   }
 
