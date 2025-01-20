@@ -10,6 +10,7 @@ import '../../services/shared_preferences_services.dart';
 import '../../widgets/loading_button.dart';
 import '../authentication/phone_auth/phone_auth_screen.dart';
 import '../web_view/web_view_screen.dart';
+import 'common_controller.dart';
 import 'profile_details_model.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -89,7 +90,8 @@ void showPrivacyPolicy() {
 }
 
 void signOut() {
-  SharedPreferencesService.i.setValue(value: "");
+  SharedPreferencesService.i.clear();
+  CommonController.i.clear();
   FirebaseAuth.instance.signOut();
   Navigator.pushNamedAndRemoveUntil(
       navigatorKey.currentContext!, PhoneVerification.path, (route) => false);
