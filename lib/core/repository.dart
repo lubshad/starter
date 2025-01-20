@@ -3,6 +3,7 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get/utils.dart';
+import 'package:starter/features/authentication/phone_auth/phone_auth_mixin.dart';
 import '../features/profile_screen/profile_details_model.dart';
 import '../models/name_id.dart';
 import '../services/shared_preferences_services.dart';
@@ -34,7 +35,7 @@ class DataRepository with ErrorExceptionHandler {
   DataRepository._private() {
     var cookieJar = CookieJar(ignoreExpires: false);
     _client.interceptors.add(CookieManager(cookieJar));
-    _client.interceptors.add(AuthenticationInterceptor());
+    _client.interceptors.add(TokenAuthInterceptor());
     _client.interceptors.add(LoggingInterceptor());
   }
 
