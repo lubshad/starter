@@ -66,6 +66,9 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/arrow_right.svg
   String get arrowRight => 'assets/svgs/arrow_right.svg';
 
+  /// File path: assets/svgs/domain_globe.svg
+  String get domainGlobe => 'assets/svgs/domain_globe.svg';
+
   /// File path: assets/svgs/icons8-google.svg
   String get icons8Google => 'assets/svgs/icons8-google.svg';
 
@@ -77,6 +80,18 @@ class $AssetsSvgsGen {
 
   /// File path: assets/svgs/landing two.svg
   String get landingTwo => 'assets/svgs/landing two.svg';
+
+  /// File path: assets/svgs/lock_outline.svg
+  String get lockOutline => 'assets/svgs/lock_outline.svg';
+
+  /// File path: assets/svgs/login_graphics.svg
+  String get loginGraphics => 'assets/svgs/login_graphics.svg';
+
+  /// File path: assets/svgs/otp_background.svg
+  String get otpBackground => 'assets/svgs/otp_background.svg';
+
+  /// File path: assets/svgs/person_outline.svg
+  String get personOutline => 'assets/svgs/person_outline.svg';
 
   /// File path: assets/svgs/retry.svg
   String get retry => 'assets/svgs/retry.svg';
@@ -90,10 +105,15 @@ class $AssetsSvgsGen {
   /// List of all assets
   List<String> get values => [
         arrowRight,
+        domainGlobe,
         icons8Google,
         landingOne,
         landingThree,
         landingTwo,
+        lockOutline,
+        loginGraphics,
+        otpBackground,
+        personOutline,
         retry,
         serverdown,
         study

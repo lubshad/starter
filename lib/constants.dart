@@ -111,6 +111,9 @@ const buttonGradient = LinearGradient(colors: [
   Color(0xffedc246),
 ]);
 
+const dividerColor = Color(0xffEBEBEB);
+
+
 const List<BoxShadow> defaultShadow = [
   BoxShadow(
     color: Colors.black12,

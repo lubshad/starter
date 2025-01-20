@@ -1,11 +1,10 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../exporter.dart';
-import '../../../widgets/form_header.dart';
 import '../../../widgets/loading_button.dart';
 import 'email_and_password_mixin.dart';
-import 'google_oauth_mixin.dart';
 
 class SocialAuthenticationScreen extends StatefulWidget {
   static const String path = "/social-authentication";
@@ -18,135 +17,172 @@ class SocialAuthenticationScreen extends StatefulWidget {
 }
 
 class _SocialAuthenticationScreenState extends State<SocialAuthenticationScreen>
-    with GoogleOauthMixin, EmailPasswordMixin {
+    with EmailPasswordMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(paddingLarge),
-          child: Form(
-            key: formKey,
-            child: Column(
-              children: [
-                Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(
-                        paddingLarge,
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: paddingLarge,
-                      vertical: paddingXL,
-                    ),
-                    child: Column(
-                      children: [
-                        SvgPicture.asset(
-                          Assets.svgs.study,
-                          width: 100,
-                        ),
-                        gapLarge,
-                        Text(
-                          "Log in",
-                          style: context.titleLarge,
-                        ),
-                        gapLarge,
-                        FormHeader(
-                          label: "Email",
-                          child: TextFormField(
-                            controller: emailController,
-                            validator: emailValidator,
-                            decoration: const InputDecoration(
-                              prefixIcon: Icon(Icons.email_outlined),
-                              hintText: "Email",
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Container(
+            color: primaryColor,
+          ),
+          const LoginBackground(),
+          LoginBottomSheet(
+            child: Form(
+              key: formKey,
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  inputDecorationTheme:
+                      Theme.of(context).inputDecorationTheme.copyWith(
+                            hintStyle: hintStyle.copyWith(
+                              fontSize: 15.fSize,
                             ),
                           ),
-                        ),
-                        gapLarge,
-                        FormHeader(
-                          label: "Password",
-                          child: TextFormField(
-                            obscureText: !passwordVisible,
-                            validator: passwordValidator,
-                            controller: passwordController,
-                            decoration: InputDecoration(
-                                errorText: passwordError,
-                                prefixIcon: const Icon(
-                                  Icons.lock_outline,
-                                ),
-                                hintText: "Password",
-                                suffixIcon: IconButton(
-                                    onPressed: touglePasswordVisibility,
-                                    icon: Icon(visibilityIcon))),
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: TextButton(
-                              onPressed: navigateForgotPassword,
-                              child: Text(
-                                "Forget Password?",
-                                style: context.labelLarge.copyWith(
-                                  color: Colors.grey,
-                                ),
-                              )),
-                        ),
-                        gapLarge,
-                        LoadingButton(
-                            buttonLoading: loginButtonLoading,
-                            text: "Log In",
-                            onPressed: signInWithEmailAndPassword),
-                        gap,
-                        const Text("OR"),
-                        gap,
-                        LoadingButton(
-                          icon: SvgPicture.asset(
-                            Assets.svgs.icons8Google,
-                            height: paddingXL,
-                          ),
-                          backgroundColor: Colors.black,
-                          buttonLoading: buttonLoading,
-                          text: "Sign In With Google",
-                          onPressed: signInWithGoogle,
-                        ),
-                      ],
-                    )),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Do not have an account?",
-                      style: context.labelLarge.copyWith(
-                        color: Colors.black.withValues(alpha:  .5),
+                      "Log in",
+                      style: context.labelLarge,
+                    ),
+                    gapLarge,
+                    TextFormField(
+                      autofillHints: const [AutofillHints.url],
+                      keyboardType: TextInputType.url,
+                      textInputAction: TextInputAction.next,
+                      controller: domainController,
+                      validator: (value) => domainValidator(
+                        domainController,
+                        required: true,
+                      ),
+                      decoration: InputDecoration(
+                        suffixIcon: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset(Assets.svgs.domainGlobe),
+                          ],
+                        ),
+                        hintText: "https://yourcompany.com",
                       ),
                     ),
-                    // gapSmall,
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        // padding: EdgeInsets.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      onPressed: signupAction,
-                      child: Text(
-                        "Sign Up",
-                        style: context.bodyLarge,
+                    gapLarge,
+                    TextFormField(
+                      textInputAction: TextInputAction.next,
+                      controller: usernameController,
+                      validator: validateUsername,
+                      decoration: InputDecoration(
+                        suffixIcon: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset(Assets.svgs.personOutline),
+                          ],
+                        ),
+                        hintText: "Enter username",
                       ),
                     ),
+                    gapLarge,
+                    TextFormField(
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (value) => signInWithEmailAndPassword(),
+                      obscureText: !passwordVisible,
+                      validator: passwordValidator,
+                      controller: passwordController,
+                      decoration: InputDecoration(
+                          errorText: passwordError,
+                          hintText: "Password",
+                          suffixIcon: IconButton(
+                            onPressed: touglePasswordVisibility,
+                            icon: SvgPicture.asset(Assets.svgs.lockOutline),
+                          )),
+                    ),
+                    gapXL,
+                    LoadingButton(
+                        buttonLoading: loginButtonLoading,
+                        text: "SUBMIT",
+                        onPressed: signInWithEmailAndPassword),
                   ],
-                )
-              ],
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  void navigateForgotPassword() {}
+  // void navigateForgotPassword() {}
 
-  void signupAction() {}
+  // void signupAction() {}
+}
+
+class LoginBottomSheet extends StatelessWidget {
+  const LoginBottomSheet({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(
+              paddingLarge,
+            ),
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: paddingXL,
+          vertical: paddingXL * 1.5,
+        ),
+        child: child,
+      ),
+    );
+  }
+}
+
+class LoginBackground extends StatelessWidget {
+  const LoginBackground({
+    super.key,
+    this.assetImage,
+  });
+
+  final String? assetImage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+        top: 100.v,
+        right: 40.h,
+        left: 40.h,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "For your customers.\nCRM made easy.",
+              style: context.labelLarge.copyWith(
+                color: Colors.white,
+              ),
+            ),
+            gapXL,
+            Row(
+              children: [
+                Expanded(
+                  child: SvgPicture.asset(
+                    assetImage ?? Assets.svgs.loginGraphics,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ));
+  }
 }
 
 String? domainValidator(

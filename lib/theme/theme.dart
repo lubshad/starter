@@ -11,6 +11,12 @@ TextStyle baseStyle  = const TextStyle(
   color: Colors.black,
 );
 
+final hintStyle = baseStyle.copyWith(
+  fontWeight: FontWeight.w400,
+  fontSize: 13.5,
+  color: const Color(0xff868686),
+);
+
 ThemeData get themeData => ThemeData(
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
