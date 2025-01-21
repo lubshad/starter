@@ -34,10 +34,18 @@ class TokenAuthInterceptor extends Interceptor {
     }
     options.headers.addAll(
       {
-        "X-App-Source": "Student",
         "User-Agent": Platform.isAndroid ? "ANDROID" : "IOS",
+        "Accept": Headers.jsonContentType
       },
     );
+    if (options.data == null) {
+      options.headers.remove(Headers.contentTypeHeader);
+    } else if (options.data is FormData) {
+      options.headers[Headers.contentTypeHeader] =
+          Headers.multipartFormDataContentType;
+    } else {
+      options.headers[Headers.contentTypeHeader] = Headers.jsonContentType;
+    }
     super.onRequest(options, handler);
   }
 
