@@ -1,14 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:starter/features/navigation/models/screens.dart';
 
 import '../../core/app_config.dart';
 import '../../core/repository.dart';
 import '../../exporter.dart';
 import '../../main.dart';
 import '../../services/shared_preferences_services.dart';
+import '../../widgets/common_sheet.dart';
 import '../../widgets/loading_button.dart';
 import '../authentication/phone_auth/phone_auth_screen.dart';
+import '../navigation/navigation_screen.dart';
 import '../web_view/web_view_screen.dart';
 import 'common_controller.dart';
 import 'profile_details_model.dart';
@@ -89,9 +92,34 @@ void showPrivacyPolicy() {
       }).toString());
 }
 
+logout() async {
+  final result = await showModalBottomSheet(
+    context: navigatorKey.currentContext!,
+    builder: (context) => CommonBottomSheet(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          gapXXL,
+          Text("You are about to logout from the app"),
+          gapLarge,
+          LoadingButton(
+            buttonLoading: false,
+            text: "Logout",
+            onPressed: () => Navigator.pop(context, true),
+          ),
+        ],
+      ),
+    ),
+  );
+  if (result == null) return;
+  signOut();
+}
+
 void signOut() {
   SharedPreferencesService.i.clear();
   CommonController.i.clear();
+  navigationController.value = Screens.home;
+
   FirebaseAuth.instance.signOut();
   Navigator.pushNamedAndRemoveUntil(
       navigatorKey.currentContext!, PhoneVerification.path, (route) => false);
