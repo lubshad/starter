@@ -5,7 +5,7 @@ import 'package:get/utils.dart';
 
 import '../constants.dart';
 
-TextStyle baseStyle  = const TextStyle(
+TextStyle baseStyle = const TextStyle(
   fontSize: 16,
   fontWeight: FontWeight.w400,
   color: Colors.black,
@@ -18,6 +18,15 @@ final hintStyle = baseStyle.copyWith(
 );
 
 ThemeData get themeData => ThemeData(
+    bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(
+              paddingXL,
+            ),
+          ),
+        )),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         minimumSize: const Size(200, 54),
