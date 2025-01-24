@@ -27,7 +27,8 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    logSuccess('<-- ${response.statusCode} ${response.requestOptions.uri}');
+    logSuccess(
+        '<-- ${response.requestOptions.method} ${response.statusCode} ${response.requestOptions.uri}');
     logSuccess('Headers:');
     response.headers.forEach((key, value) => logSuccess('$key: $value'));
     logSuccess('Response Data:');
