@@ -1,9 +1,8 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
-import 'package:starter/constants.dart';
-import 'package:starter/extensions.dart';
 
 import '../../core/repository.dart';
+import '../../exporter.dart';
 import '../../mixins/form_validator_mixin.dart';
 import '../../mixins/mobile_and_phone_mixin.dart';
 import '../../mixins/name_mixin.dart';

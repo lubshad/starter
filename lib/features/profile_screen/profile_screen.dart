@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:starter/features/navigation/models/screens.dart';
 
 import '../../core/app_config.dart';
 import '../../core/repository.dart';
@@ -11,6 +10,7 @@ import '../../services/shared_preferences_services.dart';
 import '../../widgets/common_sheet.dart';
 import '../../widgets/loading_button.dart';
 import '../authentication/phone_auth/phone_auth_screen.dart';
+import '../navigation/models/screens.dart';
 import '../navigation/navigation_screen.dart';
 import '../web_view/web_view_screen.dart';
 import 'common_controller.dart';
