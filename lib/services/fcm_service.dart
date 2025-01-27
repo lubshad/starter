@@ -1,8 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:starter/features/navigation/models/screens.dart';
-import 'package:starter/features/navigation/navigation_screen.dart';
 
 import '../exporter.dart';
+import '../features/navigation/models/screens.dart';
+import '../features/navigation/navigation_screen.dart';
 import '../mixins/event_listener.dart';
 import 'snackbar_utils.dart';
 

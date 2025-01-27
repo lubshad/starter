@@ -9,7 +9,6 @@ import '../../../services/file_picker_service.dart';
 import '../widgets/upload_image_widget.dart';
 import '../widgets/user_avatar.dart';
 
-
 mixin UserImageMixin<T extends StatefulWidget> on State<T> {
   File? selectedProfileImage;
   File? selectedCoverImage;
@@ -18,10 +17,10 @@ mixin UserImageMixin<T extends StatefulWidget> on State<T> {
   String? coverImageNetwork;
 
   void showImagePicker({required String image, VoidCallback? onChanged}) async {
-    final result = await FilePickerService().pickImage(
+    final result = await FilePickerService.pickImage(
       aspectRatio: image == "cover"
-          ? const CropAspectRatio(ratioX: 2, ratioY: 1)
-          : const CropAspectRatio(ratioX: 1, ratioY: 1),
+          ? [CropAspectRatioPreset.ratio4x3]
+          : [CropAspectRatioPreset.square],
     );
     if (result == null) return;
     setState(() {
@@ -75,7 +74,7 @@ mixin UserImageMixin<T extends StatefulWidget> on State<T> {
                     Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withValues( alpha:  .3),
+                        color: Colors.white.withValues(alpha: .3),
                       ),
                       padding: const EdgeInsets.all(paddingLarge),
                       child: const Icon(
