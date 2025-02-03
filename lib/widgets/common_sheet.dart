@@ -4,6 +4,7 @@ import 'package:get/utils.dart';
 // import 'package:printer_utils/models/printer_model.dart';
 
 import '../exporter.dart';
+import 'loading_button.dart';
 
 class CommonBottomSheet extends StatelessWidget {
   const CommonBottomSheet({
@@ -107,3 +108,35 @@ class CommonBottomSheet extends StatelessWidget {
     );
   }
 }
+
+
+class ConfirmationSheet extends StatelessWidget {
+  const ConfirmationSheet({
+    super.key,
+    required this.buttonText, 
+    required this.text, 
+  });
+
+  final String text;
+  final String buttonText;
+
+
+  @override
+  Widget build(BuildContext context) {
+    return CommonBottomSheet(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(text),
+          gapLarge,
+          LoadingButton(
+            buttonLoading: false,
+            text: buttonText,
+            onPressed: () => Navigator.pop(context, true),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
