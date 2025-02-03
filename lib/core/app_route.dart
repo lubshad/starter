@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../features/authentication/landing_screen/landing_screen.dart';
 import '../features/authentication/phone_auth/phone_auth_screen.dart';
+import '../features/authentication/social_authentication/otp_validation_screen.dart';
 import '../features/authentication/social_authentication/social_authentication_screen.dart';
 import '../features/home_screen/home_screen.dart';
 import '../features/navigation/navigation_screen.dart';
@@ -48,6 +49,14 @@ class AppRoute {
         break;
       case NavigationScreen.path:
         screen = const NavigationScreen();
+        break;
+      case OTPScreen.path:
+        Map data = settings.arguments as Map;
+        screen = OTPScreen(
+          domainUrl: data["domain_url"],
+          username: data["username"],
+          password: data["password"],
+        );
         break;
       default:
         return null;
