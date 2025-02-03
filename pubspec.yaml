@@ -76,6 +76,7 @@ dependencies:
   fluttertoast: ^8.2.5
   dio_cookie_manager: ^3.1.1
   auto_size_text: ^3.0.0
+  connectivity_plus: ^6.1.2
 
 dev_dependencies:
   flutter_test:
