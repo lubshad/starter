@@ -1,4 +1,3 @@
-// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 
 import '../../core/repository.dart';
@@ -37,7 +36,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen>
   Widget build(BuildContext context) {
     return PopScope(
       canPop: true,
-      onPopInvoked: onFormPopInvoked,
+      onPopInvokedWithResult: onFormPopInvoked,
       child: Scaffold(
         appBar: AppBar(title: Text("Update Profile")),
         bottomNavigationBar: BottomButtonPadding(

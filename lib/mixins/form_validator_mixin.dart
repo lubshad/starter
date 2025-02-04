@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 
 import '../exporter.dart';
+import '../main.dart';
 import '../widgets/common_sheet.dart';
 import '../widgets/loading_button.dart';
 
@@ -36,17 +37,22 @@ mixin FormValidatorMixin<T extends StatefulWidget> on State<T> {
         ],
       ));
 
-  onFormPopInvoked(didPop) async {
+  onFormPopInvoked(didPop, result) async {
     if (didPop) return;
     if (dataChanged) {
       final result = await showModalBottomSheet(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (context) => discardBottomSheet(context),
       );
       if (result == null) return;
-      Navigator.maybePop(context);
+      if (!mounted) return;
+      Navigator.pop(context);
     } else {
-      Navigator.maybePop(context);
+      if (!mounted) return;
+      Navigator.pop(
+        context,
+        true,
+      );
     }
   }
 
