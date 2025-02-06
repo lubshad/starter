@@ -47,9 +47,6 @@ mainCommon() async {
       FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
     }
   }
-
-  // notification setup
-  FCMService.setupNotification();
 }
 
 class MyApp extends StatefulWidget {
