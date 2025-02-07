@@ -74,6 +74,7 @@ class _MyAppState extends State<MyApp> {
     return Sizer(builder:
         (BuildContext context, Orientation orientation, DeviceType deviceType) {
       return MaterialApp(
+      
         localizationsDelegates: const [
           CountryLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,

@@ -56,19 +56,19 @@ class _LandingPageState extends State<LandingPage> {
               LandingScreenItem(
                 description:
                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt dolore magna aliqua",
-                title: "Welcome to Keen Learning",
+                title: "Welcome to App",
                 image: Assets.svgs.landingOne,
               ),
               LandingScreenItem(
                 description:
                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt dolore magna aliqua",
-                title: "Welcome to Keen Learning",
+                title: "Welcome to App",
                 image: Assets.svgs.landingTwo,
               ),
               LandingScreenItem(
                 description:
                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt dolore magna aliqua",
-                title: "Welcome to Keen Learning",
+                title: "Welcome to App",
                 image: Assets.svgs.landingThree,
               ),
             ],
