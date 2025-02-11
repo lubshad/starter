@@ -9,6 +9,16 @@
 
 import 'package:flutter/widgets.dart';
 
+class $AssetsHtmlGen {
+  const $AssetsHtmlGen();
+
+  /// File path: assets/html/vimeo_player.html
+  String get vimeoPlayer => 'assets/html/vimeo_player.html';
+
+  /// List of all assets
+  List<String> get values => [vimeoPlayer];
+}
+
 class $AssetsLottiesGen {
   const $AssetsLottiesGen();
 
@@ -123,6 +133,7 @@ class $AssetsSvgsGen {
 class Assets {
   Assets._();
 
+  static const $AssetsHtmlGen html = $AssetsHtmlGen();
   static const $AssetsLottiesGen lotties = $AssetsLottiesGen();
   static const $AssetsPngsGen pngs = $AssetsPngsGen();
   static const $AssetsSvgsGen svgs = $AssetsSvgsGen();

@@ -5,16 +5,14 @@ import 'package:flutter/material.dart';
 
 class Event {
   final EventType eventType;
-  final int? id;
-  final String? slug;
+  final dynamic data;
   Event({
     required this.eventType,
-    this.id,
-    this.slug,
+    this.data, 
   });
 }
 
-enum EventType { tagUpdate, updateState, notification }
+enum EventType { tagUpdate, updateState, notification, changeVideo, videoEnd }
 
 class EventListener {
   EventListener._private();
