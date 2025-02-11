@@ -14,8 +14,6 @@ class VimeoVideoModel {
   VimeoVideoModel({
     required this.vimeoId,
   });
-  
-
 }
 
 class VimeoPlayer extends StatefulWidget {
@@ -121,10 +119,13 @@ class _VimeoPlayerState extends State<VimeoPlayer> with EventListenerMixin {
         SystemChrome.setPreferredOrientations([
           DeviceOrientation.landscapeLeft,
         ]);
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
       } else {
         SystemChrome.setPreferredOrientations([
           DeviceOrientation.portraitUp,
         ]);
+        SystemChrome.restoreSystemUIOverlays();
+
       }
     }
   }
