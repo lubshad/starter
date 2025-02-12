@@ -48,7 +48,11 @@
         var player = new Vimeo.Player(iframe);
 
 
-        function sendtoFlutter(data) {
+        function sendtoFlutter(data, extraData = {}) {
+            if (typeof data === 'object' && data !== null && typeof extraData === 'object') {
+                data = { ...data, ...extraData }; // Merge extraData into data
+            }
+
             if (window.FlutterChannel) {
                 FlutterChannel.postMessage(JSON.stringify(data));
             }
@@ -56,6 +60,8 @@
 
         player.on("timeupdate", sendtoFlutter);
         player.on('fullscreenchange', sendtoFlutter);
+        player.on('pause', (data) => sendtoFlutter(data, { "play": false }));
+        player.on('play', (data) => sendtoFlutter(data, { "play": true }));
     </script>
 
 </body>

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:screen_protector/screen_protector.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../exporter.dart';
 import '../main_local.dart';
@@ -78,6 +79,11 @@ class _VimeoPlayerState extends State<VimeoPlayer> with EventListenerMixin {
         setState(() {});
       },
     );
+
+    //Screen Recorder For Ios
+    if (Platform.isIOS) {
+      ScreenProtector.addListener(screenshotListener, screenRecordListener);
+    }
   }
 
   @override
@@ -103,9 +109,16 @@ class _VimeoPlayerState extends State<VimeoPlayer> with EventListenerMixin {
     );
   }
 
-  void onMessageReceived(JavaScriptMessage p1) {
+  void onMessageReceived(JavaScriptMessage p1) async {
     final data = jsonDecode(p1.message);
     logInfo(data);
+
+        // screen recording for android
+    if (data["play"] == true && Platform.isAndroid) {
+      await ScreenProtector.preventScreenshotOn();
+    } else if (data["play"] == false && Platform.isAndroid) {
+      await ScreenProtector.preventScreenshotOff();
+    }
     if (data["percent"] == 1) {
       //video end
       EventListener.i.sendEvent(Event(eventType: EventType.videoEnd));
@@ -125,7 +138,6 @@ class _VimeoPlayerState extends State<VimeoPlayer> with EventListenerMixin {
           DeviceOrientation.portraitUp,
         ]);
         SystemChrome.restoreSystemUIOverlays();
-
       }
     }
   }
@@ -145,5 +157,13 @@ class _VimeoPlayerState extends State<VimeoPlayer> with EventListenerMixin {
     //     lastpercentage = percentage;
     //   },
     // );
+  }
+
+  void screenshotListener() {}
+
+  void screenRecordListener(bool recording) {
+    if (recording) {
+      controller.runJavaScript("player.pause();");
+    }
   }
 }
