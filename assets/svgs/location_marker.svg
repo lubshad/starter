@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <!-- Background circle -->
+    <circle cx="100" cy="100" r="95" fill="#f5f7fa"/>
+    
+    <!-- Map background elements -->
+    <path d="M40 120 L90 80 L140 110 L160 90" stroke="#e2eaf0" stroke-width="12" fill="none"/>
+    <path d="M50 90 L100 60 L150 85" stroke="#a8e6cf" stroke-width="10" fill="none"/>
+    <path d="M70 140 L120 100 L170 120" stroke="#fff9c4" stroke-width="8" fill="none"/>
+    
+    <!-- Location marker -->
+    <g transform="translate(85, 75)">
+      <path d="M15,0 C6.716,0 0,6.716 0,15 C0,23.284 15,40 15,40 C15,40 30,23.284 30,15 C30,6.716 23.284,0 15,0 Z" fill="#ff6b6b"/>
+      <circle cx="15" cy="15" r="5" fill="white"/>
+    </g>
+  </svg>

@@ -12,7 +12,7 @@ class Event {
   });
 }
 
-enum EventType { tagUpdate, updateState, notification, changeVideo, videoEnd }
+enum EventType { tagUpdate, updateState, notification, changeVideo, videoEnd , resumed}
 
 class EventListener {
   EventListener._private();

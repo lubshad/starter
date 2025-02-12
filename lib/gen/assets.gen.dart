@@ -91,6 +91,9 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/landing two.svg
   String get landingTwo => 'assets/svgs/landing two.svg';
 
+  /// File path: assets/svgs/location_marker.svg
+  String get locationMarker => 'assets/svgs/location_marker.svg';
+
   /// File path: assets/svgs/lock_outline.svg
   String get lockOutline => 'assets/svgs/lock_outline.svg';
 
@@ -120,6 +123,7 @@ class $AssetsSvgsGen {
         landingOne,
         landingThree,
         landingTwo,
+        locationMarker,
         lockOutline,
         loginGraphics,
         otpBackground,
