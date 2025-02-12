@@ -113,10 +113,14 @@ class _VimeoPlayerState extends State<VimeoPlayer> with EventListenerMixin {
     final data = jsonDecode(p1.message);
     logInfo(data);
 
-        // screen recording for android
-    if (data["play"] == true && Platform.isAndroid) {
+    // screen recording for android
+    if (data["play"] == true) {
       await ScreenProtector.preventScreenshotOn();
-    } else if (data["play"] == false && Platform.isAndroid) {
+      if (Platform.isAndroid) return;
+      final recording = await ScreenProtector.isRecording();
+      if (!recording) return;
+      controller.runJavaScript("player.pause();");
+    } else if (data["play"] == false) {
       await ScreenProtector.preventScreenshotOff();
     }
     if (data["percent"] == 1) {
