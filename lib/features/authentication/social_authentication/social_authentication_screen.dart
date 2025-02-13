@@ -165,7 +165,7 @@ class LoginBackground extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "For your customers.\nCRM made easy.",
+              "Your app description here.",
               style: context.labelLarge.copyWith(
                 color: Colors.white,
               ),
