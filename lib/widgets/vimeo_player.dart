@@ -135,13 +135,19 @@ class _VimeoPlayerState extends State<VimeoPlayer> with EventListenerMixin {
       if (data["fullscreen"] == true) {
         SystemChrome.setPreferredOrientations([
           DeviceOrientation.landscapeLeft,
-        ]);
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+        ]).then(
+          (value) {
+            SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+          },
+        );
       } else {
         SystemChrome.setPreferredOrientations([
           DeviceOrientation.portraitUp,
-        ]);
-        SystemChrome.restoreSystemUIOverlays();
+        ]).then(
+          (value) {
+            SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+          },
+        );
       }
     }
   }
