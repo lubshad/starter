@@ -65,7 +65,15 @@ class AppRoute {
   }
 }
 
-MaterialPageRoute<T> pageRoute<T>(RouteSettings settings, Widget screen) {
+Route<T> pageRoute<T>(RouteSettings settings, Widget screen,
+    {bool animate = true}) {
+  if (!animate) {
+    return PageRouteBuilder(
+      settings: settings,
+      opaque: true,
+      pageBuilder: (context, animation, secondaryAnimation) => screen,
+    );
+  }
   return MaterialPageRoute(
     settings: settings,
     builder: (context) => screen,
