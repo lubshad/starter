@@ -182,23 +182,12 @@ class LocationService extends ChangeNotifier {
 
   // bool checkWithinRadius(GeoRestriction geoRestriction) {
   //   if (position == null) return false;
-  //   const double earthRadius = 6371000; // Radius of the Earth in meters
-
-  //   // Convert latitude and longitude from degrees to radians
-  //   double lat1 = geoRestriction.latitude * pi / 180;
-  //   double lon1 = geoRestriction.longitude * pi / 180;
-  //   double lat2 = position!.latitude * pi / 180;
-  //   double lon2 = position!.longitude * pi / 180;
-
-  //   // Haversine formula
-  //   double dLat = lat2 - lat1;
-  //   double dLon = lon2 - lon1;
-
-  //   double a = sin(dLat / 2) * sin(dLat / 2) +
-  //       cos(lat1) * cos(lat2) * sin(dLon / 2) * sin(dLon / 2);
-  //   double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-
-  //   double distance = earthRadius * c; // Distance in meters
+  // double distance = Geolocator.distanceBetween(
+  //   geoRestriction.latitude,
+  //   geoRestriction.longitude,
+  //   position!.latitude,
+  //   position!.longitude,
+  // );
 
   //   // Check if the distance is within the radius
   //   final isWithin = distance <= geoRestriction.radius;
