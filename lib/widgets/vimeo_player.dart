@@ -1,14 +1,17 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, use_build_context_synchronously
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:screen_protector/screen_protector.dart';
+import 'package:starter/widgets/loading_button.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../exporter.dart';
 import '../main_local.dart';
 import '../mixins/event_listener.dart';
+import 'common_sheet.dart';
 
 class VimeoVideoModel {
   final String vimeoId;
@@ -149,6 +152,35 @@ class _VimeoPlayerState extends State<VimeoPlayer> with EventListenerMixin {
           },
         );
       }
+    } else if (data["supported"] == false) {
+      final response = await showDialog(
+        context: context,
+        builder: (context) => CommonBottomSheet(
+            title: "Video Player Outdated!",
+            child: Column(
+              children: [
+                Text('Please update "Android System  Webview" application'),
+                gapLarge,
+                LoadingButton(
+                    buttonLoading: false,
+                    text: "Update",
+                    onPressed: () => Navigator.pop(
+                          context,
+                          true,
+                        )),
+              ],
+            )),
+      );
+      logError(response);
+      if (response == null) return;
+      await launchUrl(Uri.parse(
+              "https://play.google.com/store/apps/details?id=com.google.android.webview&hl=en_IN"))
+          .onError(
+        (error, stackTrace) {
+          logError(error);
+          return Future.error(error!);
+        },
+      );
     }
   }
 
