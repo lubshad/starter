@@ -22,7 +22,9 @@ bool validateStatus(int? status) {
 class DataRepository with ErrorExceptionHandler {
   final Dio _client = Dio(BaseOptions(
       validateStatus: validateStatus,
-      baseUrl: appConfig.baseUrl,
+      baseUrl: SharedPreferencesService.i.domainUrl == ""
+          ? appConfig.baseUrl
+          : SharedPreferencesService.i.domainUrl + appConfig.slugUrl,
       receiveDataWhenStatusError: true,
       contentType: "application/json"));
 
