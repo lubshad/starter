@@ -67,7 +67,7 @@ class LocationService extends ChangeNotifier {
         distanceFilter: 10,
         forceLocationManager: true,
         intervalDuration: const Duration(seconds: 10),
-        timeLimit: Duration(seconds: 10),
+
         //(Optional) Set foreground notification config to keep the app alive
         //when going to the background
         foregroundNotificationConfig: const ForegroundNotificationConfig(
@@ -82,7 +82,6 @@ class LocationService extends ChangeNotifier {
     } else if (defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.macOS) {
       locationSettings = AppleSettings(
-        timeLimit: Duration(seconds: 10),
         accuracy: LocationAccuracy.high,
         activityType: ActivityType.otherNavigation,
         distanceFilter: 10,
@@ -92,14 +91,12 @@ class LocationService extends ChangeNotifier {
       );
     } else if (kIsWeb) {
       locationSettings = WebSettings(
-        timeLimit: Duration(seconds: 10),
         accuracy: LocationAccuracy.high,
         distanceFilter: 10,
         maximumAge: const Duration(seconds: 10),
       );
     } else {
       locationSettings = const LocationSettings(
-        timeLimit: Duration(seconds: 10),
         accuracy: LocationAccuracy.high,
         distanceFilter: 10,
       );
