@@ -1,3 +1,5 @@
+import 'package:get/utils.dart';
+
 import '../main_local.dart';
 
 late final AppConfig appConfig;
@@ -16,6 +18,11 @@ enum ENV {
       case ENV.prod:
         return AppConfigLocal();
     }
+  }
+
+  static ENV fromValue(value) {
+    return ENV.values.firstWhereOrNull((element) => element.index == value) ??
+        ENV.local;
   }
 }
 
