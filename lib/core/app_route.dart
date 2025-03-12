@@ -123,12 +123,12 @@ Future<T?> navigate<T extends Object?>(
   final currentRoute = ModalRoute.of(context)?.settings.name;
   if (routeName == currentRoute && !duplicate) return null;
   if (replace) {
-    return Navigator.of(context).pushNamedAndRemoveUntil<T>(
+    return await Navigator.of(context).pushNamedAndRemoveUntil<T>(
       routeName,
       (route) => false,
       arguments: arguments,
     );
   } else {
-    return Navigator.of(context).pushNamed<T>(routeName, arguments: arguments);
+    return await Navigator.of(context).pushNamed<T>(routeName, arguments: arguments);
   }
 }
