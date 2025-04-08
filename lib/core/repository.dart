@@ -111,4 +111,6 @@ class DataRepository with ErrorExceptionHandler {
       throw handleError(e);
     }
   }
+
+  serverTime() {}
 }

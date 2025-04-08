@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 const String _token = "token";
 const String domainKey = "domain";
 const String defaultCompanyKey = "defaultCompany";
+const String serverTimeDifferenceKey = "server_time_diff_key";
 
 class SharedPreferencesService {
   String get domainUrl => getValue(key: domainKey);
