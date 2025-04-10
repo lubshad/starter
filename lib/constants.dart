@@ -113,6 +113,15 @@ const buttonGradient = LinearGradient(colors: [
 
 const dividerColor = Color(0xffEBEBEB);
 
+BoxDecoration messageBorder = BoxDecoration(
+  color: Colors.white,
+  border: Border.all(
+    color: const Color(0xffEBEBEB),
+  ),
+  borderRadius: BorderRadius.circular(
+    paddingSmall,
+  ),
+);
 
 const List<BoxShadow> defaultShadow = [
   BoxShadow(

@@ -62,12 +62,16 @@ class $AssetsLottiesGen {
 class $AssetsPngsGen {
   const $AssetsPngsGen();
 
+  /// File path: assets/pngs/broken-image.png
+  AssetGenImage get brokenImage =>
+      const AssetGenImage('assets/pngs/broken-image.png');
+
   /// File path: assets/pngs/dummy_profile.jpeg
   AssetGenImage get dummyProfile =>
       const AssetGenImage('assets/pngs/dummy_profile.jpeg');
 
   /// List of all assets
-  List<AssetGenImage> get values => [dummyProfile];
+  List<AssetGenImage> get values => [brokenImage, dummyProfile];
 }
 
 class $AssetsSvgsGen {
@@ -78,6 +82,9 @@ class $AssetsSvgsGen {
 
   /// File path: assets/svgs/domain_globe.svg
   String get domainGlobe => 'assets/svgs/domain_globe.svg';
+
+  /// File path: assets/svgs/excel_icon.svg
+  String get excelIcon => 'assets/svgs/excel_icon.svg';
 
   /// File path: assets/svgs/icons8-google.svg
   String get icons8Google => 'assets/svgs/icons8-google.svg';
@@ -103,6 +110,9 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/otp_background.svg
   String get otpBackground => 'assets/svgs/otp_background.svg';
 
+  /// File path: assets/svgs/pdf_icon.svg
+  String get pdfIcon => 'assets/svgs/pdf_icon.svg';
+
   /// File path: assets/svgs/person_outline.svg
   String get personOutline => 'assets/svgs/person_outline.svg';
 
@@ -115,10 +125,17 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/study.svg
   String get study => 'assets/svgs/study.svg';
 
+  /// File path: assets/svgs/word_icon.svg
+  String get wordIcon => 'assets/svgs/word_icon.svg';
+
+  /// File path: assets/svgs/zip_icon.svg
+  String get zipIcon => 'assets/svgs/zip_icon.svg';
+
   /// List of all assets
   List<String> get values => [
         arrowRight,
         domainGlobe,
+        excelIcon,
         icons8Google,
         landingOne,
         landingThree,
@@ -127,10 +144,13 @@ class $AssetsSvgsGen {
         lockOutline,
         loginGraphics,
         otpBackground,
+        pdfIcon,
         personOutline,
         retry,
         serverdown,
-        study
+        study,
+        wordIcon,
+        zipIcon
       ];
 }
 

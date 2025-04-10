@@ -83,6 +83,7 @@ dependencies:
   flutter_activity_recognition: ^4.0.0
   flutter_foreground_task: ^8.17.0 
   battery_plus: ^6.2.1
+  open_filex: ^4.7.0
 
 dev_dependencies:
   flutter_test:
