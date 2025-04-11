@@ -17,7 +17,7 @@ mixin UserImageMixin<T extends StatefulWidget> on State<T> {
   String? coverImageNetwork;
 
   void showImagePicker({required String image, VoidCallback? onChanged}) async {
-    final result = await FilePickerService.pickImage(
+    final result = await FilePickerService.pickFileOrImage(
       aspectRatio: image == "cover"
           ? [CropAspectRatioPreset.ratio4x3]
           : [CropAspectRatioPreset.square],

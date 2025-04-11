@@ -62,7 +62,7 @@ class FilePickerService {
 
   static ImagePicker cameraPicker = ImagePicker();
 
-  static Future<File?> pickImage({
+  static Future<File?> pickFileOrImage({
     double? width,
     double? height,
     List<CropAspectRatioPreset>? aspectRatio,
@@ -163,7 +163,7 @@ class ImageSourceBottomSheet extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 "Take Picture",
-                                style: context.labelLarge
+                                style: context.bodyLarge
                                     .copyWith(color: const Color(0xff007AFF)),
                               ),
                             ),
@@ -183,7 +183,7 @@ class ImageSourceBottomSheet extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 "Choose from Gallery",
-                                style: context.labelLarge
+                                style: context.bodyLarge
                                     .copyWith(color: const Color(0xff007AFF)),
                               ),
                             ),
@@ -203,7 +203,7 @@ class ImageSourceBottomSheet extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 "Choose from Files",
-                                style: context.labelLarge
+                                style: context.bodyLarge
                                     .copyWith(color: const Color(0xff007AFF)),
                               ),
                             ),
@@ -233,7 +233,7 @@ class ImageSourceBottomSheet extends StatelessWidget {
                           child: Text(
                             textAlign: TextAlign.center,
                             "Cancel",
-                            style: context.labelLarge
+                            style: context.bodyLarge
                                 .copyWith(color: const Color(0xff007AFF)),
                           ),
                         ),
