@@ -8,20 +8,17 @@ import 'package:open_filex/open_filex.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../exporter.dart';
-import '../../../models/name_id.dart';
+import '../mixins/attachment_mixin.dart';
 
 class ImageAttachment extends StatelessWidget {
   const ImageAttachment({
     super.key,
-    required this.remote,
     required this.onDelete,
     required this.image,
   });
 
-  final NameId image;
-
-  final bool remote;
-  final Function(NameId p1) onDelete;
+  final AttachmentModel image;
+  final Function(AttachmentModel p1)? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -34,19 +31,24 @@ class ImageAttachment extends StatelessWidget {
           child: Builder(builder: (context) {
             return OpenContainer(
                 closedBuilder: (context, action) {
-                  if (!remote) {
+                  if (image.type == AttachmentType.file) {
                     return Image.file(
-                      File(image.secondary!),
+                      File(image.data),
                       fit: BoxFit.cover,
                     );
-                  } else {
+                  } else if (image.type == AttachmentType.network) {
                     return CachedNetworkImage(
-                      imageUrl: image.secondary!,
+                      imageUrl: image.data,
                       fit: BoxFit.cover,
                       errorWidget: (context, url, error) =>
                           Assets.pngs.brokenImage.image(
                         fit: BoxFit.cover,
                       ),
+                    );
+                  } else {
+                    return Image.memory(
+                      image.bytes!,
+                      fit: BoxFit.cover,
                     );
                   }
                 },
@@ -60,11 +62,14 @@ class ImageAttachment extends StatelessWidget {
                           automaticallyImplyLeading: false,
                           backgroundColor: Colors.black,
                           actions: [
-                            if (remote)
+                            if (image.type == AttachmentType.network)
                               IconButton(
                                 color: Colors.white,
-                                onPressed: () =>
-                                    launchUrl(Uri.parse(image.secondary)),
+                                onPressed: () => launchUrl(
+                                  Uri.parse(
+                                    image.data,
+                                  ),
+                                ),
                                 icon: const Icon(
                                   Icons.download,
                                 ),
@@ -81,43 +86,59 @@ class ImageAttachment extends StatelessWidget {
                         backgroundColor: Colors.black,
                         body: InteractiveViewer(
                           child: SizedBox(
-                              width: SizeUtils.width,
-                              child: (!remote)
-                                  ? Image.file(
-                                      File(image.secondary!),
-                                      fit: BoxFit.contain,
-                                    )
-                                  : CachedNetworkImage(
-                                      imageUrl: image.secondary!,
-                                      fit: BoxFit.contain,
-                                      errorWidget: (context, url, error) =>
-                                          Assets.pngs.brokenImage.image(
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )),
+                            width: SizeUtils.width,
+                            child: Builder(
+                              builder: (context) {
+                                if (image.type == AttachmentType.file) {
+                                  return Image.file(
+                                    File(image.data),
+                                    fit: BoxFit.contain,
+                                  );
+                                } else if (image.type ==
+                                    AttachmentType.network) {
+                                  return CachedNetworkImage(
+                                    imageUrl: image.data,
+                                    fit: BoxFit.contain,
+                                    errorWidget: (context, url, error) =>
+                                        Assets.pngs.brokenImage.image(
+                                      fit: BoxFit.cover,
+                                    ),
+                                  );
+                                } else {
+                                  return Image.memory(
+                                    image.bytes!,
+                                    fit: BoxFit.contain,
+                                  );
+                                }
+                              },
+                            ),
+                          ),
                         ),
                       ),
                     ));
           }),
         ),
-        Positioned(
-          top: -5,
-          right: -5,
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                customBorder: const OvalBorder(),
-                onTap: () => onDelete(image),
-                child: Container(
-                  padding: const EdgeInsets.all(paddingSmall),
-                  child: const Icon(
-                    Icons.delete_outline_rounded,
-                    size: padding * 1.5,
+        Visibility(
+          visible: onDelete != null,
+          child: Positioned(
+            top: -5,
+            right: -5,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  customBorder: const OvalBorder(),
+                  onTap: () => onDelete!(image),
+                  child: Container(
+                    padding: const EdgeInsets.all(paddingSmall),
+                    child: const Icon(
+                      Icons.delete_outline_rounded,
+                      size: padding * 1.5,
+                    ),
                   ),
                 ),
               ),
@@ -133,13 +154,13 @@ class AttachmentItem extends StatelessWidget {
   const AttachmentItem({
     super.key,
     required this.attachment,
-    this.remote = false,
     required this.onDelete,
+
   });
 
-  final NameId attachment;
-  final bool remote;
-  final Function(NameId) onDelete;
+  final AttachmentModel attachment;
+  final Function(AttachmentModel)? onDelete;
+
 
   @override
   Widget build(BuildContext context) {
@@ -184,16 +205,20 @@ class AttachmentItem extends StatelessWidget {
                     ],
                   ),
                 ),
-                IconButton(
-                  style: const ButtonStyle(
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                  onPressed: () => onDelete(attachment),
-                  icon: const Icon(
-                    Icons.delete_outline,
+                Visibility(
+                  visible: onDelete != null,
+                  child: IconButton(
+                    style: const ButtonStyle(
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                    onPressed: () => onDelete!(attachment),
+                    icon: const Icon(
+                      Icons.delete_outline,
+                    ),
                   ),
                 ),
-                if (remote)
-                  IconButton(
+                Visibility(
+                  visible: attachment.type == AttachmentType.network,
+                  child: IconButton(
                     style: const ButtonStyle(
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                     onPressed: openAttachment,
@@ -201,6 +226,7 @@ class AttachmentItem extends StatelessWidget {
                       Icons.file_download_outlined,
                     ),
                   ),
+                ),
               ],
             ),
           ),
@@ -210,14 +236,14 @@ class AttachmentItem extends StatelessWidget {
   }
 
   void openAttachment() {
-    if (remote) {
+    if (attachment.type == AttachmentType.network) {
       launchUrl(
         Uri.parse(
-          attachment.secondary,
+          attachment.data,
         ),
       );
-    } else {
-      OpenFilex.open(attachment.secondary);
+    } else if (attachment.type == AttachmentType.file) {
+      OpenFilex.open(attachment.data);
     }
   }
 }
@@ -226,21 +252,19 @@ class AttachmentItems extends StatelessWidget {
   const AttachmentItems({
     super.key,
     this.attachments = const [],
-    this.remote = false,
     required this.onDelete,
   });
-  final List<NameId> attachments;
-  final bool remote;
-  final Function(NameId) onDelete;
+  final List<AttachmentModel> attachments;
+  final Function(AttachmentModel)? onDelete;
 
   @override
   Widget build(BuildContext context) {
-    final List<NameId> images = attachments
+    final List<AttachmentModel> images = attachments
         .where(
           (e) => CustomFileType.isImage(e.name),
         )
         .toList();
-    final List<NameId> files = attachments
+    final List<AttachmentModel> files = attachments
         .where(
           (element) => !images.contains(element),
         )
@@ -262,8 +286,7 @@ class AttachmentItems extends StatelessWidget {
             ),
             children: images
                 .map(
-                  (image) => ImageAttachment(
-                      remote: remote, onDelete: onDelete, image: image),
+                  (image) => ImageAttachment(onDelete: onDelete, image: image),
                 )
                 .toList(),
           ),
@@ -277,7 +300,6 @@ class AttachmentItems extends StatelessWidget {
                   key: Key("logattachment${files.indexOf(e)}"),
                   attachment: e,
                   onDelete: onDelete,
-                  remote: remote,
                 ),
               )
               .toList(),
