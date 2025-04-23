@@ -1,9 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/utils.dart';
-
-import '../constants.dart';
+import 'package:starter/exporter.dart';
 
 TextStyle baseStyle = const TextStyle(
   fontSize: 16,
@@ -18,6 +16,20 @@ final hintStyle = baseStyle.copyWith(
 );
 
 ThemeData get themeData => ThemeData(
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: Colors.white,
+      selectedItemColor: primaryColor,
+      unselectedItemColor: const Color(0xff8E8E8E),
+      showUnselectedLabels: true,
+      selectedLabelStyle: baseStyle.copyWith(
+        fontSize: 12.fSize,
+        fontWeight: FontWeight.w500,
+      ),
+      unselectedLabelStyle: baseStyle.copyWith(
+        fontSize: 12.fSize,
+        fontWeight: FontWeight.w400,
+      ),
+    ),
     bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
