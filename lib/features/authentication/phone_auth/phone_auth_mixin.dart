@@ -14,7 +14,7 @@ import '../../../core/universal_argument.dart';
 import '../../../exporter.dart';
 import '../../../services/fcm_service.dart';
 import '../../../services/shared_preferences_services.dart';
-import '../../profile_screen/profile_screen.dart';
+import '../../profile_screen/profile_drawer.dart';
 import '../../splash_screen/splash_screen.dart';
 
 class PhoneAuthApiConstants {

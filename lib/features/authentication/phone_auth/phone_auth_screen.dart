@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pinput/pinput.dart';
 import '../../../exporter.dart';
 import '../../../widgets/loading_button.dart';
-import '../../profile_screen/profile_screen.dart';
+import '../../profile_screen/profile_drawer.dart';
 import 'firebase_phone_auth_mixin.dart';
 
 class PhoneVerification extends StatefulWidget {
