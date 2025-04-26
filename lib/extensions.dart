@@ -127,4 +127,6 @@ extension NumberExtension on num {
       ((this - toInt()) * 60).toInt(),
     );
   }
+
+  String get currency => NumberFormat.currency(symbol: "₹ ").format(this);
 }
