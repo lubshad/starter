@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'core/logger.dart';
@@ -54,6 +55,11 @@ extension DateTimeExtension on DateTime? {
     }
     return DateFormat("E, MMM, d, y").format(this!);
   }
+
+  TimeOfDay get timeofday =>
+      TimeOfDay(hour: this?.hour ?? 0, minute: this?.minute ?? 0);
+
+  num get number => (this?.hour ?? 0) + ((this?.minute ?? 0) / 60);
 }
 
 extension DurationExtension on Duration {
@@ -83,7 +89,6 @@ extension DoubleExtension on double {
   double get mphToKph => this / 36;
 }
 
-
 Future<bool> initializeUTCTime() async {
   await DataRepository.i.serverTime().then(
     (value) async {
@@ -109,5 +114,17 @@ DateTime get serverUtcTime {
   } else {
     return DateTime.now()
         .subtract(Duration(seconds: int.parse(serverTimeDifferenceString)));
+  }
+}
+
+extension NumberExtension on num {
+  DateTime get dateTime {
+    return DateTime(
+      2000,
+      1,
+      1,
+      toInt(),
+      ((this - toInt()) * 60).toInt(),
+    );
   }
 }
