@@ -2,6 +2,53 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+import '../exporter.dart';
+
+enum CustomExceptionType {
+  cannotReachServer,
+  noNetwork,
+  somethingWentWrong,
+  invalidUrl,
+  internalServerError;
+
+  @override
+  String toString() {
+    return text;
+  }
+
+  String get text {
+    switch (this) {
+      case CustomExceptionType.cannotReachServer:
+        return "Server cannot be reached!";
+      case CustomExceptionType.noNetwork:
+        return "Please check your network connection!";
+      case CustomExceptionType.somethingWentWrong:
+        return "Something went wrong!";
+      case CustomExceptionType.invalidUrl:
+        return "Please enter a valid url";
+      case CustomExceptionType.internalServerError:
+        return "Internal server error!";
+    }
+  }
+
+  Widget get showErrorWidget {
+    switch (this) {
+      case CustomExceptionType.cannotReachServer:
+        return SvgPicture.asset(Assets.svgs.serverError);
+      case CustomExceptionType.noNetwork:
+        return SvgPicture.asset(Assets.svgs.noNetwork);
+      case CustomExceptionType.somethingWentWrong:
+        return SvgPicture.asset(Assets.svgs.somethingWrong);
+      case CustomExceptionType.invalidUrl:
+        return SvgPicture.asset(Assets.svgs.invalidUrl);
+      case CustomExceptionType.internalServerError:
+        return SvgPicture.asset(Assets.svgs.internalError);
+    }
+  }
+}
 
 class CustomException implements Exception {
   final dynamic message;
@@ -12,36 +59,32 @@ class CustomException implements Exception {
   });
   @override
   String toString() {
-    return message;
+    return message.toString();
   }
 }
 
-const cannotReachServer = "Server cannot be reached!";
-const noNetwork = "Please check your network connection!";
-const somethingWentWrong = "Something went wrong!";
-const invalidUrl = "Please enter a valid url!";
 mixin ErrorExceptionHandler {
   handleError(exception) {
     switch (exception.runtimeType) {
       case const (DioException):
-        String message = somethingWentWrong;
+        dynamic message = CustomExceptionType.somethingWentWrong;
         final dioException = exception as DioException;
         switch (dioException.type) {
           case DioExceptionType.connectionError:
             if (dioException.error is SocketException) {
               if ([61, 64, 8].contains(
                   (dioException.error as SocketException).osError?.errorCode)) {
-                message = cannotReachServer;
+                message = CustomExceptionType.cannotReachServer;
               } else if ([101].contains(
                   (dioException.error as SocketException).osError?.errorCode)) {
-                message = noNetwork;
+                message = CustomExceptionType.noNetwork;
               }
             }
 
             exception = CustomException(message);
             break;
           case DioExceptionType.connectionTimeout:
-            message = cannotReachServer;
+            message = CustomExceptionType.somethingWentWrong;
             exception = CustomException(message);
             break;
           case DioExceptionType.sendTimeout:
@@ -57,10 +100,12 @@ mixin ErrorExceptionHandler {
             break;
           case DioExceptionType.badResponse:
             var data = dioException.response?.data;
-            if (data is Map) {
+            if (dioException.response?.statusCode == 500) {
+              message = CustomExceptionType.invalidUrl;
+            } else if (data is Map) {
               message = data["message"] ?? data["error"]["message"] ?? "";
             } else {
-              message = invalidUrl;
+              message = CustomExceptionType.internalServerError;
             }
             exception = CustomException(
               statusCode: dioException.response?.statusCode,

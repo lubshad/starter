@@ -89,6 +89,12 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/icons8-google.svg
   String get icons8Google => 'assets/svgs/icons8-google.svg';
 
+  /// File path: assets/svgs/internal-error.svg
+  String get internalError => 'assets/svgs/internal-error.svg';
+
+  /// File path: assets/svgs/invalid-url.svg
+  String get invalidUrl => 'assets/svgs/invalid-url.svg';
+
   /// File path: assets/svgs/landing one.svg
   String get landingOne => 'assets/svgs/landing one.svg';
 
@@ -107,6 +113,9 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/login_graphics.svg
   String get loginGraphics => 'assets/svgs/login_graphics.svg';
 
+  /// File path: assets/svgs/no-network.svg
+  String get noNetwork => 'assets/svgs/no-network.svg';
+
   /// File path: assets/svgs/otp_background.svg
   String get otpBackground => 'assets/svgs/otp_background.svg';
 
@@ -119,8 +128,14 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/retry.svg
   String get retry => 'assets/svgs/retry.svg';
 
+  /// File path: assets/svgs/server-error.svg
+  String get serverError => 'assets/svgs/server-error.svg';
+
   /// File path: assets/svgs/serverdown.svg
   String get serverdown => 'assets/svgs/serverdown.svg';
+
+  /// File path: assets/svgs/something-wrong.svg
+  String get somethingWrong => 'assets/svgs/something-wrong.svg';
 
   /// File path: assets/svgs/study.svg
   String get study => 'assets/svgs/study.svg';
@@ -137,17 +152,22 @@ class $AssetsSvgsGen {
         domainGlobe,
         excelIcon,
         icons8Google,
+        internalError,
+        invalidUrl,
         landingOne,
         landingThree,
         landingTwo,
         locationMarker,
         lockOutline,
         loginGraphics,
+        noNetwork,
         otpBackground,
         pdfIcon,
         personOutline,
         retry,
+        serverError,
         serverdown,
+        somethingWrong,
         study,
         wordIcon,
         zipIcon
