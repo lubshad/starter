@@ -87,6 +87,7 @@ extension ResponseExtension on Response {
 
 extension DoubleExtension on double {
   double get mphToKph => this / 36;
+  int get alpha => (this * 255).toInt();
 }
 
 Future<bool> initializeUTCTime() async {
@@ -128,5 +129,5 @@ extension NumberExtension on num {
     );
   }
 
-  String get currency => NumberFormat.currency(symbol: "₹ ").format(this);
+  String get currency => NumberFormat.currency(symbol: "SR ").format(this);
 }
