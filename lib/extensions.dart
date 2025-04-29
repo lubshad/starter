@@ -130,4 +130,6 @@ extension NumberExtension on num {
   }
 
   String get currency => NumberFormat.currency(symbol: "SR ").format(this);
+  String get symbol => isNegative ? "-" : "+";
+
 }
