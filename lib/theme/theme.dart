@@ -15,6 +15,13 @@ final hintStyle = baseStyle.copyWith(
   color: const Color(0xff868686),
 );
 
+TabBarThemeData get smallTabbarTheme => TabBarThemeData(
+  tabAlignment: TabAlignment.start,
+  dividerColor: Color(0xffEBEBEB),
+  labelColor: Color(0xff1A2338),
+  unselectedLabelColor: Color(0xff989898),
+);
+
 ThemeData get themeData => ThemeData(
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: Colors.white,

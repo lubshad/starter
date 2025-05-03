@@ -1,6 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
-
+import 'package:starter/features/profile_screen/profile_screen.dart';
 
 import '../../../core/app_route.dart';
 import '../../home_screen/home_screen.dart';
@@ -61,7 +61,7 @@ enum Screens {
       case Screens.settings:
         return HomeScreen.path;
       case Screens.profile:
-        return HomeScreen.path;
+        return ProfileScreen.path;
     }
   }
 
@@ -92,14 +92,16 @@ enum Screens {
         );
       case Screens.settings:
         return Navigator(
-          key: profileNavigationKey,
+          key: settingsNavigationKey,
           onGenerateRoute: AppRoute.onGenerateRoute,
           initialRoute: initialRoute,
         );
 
       case Screens.profile:
-        return const Center(
-          child: Text("Profile"),
+        return Navigator(
+          key: profileNavigationKey,
+          onGenerateRoute: AppRoute.onGenerateRoute,
+          initialRoute: initialRoute,
         );
     }
   }
