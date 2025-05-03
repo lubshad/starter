@@ -61,6 +61,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     Animate.restartOnHotReload = true;
+    Animate.defaultCurve = Curves.fastOutSlowIn;
     observer = FirebaseAnalyticsObserver(analytics: analytics);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setSystemOverlay();
