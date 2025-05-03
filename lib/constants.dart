@@ -7,6 +7,7 @@ delayed({Duration duration = const Duration(seconds: 2)}) async {
 
 const double padding = 8;
 const double paddingLarge = 16;
+const double middlePadding = 25;
 const double paddingXL = 32;
 const double paddingXXL = 64;
 const double paddingSmall = 4;
