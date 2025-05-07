@@ -3,10 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:starter/widgets/loading_button.dart';
 import '../core/error_exception_handler.dart';
 import '../exporter.dart';
 import 'dio_exception_widget.dart';
+import 'loading_button.dart';
 
 class ErrorWidgetWithRetry extends StatelessWidget {
   const ErrorWidgetWithRetry({
