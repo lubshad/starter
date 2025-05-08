@@ -3,24 +3,22 @@ import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 import '../exporter.dart';
-import '../features/navigation/models/screens.dart';
-import '../features/navigation/navigation_screen.dart';
 import '../mixins/event_listener.dart';
-import 'snackbar_utils.dart';
+import 'shared_preferences_services.dart';
 
-final StreamController<NotificationResponse> selectNotificationStream =
+final StreamController<NotificationResponse>
+    onDidReceiveNotificationResponseStream =
     StreamController<NotificationResponse>.broadcast();
 
 const MethodChannel platform =
     MethodChannel('dexterx.dev/flutter_local_notifications_example');
 
 const String portName = 'notification_send_port';
-
-String? selectedNotificationPayload;
 
 /// A notification action which triggers a url launch event
 const String urlLaunchActionId = 'id_1';
@@ -41,11 +39,13 @@ int id = 0;
 
 @pragma('vm:entry-point')
 Future<void> onBackgroundMessage(RemoteMessage message) async {
-  logInfo("Handling a background message: ${message.notification?.toMap()}");
+  // ignore: avoid_print
+  print("Handling a background message: ${message.notification?.toMap()}");
 }
 
 @pragma('vm:entry-point')
-void notificationTapBackground(NotificationResponse notificationResponse) {
+void notificationTapBackground(
+    NotificationResponse notificationResponse) async {
   // ignore: avoid_print
   print('notification(${notificationResponse.id}) action tapped: '
       '${notificationResponse.actionId} with'
@@ -55,6 +55,14 @@ void notificationTapBackground(NotificationResponse notificationResponse) {
     print(
         'notification action tapped with input: ${notificationResponse.input}');
   }
+  final payload = notificationResponse.payload;
+  if (payload == null) return;
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPreferencesService.i.initialize();
+  await SharedPreferencesService.i.setValue(
+    key: notificationDataKey,
+    value: payload,
+  );
 }
 
 class FCMService {
@@ -68,7 +76,7 @@ class FCMService {
 
   requestPermission() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('ic_launcher');
+        AndroidInitializationSettings('@drawable/ic_launcher');
 
     final List<DarwinNotificationCategory> darwinNotificationCategories =
         <DarwinNotificationCategory>[
@@ -114,14 +122,11 @@ class FCMService {
         },
       )
     ];
-
-    /// Note: permissions aren't requested here just to demonstrate that can be
-    /// done later
     final DarwinInitializationSettings initializationSettingsDarwin =
         DarwinInitializationSettings(
-      requestAlertPermission: false,
-      requestBadgePermission: false,
-      requestSoundPermission: false,
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
       notificationCategories: darwinNotificationCategories,
     );
 
@@ -142,7 +147,8 @@ class FCMService {
 
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onDidReceiveNotificationResponse: selectNotificationStream.add,
+      onDidReceiveNotificationResponse:
+          onDidReceiveNotificationResponseStream.add,
       onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
 
@@ -170,24 +176,44 @@ class FCMService {
     await isAndroidPermissionGranted();
   }
 
-  void setupNotification() async {
+  Future<String> setupNotification() async {
     await requestPermission();
-    FirebaseMessaging.onMessage.listen((event) => onMessage(event));
-    FirebaseMessaging.onMessageOpenedApp
-        .listen((event) => onMessageOpenedApp(event));
+    FirebaseMessaging.onMessage.listen(onMessage);
+    FirebaseMessaging.onMessageOpenedApp.listen(onMessageOpenedApp);
     FirebaseMessaging.onBackgroundMessage(onBackgroundMessage);
+    onDidReceiveNotificationResponseStream.stream
+        .listen(onDidReceiveNotificationOpen);
+    return await token ?? "";
   }
 
   static onMessage(RemoteMessage event) {
-    logInfo("Received message: ${event.notification?.toMap()}");
-    logInfo("Received message: ${event.notification?.toMap()}");
-    showSuccessMessage(event.notification?.body);
-    navigationController.value = Screens.home;
+    logInfo(event.toMap());
+    FCMService().showNotification(
+      title: event.notification?.title,
+      body: event.notification?.body,
+      payload: event.data["url"],
+    );
     EventListener.i.sendEvent(Event(eventType: EventType.notification));
   }
 
-  static onMessageOpenedApp(RemoteMessage event) {
-    logInfo("App opened by notification: ${event.notification?.toMap()}");
+  static onMessageOpenedApp(RemoteMessage event) async {
+    // ignore: avoid_print
+    print(event.toMap());
+    if (event.data["url"] == null) return;
+    handleHrefLink(event.data["url"]);
+  }
+
+  static void handleNotificationData() async {
+    String? data =
+        SharedPreferencesService.i.getValue(key: notificationDataKey);
+    if (data.isEmpty) {
+      RemoteMessage? initialMessage =
+          await FirebaseMessaging.instance.getInitialMessage();
+      data = initialMessage?.data["url"];
+    }
+    if (data == null || data.isEmpty) return;
+    await handleHrefLink(data);
+    SharedPreferencesService.i.setValue(key: notificationDataKey, value: "");
   }
 
   Future<void> isAndroidPermissionGranted() async {
@@ -234,11 +260,14 @@ class FCMService {
   Future<void> showNotification(
       {String? title, String? body, dynamic payload}) async {
     const AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails('your channel id', 'your channel name',
-            channelDescription: 'your channel description',
-            importance: Importance.max,
-            priority: Priority.high,
-            ticker: 'ticker');
+        AndroidNotificationDetails(
+      'your channel id',
+      'your channel name',
+      channelDescription: 'your channel description',
+      importance: Importance.max,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
     const NotificationDetails notificationDetails =
         NotificationDetails(android: androidNotificationDetails);
     await flutterLocalNotificationsPlugin.show(
@@ -248,5 +277,51 @@ class FCMService {
       notificationDetails,
       payload: payload,
     );
+  }
+
+  void onDidReceiveNotificationOpen(NotificationResponse event) {
+    if (event.payload == null) return;
+    handleHrefLink(event.payload);
+  }
+
+  static handleHrefLink(link) {
+    logInfo(link);
+    Uri? uri = Uri.tryParse(link);
+    if (uri == null) return;
+    logInfo(uri.path);
+    logInfo(uri.queryParameters);
+    logInfo(uri);
+    // if (uri.queryParameters.containsKey("model")) {
+    //   final id = uri.queryParameters["id"] as int;
+    //   switch (AppModule.fromValue(uri.queryParameters["model"])) {
+    //     case AppModule.employee:
+    //       navigate(navigatorKey.currentContext!, EmployeeListingScreen.path);
+    //     case AppModule.timesheet:
+    //       navigate(navigatorKey.currentContext!, TimesheetListingScreen.path);
+    //     case AppModule.timeoff:
+    //       navigate(navigatorKey.currentContext!, TimeoffDetailsScreen.path,
+    //           arguments: id);
+
+    //     case AppModule.salaryAdvance:
+    //       navigate(navigatorKey.currentContext!, SalaryAdvanceDetails.path,
+    //           arguments: id);
+
+    //     case AppModule.expense:
+    //       navigate(
+    //           navigatorKey.currentContext!, ExpenseReportDetailsScreen.path,
+    //           arguments: id);
+
+    //     case AppModule.pettycashAdvance:
+    //       navigate(navigatorKey.currentContext!, PettyCashAdvanceDetail.path,
+    //           arguments: id);
+
+    //     case AppModule.project:
+    //     case AppModule.task:
+    //     case AppModule.lognote:
+    //     case AppModule.delivery:
+    //       throw UnimplementedError();
+    //   }
+    // }
+    launchUrl(uri);
   }
 }
