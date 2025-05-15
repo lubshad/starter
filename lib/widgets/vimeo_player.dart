@@ -5,13 +5,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:screen_protector/screen_protector.dart';
-import 'package:starter/widgets/loading_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../exporter.dart';
 import '../main_local.dart';
 import '../mixins/event_listener.dart';
 import 'common_sheet.dart';
+import 'loading_button.dart';
 
 class VimeoVideoModel {
   final String vimeoId;

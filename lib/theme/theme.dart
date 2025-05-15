@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:starter/exporter.dart';
+
+import '../exporter.dart';
 
 TextStyle baseStyle = const TextStyle(
   fontSize: 16,

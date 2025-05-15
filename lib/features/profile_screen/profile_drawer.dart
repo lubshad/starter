@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:starter/features/authentication/social_authentication/social_authentication_screen.dart';
 import '../../exporter.dart';
 import '../../main.dart';
 import '../../services/shared_preferences_services.dart';
 import '../../widgets/common_sheet.dart';
 import '../../widgets/profile_list_tile.dart';
 import '../../widgets/user_avatar.dart';
+import '../authentication/social_authentication/social_authentication_screen.dart';
 import '../navigation/models/screens.dart';
 import '../navigation/navigation_screen.dart';
 import 'common_controller.dart';
