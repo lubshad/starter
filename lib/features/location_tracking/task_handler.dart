@@ -54,7 +54,7 @@ Future<bool> sendLocationUpdatesToServer(identifier) async {
 
 class MyTaskHandler extends TaskHandler {
   @override
-  Future<void> onDestroy(DateTime timestamp) async {
+  Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {
     stopActivityStream();
     geofencing.stop();
   }
