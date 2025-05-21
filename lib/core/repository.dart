@@ -112,5 +112,17 @@ class DataRepository with ErrorExceptionHandler {
     }
   }
 
+  Future<Response> updateToken({required String token}) async {
+    try {
+      final response = await _client.put(
+        APIConstants.fcmtoken,
+        data: FormData.fromMap({"fcm_token": token}),
+      );
+      return response;
+    } catch (e) {
+      throw handleError(e);
+    }
+  }
+
   serverTime() {}
 }

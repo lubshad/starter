@@ -7,16 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../core/repository.dart';
 import '../exporter.dart';
 import '../mixins/event_listener.dart';
 import 'shared_preferences_services.dart';
 
 final StreamController<NotificationResponse>
-    onDidReceiveNotificationResponseStream =
+onDidReceiveNotificationResponseStream =
     StreamController<NotificationResponse>.broadcast();
 
-const MethodChannel platform =
-    MethodChannel('dexterx.dev/flutter_local_notifications_example');
+const MethodChannel platform = MethodChannel(
+  'dexterx.dev/flutter_local_notifications_example',
+);
 
 const String portName = 'notification_send_port';
 
@@ -45,15 +47,19 @@ Future<void> onBackgroundMessage(RemoteMessage message) async {
 
 @pragma('vm:entry-point')
 void notificationTapBackground(
-    NotificationResponse notificationResponse) async {
+  NotificationResponse notificationResponse,
+) async {
   // ignore: avoid_print
-  print('notification(${notificationResponse.id}) action tapped: '
-      '${notificationResponse.actionId} with'
-      ' payload: ${notificationResponse.payload}');
+  print(
+    'notification(${notificationResponse.id}) action tapped: '
+    '${notificationResponse.actionId} with'
+    ' payload: ${notificationResponse.payload}',
+  );
   if (notificationResponse.input?.isNotEmpty ?? false) {
     // ignore: avoid_print
     print(
-        'notification action tapped with input: ${notificationResponse.input}');
+      'notification action tapped with input: ${notificationResponse.input}',
+    );
   }
   final payload = notificationResponse.payload;
   if (payload == null) return;
@@ -80,70 +86,70 @@ class FCMService {
 
     final List<DarwinNotificationCategory> darwinNotificationCategories =
         <DarwinNotificationCategory>[
-      DarwinNotificationCategory(
-        darwinNotificationCategoryText,
-        actions: <DarwinNotificationAction>[
-          DarwinNotificationAction.text(
-            'text_1',
-            'Action 1',
-            buttonTitle: 'Send',
-            placeholder: 'Placeholder',
+          DarwinNotificationCategory(
+            darwinNotificationCategoryText,
+            actions: <DarwinNotificationAction>[
+              DarwinNotificationAction.text(
+                'text_1',
+                'Action 1',
+                buttonTitle: 'Send',
+                placeholder: 'Placeholder',
+              ),
+            ],
           ),
-        ],
-      ),
-      DarwinNotificationCategory(
-        darwinNotificationCategoryPlain,
-        actions: <DarwinNotificationAction>[
-          DarwinNotificationAction.plain('id_1', 'Action 1'),
-          DarwinNotificationAction.plain(
-            'id_2',
-            'Action 2 (destructive)',
-            options: <DarwinNotificationActionOption>{
-              DarwinNotificationActionOption.destructive,
+          DarwinNotificationCategory(
+            darwinNotificationCategoryPlain,
+            actions: <DarwinNotificationAction>[
+              DarwinNotificationAction.plain('id_1', 'Action 1'),
+              DarwinNotificationAction.plain(
+                'id_2',
+                'Action 2 (destructive)',
+                options: <DarwinNotificationActionOption>{
+                  DarwinNotificationActionOption.destructive,
+                },
+              ),
+              DarwinNotificationAction.plain(
+                navigationActionId,
+                'Action 3 (foreground)',
+                options: <DarwinNotificationActionOption>{
+                  DarwinNotificationActionOption.foreground,
+                },
+              ),
+              DarwinNotificationAction.plain(
+                'id_4',
+                'Action 4 (auth required)',
+                options: <DarwinNotificationActionOption>{
+                  DarwinNotificationActionOption.authenticationRequired,
+                },
+              ),
+            ],
+            options: <DarwinNotificationCategoryOption>{
+              DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
             },
           ),
-          DarwinNotificationAction.plain(
-            navigationActionId,
-            'Action 3 (foreground)',
-            options: <DarwinNotificationActionOption>{
-              DarwinNotificationActionOption.foreground,
-            },
-          ),
-          DarwinNotificationAction.plain(
-            'id_4',
-            'Action 4 (auth required)',
-            options: <DarwinNotificationActionOption>{
-              DarwinNotificationActionOption.authenticationRequired,
-            },
-          ),
-        ],
-        options: <DarwinNotificationCategoryOption>{
-          DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
-        },
-      )
-    ];
+        ];
     final DarwinInitializationSettings initializationSettingsDarwin =
         DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-      notificationCategories: darwinNotificationCategories,
-    );
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+          notificationCategories: darwinNotificationCategories,
+        );
 
     final LinuxInitializationSettings initializationSettingsLinux =
         LinuxInitializationSettings(
-      defaultActionName: 'Open notification',
-      defaultIcon: AssetsLinuxIcon('icons/app_icon.png'),
-    );
+          defaultActionName: 'Open notification',
+          defaultIcon: AssetsLinuxIcon('icons/app_icon.png'),
+        );
 
     final InitializationSettings initializationSettings =
         InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsDarwin,
-      macOS: initializationSettingsDarwin,
-      linux: initializationSettingsLinux,
-      // windows: windows.initSettings,
-    );
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsDarwin,
+          macOS: initializationSettingsDarwin,
+          linux: initializationSettingsLinux,
+          // windows: windows.initSettings,
+        );
 
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
@@ -160,18 +166,19 @@ class FCMService {
     if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
       logInfo(notificationAppLaunchDetails!.notificationResponse?.payload);
     }
-    NotificationSettings settings =
-        await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      announcement: true,
-      badge: true,
-      carPlay: true,
-      criticalAlert: true,
-      provisional: true,
-      sound: true,
-    );
+    NotificationSettings settings = await FirebaseMessaging.instance
+        .requestPermission(
+          alert: true,
+          announcement: true,
+          badge: true,
+          carPlay: true,
+          criticalAlert: true,
+          provisional: true,
+          sound: true,
+        );
     logInfo(
-        'User granted permission For Firebase: ${settings.authorizationStatus}');
+      'User granted permission For Firebase: ${settings.authorizationStatus}',
+    );
     await requestPermissions();
     await isAndroidPermissionGranted();
   }
@@ -181,8 +188,9 @@ class FCMService {
     FirebaseMessaging.onMessage.listen(onMessage);
     FirebaseMessaging.onMessageOpenedApp.listen(onMessageOpenedApp);
     FirebaseMessaging.onBackgroundMessage(onBackgroundMessage);
-    onDidReceiveNotificationResponseStream.stream
-        .listen(onDidReceiveNotificationOpen);
+    onDidReceiveNotificationResponseStream.stream.listen(
+      onDidReceiveNotificationOpen,
+    );
     return await token ?? "";
   }
 
@@ -204,8 +212,9 @@ class FCMService {
   }
 
   static void handleNotificationData() async {
-    String? data =
-        SharedPreferencesService.i.getValue(key: notificationDataKey);
+    String? data = SharedPreferencesService.i.getValue(
+      key: notificationDataKey,
+    );
     if (data.isEmpty) {
       RemoteMessage? initialMessage =
           await FirebaseMessaging.instance.getInitialMessage();
@@ -218,9 +227,11 @@ class FCMService {
 
   Future<void> isAndroidPermissionGranted() async {
     if (Platform.isAndroid) {
-      final bool granted = await flutterLocalNotificationsPlugin
+      final bool granted =
+          await flutterLocalNotificationsPlugin
               .resolvePlatformSpecificImplementation<
-                  AndroidFlutterLocalNotificationsPlugin>()
+                AndroidFlutterLocalNotificationsPlugin
+              >()
               ?.areNotificationsEnabled() ??
           false;
 
@@ -232,24 +243,20 @@ class FCMService {
     if (Platform.isIOS || Platform.isMacOS) {
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
+            IOSFlutterLocalNotificationsPlugin
+          >()
+          ?.requestPermissions(alert: true, badge: true, sound: true);
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-              MacOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
+            MacOSFlutterLocalNotificationsPlugin
+          >()
+          ?.requestPermissions(alert: true, badge: true, sound: true);
     } else if (Platform.isAndroid) {
       final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
-          flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
+          flutterLocalNotificationsPlugin
+              .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin
+              >();
 
       final bool? grantedNotificationPermission =
           await androidImplementation?.requestNotificationsPermission();
@@ -257,19 +264,23 @@ class FCMService {
     }
   }
 
-  Future<void> showNotification(
-      {String? title, String? body, dynamic payload}) async {
+  Future<void> showNotification({
+    String? title,
+    String? body,
+    dynamic payload,
+  }) async {
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
-      'your channel id',
-      'your channel name',
-      channelDescription: 'your channel description',
-      importance: Importance.max,
-      priority: Priority.high,
-      ticker: 'ticker',
+          'your channel id',
+          'your channel name',
+          channelDescription: 'your channel description',
+          importance: Importance.max,
+          priority: Priority.high,
+          ticker: 'ticker',
+        );
+    const NotificationDetails notificationDetails = NotificationDetails(
+      android: androidNotificationDetails,
     );
-    const NotificationDetails notificationDetails =
-        NotificationDetails(android: androidNotificationDetails);
     await flutterLocalNotificationsPlugin.show(
       id++,
       title,
@@ -323,5 +334,15 @@ class FCMService {
     //   }
     // }
     launchUrl(uri);
+  }
+
+  void initialize() async {
+    await setupNotification().then((value) async {
+      await DataRepository.i.updateToken(token: value);
+      FirebaseMessaging.instance.onTokenRefresh.listen((event) async {
+        await DataRepository.i.updateToken(token: event);
+      });
+      handleNotificationData();
+    });
   }
 }
