@@ -27,6 +27,7 @@ class SharedPreferencesService {
   String get token => _prefs.get(_token) ?? "";
 
   Future<void> initialize() async {
+    if (_prefs.isOpen) return;
     final key = [
       108,
       12,
