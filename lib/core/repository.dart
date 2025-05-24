@@ -3,9 +3,8 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get/utils.dart';
-import 'package:starter/core/universal_argument.dart';
-import 'package:starter/features/notification/models/notification_model.dart';
 import '../features/authentication/phone_auth/phone_auth_mixin.dart';
+import '../features/notification/models/notification_model.dart';
 import '../features/profile_screen/profile_details_model.dart';
 import '../models/name_id.dart';
 import '../services/shared_preferences_services.dart';
@@ -15,6 +14,8 @@ import 'error_exception_handler.dart';
 import 'interceptors.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+
+import 'universal_argument.dart';
 
 bool validateStatus(int? status) {
   List validStatusCodes = [304, 200, 201, 204];
