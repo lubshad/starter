@@ -70,8 +70,13 @@ class $AssetsPngsGen {
   AssetGenImage get dummyProfile =>
       const AssetGenImage('assets/pngs/dummy_profile.jpeg');
 
+  /// File path: assets/pngs/login_background.png
+  AssetGenImage get loginBackground =>
+      const AssetGenImage('assets/pngs/login_background.png');
+
   /// List of all assets
-  List<AssetGenImage> get values => [brokenImage, dummyProfile];
+  List<AssetGenImage> get values =>
+      [brokenImage, dummyProfile, loginBackground];
 }
 
 class $AssetsSvgsGen {

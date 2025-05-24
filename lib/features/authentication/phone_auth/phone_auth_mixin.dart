@@ -121,6 +121,27 @@ mixin PhoneAuthMixin<T extends StatefulWidget> on State<T> {
     return (selectedCountry.dialCode ?? "") + phoneController.text;
   }
 
+  bool tandcChecked = false;
+
+  tougleTandC() {
+    setState(() {
+      tandcChecked = !tandcChecked;
+    });
+  }
+
+  double get containerHeight {
+    if (!pageController.hasClients) {
+      return SizeUtils.width * .9;
+    }
+    return pageController.page?.toInt() == 0
+        ? phoneErrorText != null
+            ? SizeUtils.width * .9
+            : SizeUtils.width * .84
+        : otpErrorText != null
+            ? SizeUtils.width * .86
+            : SizeUtils.width * .81;
+  }
+
   void sendOtp() async {
     clearErrors();
     if (pageController.page == 0 && !validate()) return;
