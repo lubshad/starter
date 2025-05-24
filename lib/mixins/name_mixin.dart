@@ -25,21 +25,19 @@ mixin NameMixin<T extends StatefulWidget> on State<T> {
 
   Widget emailField({
     Function(String)? onChanged,
-  }) =>
-      TextFormField(
-        onChanged: onChanged,
-        controller: emailController,
-        decoration: const InputDecoration(
-          hintText: "Enter your email",
-
-          label: Text(
-            "Email",
-          ),
-        ),
-        validator: (value) => value == null || value.isEmpty
+    String? hintText = "Enter your email",
+    String? labelText = "Email",
+    String? Function(String?)? validator,
+  }) => TextFormField(
+    onChanged: onChanged,
+    controller: emailController,
+    decoration: InputDecoration(hintText: hintText, labelText: labelText),
+    validator:
+        validator ??
+        (value) => value == null || value.isEmpty
             ? "Email is required"
             : !value.isEmail
-                ? "Please enter a valid email"
-                : null,
-      );
+            ? "Please enter a valid email"
+            : null,
+  );
 }
