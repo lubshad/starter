@@ -8,4 +8,6 @@ class APIConstants {
   static String updateprofile = "user/profile";
 
   static String fcmtoken ="fcm-token";
+
+  static String notifications = "notifications";
 }

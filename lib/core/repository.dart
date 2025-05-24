@@ -3,6 +3,8 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get/utils.dart';
+import 'package:starter/core/universal_argument.dart';
+import 'package:starter/features/notification/models/notification_model.dart';
 import '../features/authentication/phone_auth/phone_auth_mixin.dart';
 import '../features/profile_screen/profile_details_model.dart';
 import '../models/name_id.dart';
@@ -125,4 +127,19 @@ class DataRepository with ErrorExceptionHandler {
   }
 
   serverTime() {}
+
+  Future<PaginationModel<NotificationModel>> fetchNotifications(
+      {required int pageNo}) async {
+    try {
+      final response = await _client.get(APIConstants.notifications);
+      final newItems = (response.data["data"] as List)
+          .map(
+            (e) => NotificationModel.fromMap(e),
+          )
+          .toList();
+      return PaginationModel.fromMap(response.data, newItems);
+    } catch (e) {
+      throw handleError(e);
+    }
+  }
 }
