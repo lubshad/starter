@@ -96,8 +96,8 @@ class FilePickerService {
       double? maxHeight,
       List<CropAspectRatioPreset>? aspectRatio}) async {
     CroppedFile? croppedFile = await ImageCropper().cropImage(
-      maxWidth: maxWidth?.toInt() ?? 300,
-      maxHeight: maxHeight?.toInt() ?? 300,
+      maxWidth: maxWidth?.toInt() ?? 720,
+      maxHeight: maxHeight?.toInt() ?? 720,
       sourcePath: imageFile.path,
       // aspectRatioPresets: aspectRatio ?? [CropAspectRatioPreset.square],
       uiSettings: [
