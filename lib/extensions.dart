@@ -41,9 +41,12 @@ extension DateTimeExtension on DateTime? {
       this == null ? null : DateFormat("hh:mm aa").format(this!);
   String? get dateFormat {
     if (this == null) return null;
-    DateTime today = serverUtcTime.copyWith(hour: 0, minute: 0, second: 0);
-    int daysDifference =
-        today.difference(this!.copyWith(hour: 0, minute: 0, second: 0)).inDays;
+    DateTime today = serverUtcTime.copyWith(
+        hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
+    int daysDifference = today
+        .difference(this!.copyWith(
+            hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0))
+        .inDays;
     if (daysDifference == 1) {
       return "Yesterday";
     }
@@ -131,5 +134,4 @@ extension NumberExtension on num {
 
   String get currency => NumberFormat.currency(symbol: "SR ").format(this);
   String get symbol => isNegative ? "-" : "+";
-
 }
