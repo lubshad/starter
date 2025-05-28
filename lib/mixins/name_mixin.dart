@@ -3,41 +3,52 @@ import 'package:get/utils.dart';
 
 mixin NameMixin<T extends StatefulWidget> on State<T> {
   final nameController = TextEditingController();
+  final lastnameController = TextEditingController();
   final emailController = TextEditingController();
 
-  Widget nameField(
-
-          {String? title,
-          String? hintText, 
-          Function(String)? onChanged,
-          String? Function(String?)? validator}) =>
-      TextFormField(
-        onChanged: onChanged,
-        controller: nameController,
-        decoration: InputDecoration(
-          hintText: hintText,
-          label: Text(title ?? "Name"),
-        ),
-        validator: validator ??
-            (value) =>
-                value == null || value.isEmpty ? "Name is required" : null,
-      );
-
-  Widget emailField({
+  Widget nameField({
+    String? title = "Name",
+    String? hintText,
     Function(String)? onChanged,
-    String? hintText = "Enter your email",
-    String? labelText = "Email",
     String? Function(String?)? validator,
   }) => TextFormField(
     onChanged: onChanged,
-    controller: emailController,
-    decoration: InputDecoration(hintText: hintText, labelText: labelText),
+    controller: nameController,
+    decoration: InputDecoration(hintText: hintText, labelText: title),
     validator:
         validator ??
-        (value) => value == null || value.isEmpty
-            ? "Email is required"
-            : !value.isEmail
-            ? "Please enter a valid email"
-            : null,
+        (value) => value == null || value.isEmpty ? "Name is required" : null,
+  );
+
+  Widget lastnameField({
+    String? title = "Last Name",
+    String? hintText = "Last Name",
+    Function(String)? onChanged,
+    String? Function(String?)? validator,
+  }) => TextFormField(
+    onChanged: onChanged,
+    controller: lastnameController,
+    decoration: InputDecoration(hintText: hintText, labelText: title),
+    validator:
+        validator ??
+        (value) =>
+            value == null || value.isEmpty ? "Last Name is required" : null,
+  );
+
+  Widget emailField({Function(String)? onChanged}) => TextFormField(
+    onChanged: onChanged,
+    controller: emailController,
+    decoration: const InputDecoration(
+      hintText: "Enter your email",
+
+      label: Text("Email"),
+    ),
+    validator:
+        (value) =>
+            value == null || value.isEmpty
+                ? "Email is required"
+                : !value.isEmail
+                ? "Please enter a valid email"
+                : null,
   );
 }
