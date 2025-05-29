@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import 'default_loading_widget.dart';
 
@@ -34,7 +35,7 @@ class NetworkResource<Type> extends StatelessWidget {
             break;
           default:
         }
-        return widget;
+        return widget .animate().fadeIn();
       },
     );
   }
