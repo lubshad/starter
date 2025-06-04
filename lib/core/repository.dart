@@ -2,6 +2,7 @@
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/utils.dart';
 import '../features/authentication/phone_auth/phone_auth_mixin.dart';
 import '../features/notification/models/notification_model.dart';
@@ -24,6 +25,8 @@ bool validateStatus(int? status) {
 
 class DataRepository with ErrorExceptionHandler {
   final Dio _client = Dio(BaseOptions(
+      sendTimeout: 10000.ms,
+      receiveTimeout: 60000.ms,
       validateStatus: validateStatus,
       baseUrl: SharedPreferencesService.i.domainUrl == ""
           ? appConfig.baseUrl
