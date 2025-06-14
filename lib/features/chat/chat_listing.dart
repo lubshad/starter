@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:starter/core/app_route.dart';
 import 'package:starter/features/chat/agora_utils.dart';
+import 'package:starter/services/fcm_service.dart';
 import 'package:starter/widgets/list_tile_shimmer.dart';
 import '../../exporter.dart';
 import '../../models/name_id.dart';
@@ -29,11 +30,13 @@ class _ChatListingScreenState extends State<ChatListingScreen> {
     pagingController.addPageRequestListener((pageKey) => getData(pageKey));
     AgoraUtils.i.initSdk().then((value) {
       AgoraUtils.i
-          .signIn(userid: widget.user.id, usertoken: widget.user.secondary)
+          .signIn(
+            userid: widget.user.id,
+            usertoken: widget.user.secondary,
+            avatarUrl: widget.user.third,
+            name: widget.user.name,
+          )
           .then((value) async {
-            await ChatClient.getInstance.userInfoManager.updateUserInfo(
-              avatarUrl: widget.user.third,
-            );
             pagingController.refresh();
           });
     });
@@ -93,7 +96,6 @@ class _ChatListingScreenState extends State<ChatListingScreen> {
               children: List.generate(4, (index) => const ListTileShimmer()),
             ),
             itemBuilder: (context, item, index) => ListTile(
-
               onTap: () =>
                   navigate(context, MessageListingScreen.path, arguments: item),
               title: Text(item.id.toString()),

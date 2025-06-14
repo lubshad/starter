@@ -25,10 +25,20 @@ class AgoraUtils {
   Future<bool> signIn({
     required String userid,
     required String usertoken,
+    required String avatarUrl,
+    required String name,
   }) async {
     try {
       await ChatClient.getInstance.loginWithToken(userid, usertoken);
       currentUser = await ChatClient.getInstance.userInfoManager.fetchOwnInfo();
+      await ChatClient.getInstance.userInfoManager.updateUserInfo(
+        avatarUrl: avatarUrl,
+        nickname: name,
+      );
+      FCMService().setupNotification().then((value) async {
+        await ChatClient.getInstance.pushManager.updatePushNickname(name);
+        // await ChatClient.getInstance.pushManager.updateFCMPushToken(value);
+      });
       logInfo("login succeed, userId: $userid");
       return true;
     } on ChatError catch (e) {
