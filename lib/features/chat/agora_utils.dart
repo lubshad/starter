@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:starter/exporter.dart';
+import 'package:starter/services/fcm_service.dart';
 
 class AgoraUtils {
   static final AgoraUtils _instance = AgoraUtils._internal();
@@ -12,19 +13,22 @@ class AgoraUtils {
   static AgoraUtils get i => _instance;
   Future<void> initSdk() async {
     ChatOptions options = ChatOptions(
-        appKey: "411355671#1562187", autoLogin: false, debugMode: true);
+      appKey: "411355671#1562187",
+      autoLogin: false,
+      debugMode: true,
+    );
     await ChatClient.getInstance.init(options);
   }
+
+  ChatUserInfo? currentUser;
 
   Future<bool> signIn({
     required String userid,
     required String usertoken,
   }) async {
     try {
-      await ChatClient.getInstance.loginWithToken(
-        userid,
-        usertoken,
-      );
+      await ChatClient.getInstance.loginWithToken(userid, usertoken);
+      currentUser = await ChatClient.getInstance.userInfoManager.fetchOwnInfo();
       logInfo("login succeed, userId: $userid");
       return true;
     } on ChatError catch (e) {
@@ -36,7 +40,9 @@ class AgoraUtils {
   Future<bool> signOut() async {
     try {
       await ChatClient.getInstance.logout(true);
+      currentUser = null;
       logInfo("sign out succeed");
+
       return true;
     } on ChatError catch (e) {
       logInfo("sign out failed, code: ${e.code}, desc: ${e.description}");
@@ -44,12 +50,11 @@ class AgoraUtils {
     }
   }
 
-  Future<ChatMessage> sendMessage(
-      {required String id, required String message}) async {
-    var msg = ChatMessage.createTxtSendMessage(
-      targetId: id,
-      content: message,
-    );
+  Future<ChatMessage> sendMessage({
+    required String id,
+    required String message,
+  }) async {
+    var msg = ChatMessage.createTxtSendMessage(targetId: id, content: message);
 
     return await ChatClient.getInstance.chatManager.sendMessage(msg);
   }
@@ -93,9 +98,7 @@ class AgoraUtils {
     return await ChatClient.getInstance.chatManager.sendMessage(msg);
   }
 
-  Future<ChatMessage> sendTypingIndicator({
-    required String id,
-  }) async {
+  Future<ChatMessage> sendTypingIndicator({required String id}) async {
     var msg = ChatMessage.createCmdSendMessage(
       targetId: id,
       action: "typing",
