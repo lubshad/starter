@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Vimeo Player</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://player.vimeo.com/api/player.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: none;
+            background-color: #000;
+            width: 100%;
+        }
+
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <iframe id="vimeo-player" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
+    <script>
+        function sendtoFlutter(data, extraData = {}) {
+            if (typeof data === 'object' && data !== null && typeof extraData === 'object') {
+                data = { ...data, ...extraData }; // Merge extraData into data
+            }
+
+            if (window.FlutterChannel) {
+                FlutterChannel.postMessage(JSON.stringify(data));
+            }
+        }
+        // Global error handler for any uncaught JavaScript errors
+        window.onerror = function (message, source, lineno, colno, error) {
+            sendtoFlutter({
+                error: error,
+                message: message,
+                source: source,
+                lineno: lineno,
+                colno: colno
+            });
+        };
+
+
+        function isWebGLSupported() {
+            try {
+                var canvas = document.createElement('canvas');
+                return !!(window.WebGLRenderingContext && canvas.getContext('webgl'));
+            } catch (e) {
+                return false;
+            }
+        }
+
+
+        // Function to get URL query parameters
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Get video_id from URL
+        var videoId = getQueryParam("video_id") || "1052952352";
+
+        // Validate and set iframe source
+        var iframe = document.getElementById('vimeo-player');
+        iframe.src = `https://player.vimeo.com/video/${videoId}`;
+        // Initialize Vimeo Player
+        var player = new Vimeo.Player(iframe);
+
+
+
+        window.onload = function () {
+            sendtoFlutter({
+                "supported": isWebGLSupported()
+            })
+
+            player.on("timeupdate", sendtoFlutter);
+            player.on('fullscreenchange', sendtoFlutter);
+            player.on('pause', (data) => sendtoFlutter(data, { "play": false }));
+            player.on('play', (data) => sendtoFlutter(data, { "play": true }));
+        };
+
+
+
+    </script>
+
+</body>
+
+</html>
