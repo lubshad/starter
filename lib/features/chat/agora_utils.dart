@@ -6,9 +6,7 @@ import 'package:starter/services/fcm_service.dart';
 
 class AgoraUtils {
   static final AgoraUtils _instance = AgoraUtils._internal();
-  factory AgoraUtils() {
-    return _instance;
-  }
+  factory AgoraUtils() => _instance;
   AgoraUtils._internal();
   static AgoraUtils get i => _instance;
   Future<void> initSdk() async {
@@ -50,7 +48,6 @@ class AgoraUtils {
       await ChatClient.getInstance.logout(true);
       currentUser = null;
       logInfo("sign out succeed");
-
       return true;
     } on ChatError catch (e) {
       logInfo("sign out failed, code: ${e.code}, desc: ${e.description}");
@@ -102,7 +99,6 @@ class AgoraUtils {
       filePath: file.path,
       duration: duration.inSeconds,
     );
-
     return await ChatClient.getInstance.chatManager.sendMessage(msg);
   }
 

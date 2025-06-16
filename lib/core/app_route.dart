@@ -9,7 +9,7 @@ import '../features/authentication/phone_auth/phone_auth_screen.dart';
 import '../features/authentication/social_authentication/otp_validation_screen.dart';
 import '../features/authentication/social_authentication/social_authentication_screen.dart';
 import '../features/chat/chat_listing.dart';
-import '../features/chat/message_listing_screen.dart';
+import '../features/chat/chat_screen.dart';
 import '../features/home_screen/home_screen.dart';
 import '../features/navigation/navigation_screen.dart';
 import '../features/splash_screen/splash_screen.dart';
@@ -25,12 +25,16 @@ class AppRoute {
       // if (FirebaseAuth.instance.currentUser == null) {
       return [
         pageRoute(
-            const RouteSettings(name: LandingPage.path), const LandingPage())
+          const RouteSettings(name: LandingPage.path),
+          const LandingPage(),
+        ),
       ];
     }
     return [
       pageRoute(
-          const RouteSettings(name: SplashScreen.path), const SplashScreen())
+        const RouteSettings(name: SplashScreen.path),
+        const SplashScreen(),
+      ),
     ];
   }
 
@@ -42,8 +46,8 @@ class AppRoute {
       case SplashScreen.path:
         screen = const SplashScreen();
         break;
-      case MessageListingScreen.path:
-        screen = MessageListingScreen(
+      case ChatScreen.path:
+        screen = ChatScreen(
           conversation: settings.arguments as ChatConversation,
         );
         break;
@@ -77,8 +81,11 @@ class AppRoute {
   }
 }
 
-Route<T> pageRoute<T>(RouteSettings settings, Widget screen,
-    {bool animate = true}) {
+Route<T> pageRoute<T>(
+  RouteSettings settings,
+  Widget screen, {
+  bool animate = true,
+}) {
   if (!animate) {
     return PageRouteBuilder(
       settings: settings,
@@ -86,10 +93,7 @@ Route<T> pageRoute<T>(RouteSettings settings, Widget screen,
       pageBuilder: (context, animation, secondaryAnimation) => screen,
     );
   }
-  return MaterialPageRoute(
-    settings: settings,
-    builder: (context) => screen,
-  );
+  return MaterialPageRoute(settings: settings, builder: (context) => screen);
 }
 
 PageRouteBuilder downToTop(RouteSettings settings, Widget screen) {
@@ -104,10 +108,7 @@ PageRouteBuilder downToTop(RouteSettings settings, Widget screen) {
       var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
       var offsetAnimation = animation.drive(tween);
 
-      return SlideTransition(
-        position: offsetAnimation,
-        child: child,
-      );
+      return SlideTransition(position: offsetAnimation, child: child);
     },
   );
 }
@@ -117,10 +118,7 @@ PageRouteBuilder fadeScale(RouteSettings settings, Widget screen) {
     settings: settings,
     pageBuilder: (context, animation, secondaryAnimation) => screen,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeScaleTransition(
-        animation: animation,
-        child: child,
-      );
+      return FadeScaleTransition(animation: animation, child: child);
     },
   );
 }
@@ -141,7 +139,8 @@ Future<T?> navigate<T extends Object?>(
       arguments: arguments,
     );
   } else {
-    return await Navigator.of(context)
-        .pushNamed<T>(routeName, arguments: arguments);
+    return await Navigator.of(
+      context,
+    ).pushNamed<T>(routeName, arguments: arguments);
   }
 }

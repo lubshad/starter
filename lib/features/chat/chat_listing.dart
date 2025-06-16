@@ -1,14 +1,16 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:starter/core/app_route.dart';
+
 import 'package:starter/features/chat/agora_utils.dart';
+import 'package:starter/features/chat/widgets/conversation_item.dart';
 import 'package:starter/widgets/list_tile_shimmer.dart';
+
 import '../../exporter.dart';
 import '../../models/name_id.dart';
 import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/no_item_found.dart';
-import 'message_listing_screen.dart';
 
 class ChatListingScreen extends StatefulWidget {
   static const String path = "/chat-listing";
@@ -63,7 +65,6 @@ class _ChatListingScreenState extends State<ChatListingScreen> {
               value.cursor!.isEmpty ||
               value.cursor == "undefined") {
             pagingController.appendLastPage(value.data);
-            return;
           } else {
             pagingController.appendPage(value.data, value.cursor);
           }
@@ -94,11 +95,7 @@ class _ChatListingScreenState extends State<ChatListingScreen> {
             firstPageProgressIndicatorBuilder: (context) => Column(
               children: List.generate(4, (index) => const ListTileShimmer()),
             ),
-            itemBuilder: (context, item, index) => ListTile(
-              onTap: () =>
-                  navigate(context, MessageListingScreen.path, arguments: item),
-              title: Text(item.id.toString()),
-            ),
+            itemBuilder: (context, item, index) => ConversationItem(item: item),
           ),
           separatorBuilder: (context, index) => gap,
         ),

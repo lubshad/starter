@@ -64,7 +64,8 @@ class ChatMessageItem extends StatelessWidget {
                         child: CachedNetworkImage(
                           width: double.infinity,
                           imageUrl:
-                              (item.body as ChatImageMessageBody).remotePath ??
+                              (item.body as ChatImageMessageBody)
+                                  .thumbnailRemotePath ??
                               "",
                         ),
                       );

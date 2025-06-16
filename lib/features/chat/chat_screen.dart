@@ -16,17 +16,17 @@ import '../../widgets/list_tile_shimmer.dart';
 import '../../widgets/no_item_found.dart';
 import 'agora_utils.dart';
 
-class MessageListingScreen extends StatefulWidget {
-  static const String path = "/message-listing";
+class ChatScreen extends StatefulWidget {
+  static const String path = "/chat-screen";
   final ChatConversation conversation;
 
-  const MessageListingScreen({super.key, required this.conversation});
+  const ChatScreen({super.key, required this.conversation});
 
   @override
-  State<MessageListingScreen> createState() => _MessageListingScreenState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _MessageListingScreenState extends State<MessageListingScreen> {
+class _ChatScreenState extends State<ChatScreen> {
   PagingController<String?, ChatMessage> pagingController = PagingController(
     firstPageKey: null,
   );
