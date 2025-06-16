@@ -1,4 +1,4 @@
-package com.example.starter
+package com.veuz.agorachat
 
 import io.flutter.embedding.android.FlutterActivity
 

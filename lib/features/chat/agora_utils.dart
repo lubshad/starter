@@ -12,11 +12,8 @@ class AgoraUtils {
   AgoraUtils._internal();
   static AgoraUtils get i => _instance;
   Future<void> initSdk() async {
-    ChatOptions options = ChatOptions(
-      appKey: "411355671#1562187",
-      autoLogin: false,
-      debugMode: true,
-    );
+    ChatOptions options = ChatOptions(appKey: "411355671#1562187");
+    options.enableFCM("774863640399");
     await ChatClient.getInstance.init(options);
   }
 
@@ -36,8 +33,9 @@ class AgoraUtils {
         nickname: name,
       );
       FCMService().setupNotification().then((value) async {
+        logInfo(value);
         await ChatClient.getInstance.pushManager.updatePushNickname(name);
-        // await ChatClient.getInstance.pushManager.updateFCMPushToken(value);
+        await ChatClient.getInstance.pushManager.updateFCMPushToken(value);
       });
       logInfo("login succeed, userId: $userid");
       return true;
