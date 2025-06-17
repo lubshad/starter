@@ -48,7 +48,7 @@ class AppRoute {
         break;
       case ChatScreen.path:
         screen = ChatScreen(
-          conversation: settings.arguments as ChatConversation,
+          conversation: settings.arguments as ConversationModel,
         );
         break;
       case ChatListingScreen.path:

@@ -15,6 +15,7 @@ class ChatMessageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     bool isMe = ChatClient.getInstance.currentUserId == item.from;
     return Column(
       crossAxisAlignment: isMe

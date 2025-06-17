@@ -12,6 +12,19 @@ import '../../models/name_id.dart';
 import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/no_item_found.dart';
 
+class ConversationModel {
+  final ChatConversation conversation;
+  final ChatUserInfo user;
+  final ChatMessage? latestMessage;
+  final int unreadCount;
+  ConversationModel({
+    required this.conversation,
+    required this.user,
+    this.latestMessage,
+    required this.unreadCount,
+  });
+}
+
 class ChatListingScreen extends StatefulWidget {
   static const String path = "/chat-listing";
 
@@ -24,7 +37,7 @@ class ChatListingScreen extends StatefulWidget {
 }
 
 class _ChatListingScreenState extends State<ChatListingScreen> {
-  PagingController<String?, ChatConversation> pagingController =
+  PagingController<String?, ConversationModel> pagingController =
       PagingController(firstPageKey: null);
   @override
   void initState() {
@@ -60,13 +73,36 @@ class _ChatListingScreenState extends State<ChatListingScreen> {
         .fetchConversationsByOptions(
           options: ConversationFetchOptions(cursor: pageKey),
         )
-        .then((value) {
+        .then((value) async {
+          final users =
+              (await ChatClient.getInstance.userInfoManager.fetchUserInfoById(
+                value.data.map((e) => e.id).toList(),
+              )).values.toList();
+
+          final latestMessages = await Future.wait(
+            value.data.map((e) => e.latestMessage()),
+          );
+
+          final unreadCounts = await Future.wait(
+            value.data.map((e) => e.unreadCount()),
+          );
+
+          final conversations = value.data.indexed
+              .map(
+                (conversation) => ConversationModel(
+                  conversation: conversation.$2,
+                  user: users[conversation.$1],
+                  latestMessage: latestMessages[conversation.$1],
+                  unreadCount: unreadCounts[conversation.$1],
+                ),
+              )
+              .toList();
           if (value.cursor == null ||
               value.cursor!.isEmpty ||
               value.cursor == "undefined") {
-            pagingController.appendLastPage(value.data);
+            pagingController.appendLastPage(conversations);
           } else {
-            pagingController.appendPage(value.data, value.cursor);
+            pagingController.appendPage(conversations, value.cursor);
           }
         })
         .onError((error, stackTrace) {
@@ -80,7 +116,7 @@ class _ChatListingScreenState extends State<ChatListingScreen> {
       appBar: AppBar(title: Text("${widget.user.name} Chat List")),
       body: RefreshIndicator(
         onRefresh: () async => pagingController.refresh(),
-        child: PagedListView<String?, ChatConversation>.separated(
+        child: PagedListView<String?, ConversationModel>.separated(
           padding: const EdgeInsets.all(padding),
           pagingController: pagingController,
           builderDelegate: PagedChildBuilderDelegate(

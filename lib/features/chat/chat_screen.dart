@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:starter/features/chat/chat_listing.dart';
 import 'package:starter/features/chat/widgets/chat_message_item.dart';
 import 'package:starter/services/file_picker_service.dart';
 import '../../exporter.dart';
@@ -18,7 +19,7 @@ import 'agora_utils.dart';
 
 class ChatScreen extends StatefulWidget {
   static const String path = "/chat-screen";
-  final ChatConversation conversation;
+  final ConversationModel conversation;
 
   const ChatScreen({super.key, required this.conversation});
 
@@ -31,19 +32,14 @@ class _ChatScreenState extends State<ChatScreen> {
     firstPageKey: null,
   );
 
-  ChatUserInfo? other;
-
   @override
   void initState() {
     pagingController.addPageRequestListener(
       (pageKey) => fetchMessages(pageKey),
     );
-    ChatClient.getInstance.userInfoManager
-        .fetchUserInfoById([widget.conversation.id])
-        .then((value) {
-          other = value[widget.conversation.id];
-        });
     addMessageListener();
+    ChatClient.getInstance.chatManager.markAllConversationsAsRead();
+
     super.initState();
   }
 
@@ -56,7 +52,8 @@ class _ChatScreenState extends State<ChatScreen> {
       'chat_event_handler',
       ChatEventHandler(
         onMessagesReceived: (messages) {
-          if (messages.first.conversationId == widget.conversation.id) {
+          if (messages.first.conversationId ==
+              widget.conversation.conversation.id) {
             pagingController.itemList?.insert(0, messages.first);
             setState(() {});
           }
@@ -70,8 +67,8 @@ class _ChatScreenState extends State<ChatScreen> {
   fetchMessages(String? pageKey) async {
     ChatClient.getInstance.chatManager
         .fetchHistoryMessagesByOption(
-          widget.conversation.id,
-          widget.conversation.type,
+          widget.conversation.conversation.id,
+          widget.conversation.conversation.type,
           cursor: pageKey,
         )
         .then((value) {
@@ -96,7 +93,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.conversation.id.toString())),
+      appBar: AppBar(title: Text(widget.conversation.user.nickName.toString())),
       body: Column(
         children: [
           Expanded(
@@ -122,8 +119,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       (index) => const ListTileShimmer(),
                     ),
                   ),
-                  itemBuilder: (context, item, index) =>
-                      ChatMessageItem(item: item, other: other!),
+                  itemBuilder: (context, item, index) => ChatMessageItem(
+                    item: item,
+                    other: widget.conversation.user,
+                  ),
                 ),
                 separatorBuilder: (context, index) => gap,
               ),
@@ -161,7 +160,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 );
                 if (file == null) return;
                 AgoraUtils.i
-                    .sendFileMessage(id: widget.conversation.id, file: file)
+                    .sendFileMessage(
+                      id: widget.conversation.conversation.id,
+                      file: file,
+                    )
                     .then((value) {
                       pagingController.itemList?.insert(0, value);
                       setState(() {});
@@ -183,7 +185,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (value) => AgoraUtils.i.sendTypingIndicator(
-                    id: widget.conversation.id,
+                    id: widget.conversation.conversation.id,
                   ),
                 ),
               ),
@@ -206,7 +208,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           if (image == null) return;
                           AgoraUtils.i
                               .sendImageMessage(
-                                id: widget.conversation.id,
+                                id: widget.conversation.conversation.id,
                                 file: image,
                               )
                               .then((value) {
@@ -226,7 +228,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   icon: Icon(Icons.send),
                   onPressed: () => AgoraUtils.i
                       .sendMessage(
-                        id: widget.conversation.id,
+                        id: widget.conversation.conversation.id,
                         message: messageController.text,
                       )
                       .then((value) {
