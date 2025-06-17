@@ -1,17 +1,56 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
-import 'package:starter/exporter.dart';
-import 'package:starter/services/fcm_service.dart';
+
+import '../../exporter.dart';
+import '../../services/fcm_service.dart';
+
+class AgoraConfig {
+  final String appKey;
+  final String senderId;
+  final String token;
+  AgoraConfig({
+    required this.appKey,
+    required this.senderId,
+    required this.token,
+  });
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'appKey': appKey,
+      'senderId': senderId,
+      'token': token,
+    };
+  }
+
+  factory AgoraConfig.fromMap(Map<String, dynamic> map) {
+    return AgoraConfig(
+      appKey: map['appKey'] as String,
+      senderId: map['senderId'] as String,
+      token: map['token'] as String,
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory AgoraConfig.fromJson(String source) =>
+      AgoraConfig.fromMap(json.decode(source) as Map<String, dynamic>);
+}
 
 class AgoraUtils {
   static final AgoraUtils _instance = AgoraUtils._internal();
   factory AgoraUtils() => _instance;
   AgoraUtils._internal();
   static AgoraUtils get i => _instance;
-  Future<void> initSdk() async {
-    ChatOptions options = ChatOptions(appKey: "411355671#1562187");
-    options.enableFCM("774863640399");
+  Future<void> initSdk(AgoraConfig config) async {
+    ChatOptions options = ChatOptions(
+      appKey: config.appKey,
+      autoLogin: false,
+      debugMode: true,
+    );
+    options.enableFCM(config.senderId);
     await ChatClient.getInstance.init(options);
   }
 
@@ -26,18 +65,17 @@ class AgoraUtils {
     try {
       await ChatClient.getInstance.loginWithToken(userid, usertoken);
       currentUser = await ChatClient.getInstance.userInfoManager.fetchOwnInfo();
-      await ChatClient.getInstance.userInfoManager.updateUserInfo(
-        avatarUrl: avatarUrl,
-        nickname: name,
-      );
       FCMService().setupNotification().then((value) async {
         logInfo(value);
-        await ChatClient.getInstance.pushManager.updatePushNickname(name);
         await ChatClient.getInstance.pushManager.updateFCMPushToken(value);
       });
       logInfo("login succeed, userId: $userid");
       return true;
     } on ChatError catch (e) {
+      if (e.code == 200) {
+        currentUser = await ChatClient.getInstance.userInfoManager
+            .fetchOwnInfo();
+      }
       logInfo("login failed, code: ${e.code}, desc: ${e.description}");
       return false;
     }
@@ -102,13 +140,20 @@ class AgoraUtils {
     return await ChatClient.getInstance.chatManager.sendMessage(msg);
   }
 
-  Future<ChatMessage> sendTypingIndicator({required String id}) async {
+  DateTime lastTypingSend = serverUtcTime;
+
+  Future<ChatMessage?> sendTypingIndicator({required String id}) async {
+    if (serverUtcTime.subtract(Duration(seconds: 2)).isBefore(lastTypingSend)) {
+      return null;
+    }
     var msg = ChatMessage.createCmdSendMessage(
       targetId: id,
       action: "typing",
       deliverOnlineOnly: true,
       chatType: ChatType.Chat,
     );
+
+    lastTypingSend = serverUtcTime;
 
     return await ChatClient.getInstance.chatManager.sendMessage(msg);
   }

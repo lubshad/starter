@@ -1,4 +1,3 @@
-import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:animations/animations.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,12 +7,12 @@ import '../features/authentication/landing_screen/landing_screen.dart';
 import '../features/authentication/phone_auth/phone_auth_screen.dart';
 import '../features/authentication/social_authentication/otp_validation_screen.dart';
 import '../features/authentication/social_authentication/social_authentication_screen.dart';
-import '../features/chat/chat_listing.dart';
 import '../features/chat/chat_screen.dart';
+import '../features/chat/conversation_listing.dart';
+import '../features/chat/models/conversation_model.dart';
 import '../features/home_screen/home_screen.dart';
 import '../features/navigation/navigation_screen.dart';
 import '../features/splash_screen/splash_screen.dart';
-import '../models/name_id.dart';
 import '../services/shared_preferences_services.dart';
 import 'logger.dart';
 
@@ -51,8 +50,8 @@ class AppRoute {
           conversation: settings.arguments as ConversationModel,
         );
         break;
-      case ChatListingScreen.path:
-        screen = ChatListingScreen(user: settings.arguments as NameId);
+      case ConversationListingScreen.path:
+        screen = ConversationListingScreen();
         break;
       case SocialAuthenticationScreen.path:
         screen = const SocialAuthenticationScreen();

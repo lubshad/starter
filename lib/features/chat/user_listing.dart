@@ -6,7 +6,7 @@ import '../../models/name_id.dart';
 import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/list_tile_shimmer.dart';
 import '../../widgets/no_item_found.dart';
-import 'chat_listing.dart';
+import 'conversation_listing.dart';
 
 class UserListingScreen extends StatefulWidget {
   const UserListingScreen({super.key});
@@ -77,8 +77,11 @@ class _UserListingScreenState extends State<UserListingScreen> {
           noItemsFoundIndicatorBuilder: (context) => const NoItemsFound(),
           firstPageProgressIndicatorBuilder: (context) => ListTileShimmer(),
           itemBuilder: (context, item, index) => ListTile(
-            onTap: () =>
-                navigate(context, ChatListingScreen.path, arguments: item),
+            onTap: () => navigate(
+              context,
+              ConversationListingScreen.path,
+              arguments: item,
+            ),
             title: Text(item.name),
           ),
         ),

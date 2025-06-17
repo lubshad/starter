@@ -1,11 +1,12 @@
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
+import 'package:animations/animations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:starter/features/chat/agora_utils.dart';
 
 import '../../../exporter.dart';
 import '../../../widgets/user_avatar.dart';
+import '../agora_utils.dart';
 
 class ChatMessageItem extends StatelessWidget {
   const ChatMessageItem({super.key, required this.item, required this.other});
@@ -15,7 +16,6 @@ class ChatMessageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     bool isMe = ChatClient.getInstance.currentUserId == item.from;
     return Column(
       crossAxisAlignment: isMe
@@ -29,7 +29,7 @@ class ChatMessageItem extends StatelessWidget {
               : MainAxisAlignment.start,
           children: [
             if (!isMe) Gap(paddingLarge * 1.5),
-            if (!isMe) UserAvatar(size: 25.h, imageUrl: other.avatarUrl),
+            if (!isMe) UserAvatar(size: 35.h, imageUrl: other.avatarUrl),
             Container(
               constraints: BoxConstraints(maxWidth: SizeUtils.width * .6),
               margin: EdgeInsets.only(
@@ -60,15 +60,31 @@ class ChatMessageItem extends StatelessWidget {
                         ),
                       );
                     case MessageType.IMAGE:
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(padding),
-                        child: CachedNetworkImage(
-                          width: double.infinity,
-                          imageUrl:
-                              (item.body as ChatImageMessageBody)
-                                  .thumbnailRemotePath ??
-                              "",
-                        ),
+                      final imageBody = (item.body as ChatImageMessageBody);
+                      return OpenContainer(
+                        closedBuilder:
+                            (BuildContext context, void Function() action) {
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(padding),
+                                child: CachedNetworkImage(
+                                  width: double.infinity,
+                                  imageUrl: imageBody.thumbnailRemotePath ?? "",
+                                ),
+                              );
+                            },
+                        openBuilder:
+                            (
+                              BuildContext context,
+                              void Function({Object? returnValue}) action,
+                            ) {
+                              return Scaffold(
+                                appBar: AppBar(),
+                                body: CachedNetworkImage(
+                                  width: double.infinity,
+                                  imageUrl: imageBody.thumbnailRemotePath ?? "",
+                                ),
+                              );
+                            },
                       );
                     case MessageType.FILE:
                       return ListTile(
@@ -98,7 +114,7 @@ class ChatMessageItem extends StatelessWidget {
             ),
             if (isMe)
               UserAvatar(
-                size: 25.h,
+                size: 35.h,
                 imageUrl: AgoraUtils.i.currentUser?.avatarUrl,
               ),
             Gap(paddingLarge * 1.5),

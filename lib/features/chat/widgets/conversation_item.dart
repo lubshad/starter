@@ -1,12 +1,12 @@
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:starter/exporter.dart';
-import 'package:starter/features/chat/chat_listing.dart';
-import 'package:starter/features/chat/chat_screen.dart';
-import 'package:starter/widgets/user_avatar.dart';
 import 'package:timeago/timeago.dart';
 import '../../../core/app_route.dart';
+import '../../../widgets/user_avatar.dart';
+import '../chat_screen.dart';
+import '../models/conversation_model.dart';
+import '../../../exporter.dart';
 
 class ConversationItem extends StatelessWidget {
   const ConversationItem({super.key, required this.item});
@@ -24,7 +24,12 @@ class ConversationItem extends StatelessWidget {
         size: 42.h,
         username: item.user.nickName ?? "",
       ),
-      title: Text(item.user.nickName ?? "", style: context.roboto50016),
+      title: AutoSizeText(
+        item.user.nickName ?? "",
+        style: context.montserrat50017,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
       subtitle: lastMessageBuilder(context, item),
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -39,7 +44,7 @@ class ConversationItem extends StatelessWidget {
                     item.latestMessage!.localTime,
                   ),
                 ),
-                style: context.roboto40013,
+                style: context.montserrat40013,
               );
             },
           ),
@@ -53,7 +58,7 @@ class ConversationItem extends StatelessWidget {
                   vertical: paddingTiny,
                 ),
                 decoration: BoxDecoration(
-                  color: iconbgColor,
+                  color: Colors.blue,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Wrap(
@@ -61,7 +66,7 @@ class ConversationItem extends StatelessWidget {
                   children: [
                     Text(
                       item.unreadCount.toString(),
-                      style: context.roboto40013.copyWith(
+                      style: context.montserrat40013.copyWith(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -85,7 +90,7 @@ class ConversationItem extends StatelessWidget {
           case MessageType.TXT:
             return Text(
               (convo.latestMessage!.body as ChatTextMessageBody).content,
-              style: context.roboto40013,
+              style: context.montserrat40013,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             );
@@ -99,7 +104,7 @@ class ConversationItem extends StatelessWidget {
                     (convo.latestMessage!.body as ChatFileMessageBody)
                             .displayName ??
                         "",
-                    style: context.roboto40013,
+                    style: context.montserrat40013,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -109,7 +114,7 @@ class ConversationItem extends StatelessWidget {
           default:
             return Text(
               convo.latestMessage!.body.toString(),
-              style: context.roboto40013,
+              style: context.montserrat40013,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             );

@@ -2,20 +2,20 @@
 import 'dart:async';
 
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:starter/features/chat/chat_listing.dart';
-import 'package:starter/features/chat/widgets/chat_message_item.dart';
-import 'package:starter/services/file_picker_service.dart';
 import '../../exporter.dart';
+import '../../mixins/event_listener.dart';
+import '../../services/file_picker_service.dart';
 import '../../widgets/bottom_button_padding.dart';
 import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/list_tile_shimmer.dart';
 import '../../widgets/no_item_found.dart';
 import 'agora_utils.dart';
+import 'models/conversation_model.dart';
+import 'widgets/chat_message_item.dart';
 
 class ChatScreen extends StatefulWidget {
   static const String path = "/chat-screen";
@@ -37,17 +37,28 @@ class _ChatScreenState extends State<ChatScreen> {
     pagingController.addPageRequestListener(
       (pageKey) => fetchMessages(pageKey),
     );
-    addMessageListener();
+    addChatEventHandler();
     ChatClient.getInstance.chatManager.markAllConversationsAsRead();
 
     super.initState();
   }
 
-  removeMessageListener() {
+  removeChatEventHandler() {
     ChatClient.getInstance.chatManager.removeEventHandler('chat_event_handler');
   }
 
-  addMessageListener() {
+  final scrollController = ScrollController();
+
+  scrolltoBottom() {
+    if (!scrollController.hasClients) return;
+    scrollController.animateTo(
+      0,
+      duration: animationDurationLarge,
+      curve: Curves.fastOutSlowIn,
+    );
+  }
+
+  addChatEventHandler() {
     ChatClient.getInstance.chatManager.addEventHandler(
       'chat_event_handler',
       ChatEventHandler(
@@ -56,6 +67,7 @@ class _ChatScreenState extends State<ChatScreen> {
               widget.conversation.conversation.id) {
             pagingController.itemList?.insert(0, messages.first);
             setState(() {});
+            scrolltoBottom();
           }
         },
         onCmdMessagesReceived: onCmdMessagesRecieved,
@@ -84,7 +96,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   dispose() {
-    removeMessageListener();
+    removeChatEventHandler();
+    EventListener.i.sendEvent(
+      Event(
+        eventType: EventType.converstaionUpdate,
+        data: widget.conversation.conversation.id,
+      ),
+    );
     super.dispose();
   }
 
@@ -103,6 +121,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 reverse: true,
                 padding: const EdgeInsets.all(padding),
                 pagingController: pagingController,
+                scrollController: scrollController,
                 builderDelegate: PagedChildBuilderDelegate(
                   firstPageErrorIndicatorBuilder: (context) => SizedBox(
                     height: 400,
@@ -131,15 +150,17 @@ class _ChatScreenState extends State<ChatScreen> {
           ValueListenableBuilder(
             valueListenable: typing,
             builder: (context, value, child) {
-              return Visibility(
-                visible: value,
+              return AnimatedContainer(
+                height: value ? 20.h : 0,
+                curve: Curves.fastOutSlowIn,
+                duration: 100.ms,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     gapXL,
                     SpinKitThreeBounce(
                       color: Colors.black,
-                      size: 20,
+                      size: 20.h,
                     ).animate().scale(),
                   ],
                 ),
@@ -152,28 +173,28 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Row(
           children: [
             // add attachments button
-            IconButton(
-              icon: Icon(Icons.attach_file),
-              onPressed: () async {
-                final file = await FilePickerService.pickFile(
-                  fileType: FileType.any,
-                );
-                if (file == null) return;
-                AgoraUtils.i
-                    .sendFileMessage(
-                      id: widget.conversation.conversation.id,
-                      file: file,
-                    )
-                    .then((value) {
-                      pagingController.itemList?.insert(0, value);
-                      setState(() {});
-                    });
-              },
-            ),
+            // IconButton(
+            //   icon: Icon(Icons.attach_file),
+            //   onPressed: () async {
+            //     final file = await FilePickerService.pickFile(
+            //       fileType: FileType.any,
+            //     );
+            //     if (file == null) return;
+            //     AgoraUtils.i
+            //         .sendFileMessage(
+            //           id: widget.conversation.conversation.id,
+            //           file: file,
+            //         )
+            //         .then((value) {
+            //           pagingController.itemList?.insert(0, value);
+            //           setState(() {});
+            //         });
+            //   },
+            // ),
             gap,
             Expanded(
               child: SizedBox(
-                height: kToolbarHeight / 1.5,
+                height: kToolbarHeight / 1.2,
                 child: TextField(
                   controller: messageController,
                   decoration: InputDecoration(
@@ -217,10 +238,10 @@ class _ChatScreenState extends State<ChatScreen> {
                               });
                         },
                       ),
-                      IconButton(
-                        icon: Icon(Icons.keyboard_voice),
-                        onPressed: () {},
-                      ),
+                      // IconButton(
+                      //   icon: Icon(Icons.keyboard_voice),
+                      //   onPressed: () {},
+                      // ),
                     ],
                   );
                 }
@@ -258,7 +279,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void showTyping() {
     typingTimer?.cancel();
     typing.value = true;
-    typingTimer = Timer(Duration(seconds: 2), () {
+    typingTimer = Timer(Duration(seconds: 3), () {
       typing.value = false;
     });
   }

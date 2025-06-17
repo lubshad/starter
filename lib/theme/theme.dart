@@ -77,14 +77,17 @@ extension BuildContextExtension on BuildContext {
 
   TextStyle get bodySmall => textTheme.bodySmall!;
 
-  TextStyle get roboto50016 =>
-      baseStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w500);
-  TextStyle get roboto40013 => baseStyle.copyWith(
+  TextStyle get montserrat50016 =>
+      baseStyle.copyWith(fontSize: 16.fSize, fontWeight: FontWeight.w500);
+  TextStyle get montserrat50017 =>
+      baseStyle.copyWith(fontSize: 17.fSize, fontWeight: FontWeight.w500);
+    
+  TextStyle get montserrat40013 => baseStyle.copyWith(
     fontSize: 13.fSize,
     fontWeight: FontWeight.w400,
     color: Color(0xff9A9BB1),
   );
-  TextStyle get roboto50014 => baseStyle.copyWith(
+  TextStyle get montserrat50014 => baseStyle.copyWith(
     fontSize: 14.fSize,
     fontWeight: FontWeight.w500,
     color: Colors.white,

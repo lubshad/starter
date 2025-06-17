@@ -4,7 +4,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get/utils.dart';
 import '../features/authentication/phone_auth/phone_auth_mixin.dart';
-import '../features/chat/models/chat_model.dart';
+import '../features/chat/agora_utils.dart';
 import '../features/notification/models/notification_model.dart';
 import '../features/profile_screen/profile_details_model.dart';
 import '../models/name_id.dart';
@@ -24,14 +24,17 @@ bool validateStatus(int? status) {
 }
 
 class DataRepository with ErrorExceptionHandler {
-  final Dio _client = Dio(BaseOptions(
+  final Dio _client = Dio(
+    BaseOptions(
       connectTimeout: const Duration(seconds: 120),
       validateStatus: validateStatus,
       baseUrl: SharedPreferencesService.i.domainUrl == ""
           ? appConfig.baseUrl
           : SharedPreferencesService.i.domainUrl + appConfig.slugUrl,
       receiveDataWhenStatusError: true,
-      contentType: "application/json"));
+      contentType: "application/json",
+    ),
+  );
 
   static DataRepository get i => _instance;
   static final DataRepository _instance = DataRepository._private();
@@ -46,11 +49,12 @@ class DataRepository with ErrorExceptionHandler {
     _client.interceptors.add(LoggingInterceptor());
   }
 
-  Future<String> login(
-      {required String username,
-      required String password,
-      String? totp,
-      bool donotAsk = false}) async {
+  Future<String> login({
+    required String username,
+    required String password,
+    String? totp,
+    bool donotAsk = false,
+  }) async {
     try {
       Map<String, dynamic> data = {
         "login": username,
@@ -70,15 +74,16 @@ class DataRepository with ErrorExceptionHandler {
         data: FormData.fromMap(data),
       );
       final allowedCompanies = (response.data["companies"] as List)
-          .map(
-            (e) => NameId.fromMap(e)!,
-          )
+          .map((e) => NameId.fromMap(e)!)
           .toList();
       final defaultComapnyId = (response.data["company"] as List).first as int;
-      final defaultCompany = allowedCompanies
-          .firstWhereOrNull((element) => element.id == defaultComapnyId);
+      final defaultCompany = allowedCompanies.firstWhereOrNull(
+        (element) => element.id == defaultComapnyId,
+      );
       SharedPreferencesService.i.setValue(
-          key: defaultCompanyKey, value: defaultCompany?.toJson() ?? "");
+        key: defaultCompanyKey,
+        value: defaultCompany?.toJson() ?? "",
+      );
       return response.data["Token"];
     } catch (e) {
       throw handleError(e);
@@ -87,8 +92,10 @@ class DataRepository with ErrorExceptionHandler {
 
   Future<Response> updateDevice(BaseDeviceInfo deviceInfo) async {
     try {
-      final response =
-          await _client.put(APIConstants.updateDevice, data: deviceInfo.data);
+      final response = await _client.put(
+        APIConstants.updateDevice,
+        data: deviceInfo.data,
+      );
       return response;
     } catch (e) {
       throw handleError(e);
@@ -96,7 +103,8 @@ class DataRepository with ErrorExceptionHandler {
   }
 
   Future<Response> updateProfileDetails(
-      ProfileDetailsModel profileDetails) async {
+    ProfileDetailsModel profileDetails,
+  ) async {
     try {
       final response = await _client.put(
         APIConstants.updateprofile,
@@ -131,14 +139,13 @@ class DataRepository with ErrorExceptionHandler {
 
   serverTime() {}
 
-  Future<PaginationModel<NotificationModel>> fetchNotifications(
-      {required int pageNo}) async {
+  Future<PaginationModel<NotificationModel>> fetchNotifications({
+    required int pageNo,
+  }) async {
     try {
       final response = await _client.get(APIConstants.notifications);
       final newItems = (response.data["data"] as List)
-          .map(
-            (e) => NotificationModel.fromMap(e),
-          )
+          .map((e) => NotificationModel.fromMap(e))
           .toList();
       return PaginationModel.fromMap(response.data, newItems);
     } catch (e) {
@@ -146,17 +153,17 @@ class DataRepository with ErrorExceptionHandler {
     }
   }
 
-  Future<PaginationModel<ChatModel>> fetchChats({required int pageNo}) async {
+  Future<AgoraConfig> generateAgoraToken(ProfileDetailsModel profile) async {
     try {
-      // final response = await _client.get(APIConstants.chat);
-      return PaginationModel(
-          isLastPage: true,
-          nextPage: 3,
-          newItems: [
-            ChatModel(id: "lubshad"),
-            ChatModel(id: "zannan"),
-          ],
-          previousPage: 1);
+      final response = await Dio().get(
+        "https://generateusertoken-q3hnzdhmya-uc.a.run.app",
+        queryParameters: {
+          "username": profile.email,
+          "avatarurl": profile.image,
+          "nickname": profile.name,
+        },
+      );
+      return AgoraConfig.fromMap(response.data);
     } catch (e) {
       throw handleError(e);
     }
