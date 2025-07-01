@@ -111,6 +111,38 @@ class ConversationItem extends StatelessWidget {
                 ),
               ],
             );
+          case MessageType.IMAGE:
+            return Row(
+              children: [
+                Icon(Icons.image, color: Color(0xff9A9BB1)),
+                gap,
+                Expanded(
+                  child: AutoSizeText(
+                    (convo.latestMessage!.body as ChatFileMessageBody)
+                            .displayName ??
+                        "",
+                    style: context.montserrat40013,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            );
+          case MessageType.VOICE:
+            return Row(
+              children: [
+                Icon(Icons.voice_chat, color: Color(0xff9A9BB1)),
+                gap,
+                Expanded(
+                  child: AutoSizeText(
+                    "${(convo.latestMessage!.body as ChatVoiceMessageBody).duration} Seconds",
+                    style: context.montserrat40013,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            );
           default:
             return Text(
               convo.latestMessage!.body.toString(),

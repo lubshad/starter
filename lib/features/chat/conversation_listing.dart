@@ -1,17 +1,24 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
+
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 import '../../core/repository.dart';
 import '../../exporter.dart';
 import '../../mixins/event_listener.dart';
 import '../../services/fcm_service.dart';
+import '../../services/shared_preferences_services.dart';
 import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/list_tile_shimmer.dart';
 import '../../widgets/no_item_found.dart';
 import '../profile_screen/common_controller.dart';
 import 'agora_utils.dart';
+import 'call_screen.dart';
+import 'chat_screen.dart';
 import 'models/conversation_model.dart';
 import 'widgets/conversation_item.dart';
 
@@ -30,24 +37,22 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
   PagingController<String?, ConversationModel> pagingController =
       PagingController(firstPageKey: null);
   loginUser() {
-    DataRepository.i
-        .generateAgoraToken(CommonController.i.profileDetails!)
-        .then((agoraConfig) {
-          AgoraUtils.i.initSdk(agoraConfig).then((value) {
-            AgoraUtils.i
-                .signIn(
-                  userid: CommonController.i.profileDetails!.email.toString(),
-                  usertoken: agoraConfig.token,
-                  avatarUrl: 
-                    CommonController.i.profileDetails!.image ?? "",
-                  name: CommonController.i.profileDetails?.name ?? "",
-                )
-                .then((value) async {
-                  connected = true;
-                  pagingController.refresh();
-                });
+    if (AgoraUtils.i.isLoggedIn) return;
+    DataRepository.i.generateRTMToken(CommonController.i.profileDetails!).then((
+      agoraConfig,
+    ) {
+      AgoraUtils.i
+          .signIn(
+            userid: CommonController.i.profileDetails!.id.toString(),
+            usertoken: agoraConfig.token,
+            avatarUrl: CommonController.i.profileDetails!.image ?? "",
+            name: CommonController.i.profileDetails?.name ?? "",
+          )
+          .then((value) async {
+            pagingController.refresh();
+            addChatEventHandler();
           });
-        });
+    });
   }
 
   addChatEventHandler() {
@@ -60,10 +65,14 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
               (await ChatClient.getInstance.userInfoManager.fetchUserInfoById([
                 messages.first.from!,
               ])).values.first;
-          await FCMService().showNotification(
-            title: userinfo.nickName,
-            body: (messages.first.body as ChatTextMessageBody).content,
-          );
+          final chatEventHandler = ChatClient.getInstance.chatManager
+              .getEventHandler("chat_event_handler");
+          if (chatEventHandler == null) {
+            await FCMService().showNotification(
+              title: userinfo.nickName,
+              body: (messages.first.body as ChatTextMessageBody).content,
+            );
+          }
           EventListener.i.sendEvent(
             Event(
               eventType: EventType.converstaionUpdate,
@@ -71,37 +80,85 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
             ),
           );
         },
+        onCmdMessagesReceived: onCmdMessagesRecieved,
       ),
     );
     logInfo("convo_chat_event_handler added");
   }
 
+  void onCmdMessagesRecieved(List<ChatMessage> messages) {
+    final messageBody = messages.first.body as ChatCmdMessageBody;
+    final action = jsonDecode(messageBody.action) as Map<String, dynamic>;
+    CmdActionType actionType = CmdActionType.fromValue(action["type"]);
+
+    switch (actionType) {
+      case CmdActionType.startCalling:
+        final fromUser = ChatUserInfo.fromJson(action["from"]);
+        final channel = action["channel"];
+        if (appLifecycleState == AppLifecycleState.paused) {
+          AgoraUtils.i.initiateIncommingCall(
+            RemoteMessage(
+              data: {
+                "e": jsonEncode({
+                  "from": fromUser.toJson(),
+                  "channel": channel,
+                  "type": CmdActionType.startCalling.name,
+                }),
+              },
+            ),
+          );
+        } else {
+          showCallSheet(fromUser, channel);
+        }
+        break;
+      case CmdActionType.endCalling:
+        FlutterCallkitIncoming.endAllCalls();
+        break;
+      default:
+    }
+  }
+
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      loginUser();
+      checkOngoingCall();
+    });
     pagingController.addPageRequestListener((pageKey) => getData(pageKey));
-
     allowedEvents = [
-      EventType.resumed,
-      EventType.paused,
       EventType.converstaionUpdate,
+      EventType.paused,
+      EventType.resumed,
     ];
-    loginUser();
     listenForEvents((event) {
       if (event.eventType == EventType.paused) {
-        ChatClient.getInstance.logout(false).then((value) {
-          logInfo("logout soft");
-        });
+        appLifecycleState = AppLifecycleState.paused;
       } else if (event.eventType == EventType.resumed) {
-        loginUser();
+        appLifecycleState = AppLifecycleState.resumed;
+        checkOngoingCall();
       } else if (event.eventType == EventType.converstaionUpdate) {
         updateOrAddConversation(event.data);
       }
     });
-
-    addChatEventHandler();
-
     super.initState();
   }
+
+  checkOngoingCall() async {
+    final ongoingCalls = (await FlutterCallkitIncoming.activeCalls() as List);
+    if (ongoingCalls.isEmpty) return;
+    if (SharedPreferencesService.i.getValue(key: incomingCallKey).isEmpty) {
+      return;
+    }
+    Map<String, dynamic> data = jsonDecode(
+      SharedPreferencesService.i.getValue(key: incomingCallKey),
+    );
+    ChatUserInfo from = ChatUserInfo.fromJson(data["from"]);
+    String channelName = data["channel"];
+    showCallSheet(from, channelName, initialState: CallState.connected);
+    return;
+  }
+
+  AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
 
   updateOrAddConversation(String conversationId) async {
     final chatConversation = await ChatClient.getInstance.chatManager
@@ -137,13 +194,12 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
     super.dispose();
   }
 
-  bool connected = false;
-
   getData(String? pageKey) async {
-    if (!connected) {
+    if (!AgoraUtils.i.isLoggedIn) {
       pagingController.appendLastPage([]);
       return;
     }
+    // AgoraUtils.i.sendMessage(id: "18", message: "message");
     ChatClient.getInstance.chatManager
         .fetchConversationsByOptions(
           options: ConversationFetchOptions(cursor: pageKey),

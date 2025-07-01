@@ -153,14 +153,29 @@ class DataRepository with ErrorExceptionHandler {
     }
   }
 
-  Future<AgoraConfig> generateAgoraToken(ProfileDetailsModel profile) async {
+    Future<AgoraConfig> generateRTMToken(ProfileDetailsModel profile) async {
     try {
       final response = await Dio().get(
-        "https://generateusertoken-q3hnzdhmya-uc.a.run.app",
+        "https://us-central1-eventxpro-66c0b.cloudfunctions.net/generateRtmToken",
         queryParameters: {
-          "username": profile.email,
+          "username": profile.id,
           "avatarurl": profile.image,
           "nickname": profile.name,
+        },
+      );
+      return AgoraConfig.fromMap(response.data);
+    } catch (e) {
+      throw handleError(e);
+    }
+  }
+
+  Future<AgoraConfig> generateRTCToken({required String channel}) async {
+    try {
+      final response = await Dio().get(
+        "https://us-central1-eventxpro-66c0b.cloudfunctions.net/generateRtcToken",
+        queryParameters: {
+          "uid": int.parse(AgoraUtils.i.currentUser?.userId ?? "0"),
+          "channel": channel,
         },
       );
       return AgoraConfig.fromMap(response.data);

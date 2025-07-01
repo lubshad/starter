@@ -42,10 +42,22 @@ extension DateTimeExtension on DateTime? {
   String? get dateFormat {
     if (this == null) return null;
     DateTime today = serverUtcTime.copyWith(
-        hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+      microsecond: 0,
+    );
     int daysDifference = today
-        .difference(this!.copyWith(
-            hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0))
+        .difference(
+          this!.copyWith(
+            hour: 0,
+            minute: 0,
+            second: 0,
+            millisecond: 0,
+            microsecond: 0,
+          ),
+        )
         .inDays;
     if (daysDifference == 1) {
       return "Yesterday";
@@ -82,6 +94,14 @@ extension DurationExtension on Duration {
     if (hours == "00") return "$minutes m";
     return "$hours h $minutes m";
   }
+
+  String get toMinuteSeconds {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final minutes = twoDigits(inMinutes.remainder(60));
+    final seconds = twoDigits(inSeconds.remainder(60));
+    if (minutes == "00") return "$seconds s";
+    return "$minutes m $minutes s";
+  }
 }
 
 extension ResponseExtension on Response {
@@ -94,42 +114,37 @@ extension DoubleExtension on double {
 }
 
 Future<bool> initializeUTCTime() async {
-  await DataRepository.i.serverTime().then(
-    (value) async {
-      DateTime now = DateTime.now();
-      await SharedPreferencesService.i.setValue(
-        key: serverTimeDifferenceKey,
-        value: now.toUtc().difference(value.toUtc()).inSeconds.toString(),
-      );
-    },
-  ).onError(
-    (error, stackTrace) {
-      logError(error);
-    },
-  );
+  await DataRepository.i
+      .serverTime()
+      .then((value) async {
+        DateTime now = DateTime.now();
+        await SharedPreferencesService.i.setValue(
+          key: serverTimeDifferenceKey,
+          value: now.toUtc().difference(value.toUtc()).inSeconds.toString(),
+        );
+      })
+      .onError((error, stackTrace) {
+        logError(error);
+      });
   return true;
 }
 
 DateTime get serverUtcTime {
-  final serverTimeDifferenceString =
-      SharedPreferencesService.i.getValue(key: serverTimeDifferenceKey);
+  final serverTimeDifferenceString = SharedPreferencesService.i.getValue(
+    key: serverTimeDifferenceKey,
+  );
   if (serverTimeDifferenceString.isEmpty) {
     return DateTime.now();
   } else {
-    return DateTime.now()
-        .subtract(Duration(seconds: int.parse(serverTimeDifferenceString)));
+    return DateTime.now().subtract(
+      Duration(seconds: int.parse(serverTimeDifferenceString)),
+    );
   }
 }
 
 extension NumberExtension on num {
   DateTime get dateTime {
-    return DateTime(
-      2000,
-      1,
-      1,
-      toInt(),
-      ((this - toInt()) * 60).toInt(),
-    );
+    return DateTime(2000, 1, 1, toInt(), ((this - toInt()) * 60).toInt());
   }
 
   String get currency => NumberFormat.currency(symbol: "SR ").format(this);

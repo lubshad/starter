@@ -2,6 +2,7 @@ import 'dart:convert';
 
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class ProfileDetailsModel {
+  final int id ;
   final String name;
   final String? image;
   final String? phone;
@@ -10,6 +11,7 @@ class ProfileDetailsModel {
 
   final String email;
   ProfileDetailsModel({
+    required this.id, 
     required this.email,
     required this.name,
     this.image,
@@ -31,6 +33,7 @@ class ProfileDetailsModel {
 
   factory ProfileDetailsModel.fromMap(Map<String, dynamic> map) {
     return ProfileDetailsModel(
+      id: map['id'] as int,
       email: map["email"] as String,
       name: map['name'] as String,
       image: map['image'],
@@ -52,8 +55,10 @@ class ProfileDetailsModel {
     String? program,
     String? semester,
     String? email,
+    int? id,
   }) {
     return ProfileDetailsModel(
+      id: id ?? this.id,
       name: name ?? this.name,
       image: image ?? this.image,
       phone: phone ?? this.phone,

@@ -1,12 +1,15 @@
+import 'dart:convert';
+
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
-import 'package:animations/animations.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 import '../../../exporter.dart';
 import '../../../widgets/user_avatar.dart';
 import '../agora_utils.dart';
+import 'chat_file_message_widget.dart';
+import 'chat_image_message_widget.dart';
+import 'chat_voice_message_widget.dart';
 
 class ChatMessageItem extends StatelessWidget {
   const ChatMessageItem({super.key, required this.item, required this.other});
@@ -31,7 +34,7 @@ class ChatMessageItem extends StatelessWidget {
             if (!isMe) Gap(paddingLarge * 1.5),
             if (!isMe) UserAvatar(size: 35.h, imageUrl: other.avatarUrl),
             Container(
-              constraints: BoxConstraints(maxWidth: SizeUtils.width * .6),
+              constraints: BoxConstraints(maxWidth: SizeUtils.width * .5),
               margin: EdgeInsets.only(
                 right: isMe ? 8 : 50,
                 left: isMe ? 50 : 8,
@@ -60,45 +63,22 @@ class ChatMessageItem extends StatelessWidget {
                         ),
                       );
                     case MessageType.IMAGE:
-                      final imageBody = (item.body as ChatImageMessageBody);
-                      return OpenContainer(
-                        closedBuilder:
-                            (BuildContext context, void Function() action) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(padding),
-                                child: CachedNetworkImage(
-                                  width: double.infinity,
-                                  imageUrl: imageBody.thumbnailRemotePath ?? "",
-                                ),
-                              );
-                            },
-                        openBuilder:
-                            (
-                              BuildContext context,
-                              void Function({Object? returnValue}) action,
-                            ) {
-                              return Scaffold(
-                                appBar: AppBar(),
-                                body: CachedNetworkImage(
-                                  width: double.infinity,
-                                  imageUrl: imageBody.thumbnailRemotePath ?? "",
-                                ),
-                              );
-                            },
-                      );
+                      return ChatImageMessageWidget(chatMessage: item);
                     case MessageType.FILE:
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: Icon(
-                          Icons.file_present_outlined,
+                      return ChatFileMessageWidget(
+                        chatMessage: item,
+                        color: isMe ? Colors.white : Color(0xFF505050),
+                      );
+                    case MessageType.VOICE:
+                      return ChatVoiceMessageWidget(chatMessage: item);
+                    case MessageType.CMD:
+                      final action = jsonDecode(
+                        (item.body as ChatCmdMessageBody).action,
+                      );
+                      return Text(
+                        action["type"],
+                        style: context.bodySmall.copyWith(
                           color: isMe ? Colors.white : Color(0xFF505050),
-                        ),
-                        dense: true,
-                        title: Text(
-                          (item.body as ChatFileMessageBody).displayName ?? "",
-                          style: TextStyle(
-                            color: isMe ? Colors.white : Color(0xFF505050),
-                          ),
                         ),
                       );
                     default:

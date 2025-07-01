@@ -11,7 +11,7 @@ const String defaultCompanyKey = "defaultCompany";
 const String serverTimeDifferenceKey = "server_time_diff_key";
 
 const String notificationDataKey = "notification_data_key";
-
+const String incomingCallKey = "incoming_call_key";
 class SharedPreferencesService {
   String get domainUrl => getValue(key: domainKey);
 
