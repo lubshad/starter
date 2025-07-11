@@ -1,9 +1,8 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
+import 'package:toastification/toastification.dart';
 
 import '../exporter.dart';
 import '../main.dart';
@@ -24,24 +23,28 @@ Future<bool> checkConnectivity() async {
   return true;
 }
 
-void showErrorMessage(message) {
+void showErrorMessage(dynamic message, {Widget? icon}) {
   HapticFeedback.heavyImpact();
-  Fluttertoast.showToast(
-    backgroundColor: Colors.red,
-    msg: message.toString(),
-    toastLength: Toast.LENGTH_LONG,
+  toastification.dismissAll();
+  toastification.show(
+    title: Text(message.toString()),
+    type: ToastificationType.error,
+    style: ToastificationStyle.minimal,
+    alignment: Alignment.bottomCenter,
+    autoCloseDuration: const Duration(seconds: 3),
+    icon: icon,
   );
 }
 
-String messageFromResponse(Response response) {
-  return response.data["message"] ?? "";
-}
-
-void showSuccessMessage(message) {
-  Fluttertoast.showToast(
-    backgroundColor: Colors.green,
-    msg: message.toString(),
-    toastLength: Toast.LENGTH_LONG,
+void showSuccessMessage(dynamic message, {Widget? icon}) {
+  toastification.dismissAll();
+  toastification.show(
+    title: Text(message),
+    type: ToastificationType.success,
+    style: ToastificationStyle.minimal,
+    alignment: Alignment.bottomCenter,
+    autoCloseDuration: const Duration(seconds: 3),
+    icon: icon,
   );
 }
 
