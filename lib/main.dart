@@ -17,6 +17,8 @@ import 'theme/theme.dart';
 // import 'firebase_options.dart';
 import 'services/shared_preferences_services.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:toastification/toastification.dart';
+
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -79,19 +81,21 @@ class _MyAppState extends State<MyApp> {
             Orientation orientation,
             DeviceType deviceType,
           ) {
-            return MaterialApp(
-              localizationsDelegates: const [
-                CountryLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-              ],
-              navigatorObservers: [observer],
-              navigatorKey: navigatorKey,
-              debugShowCheckedModeBanner: false,
-              onGenerateRoute: AppRoute.onGenerateRoute,
-              // onGenerateInitialRoutes: AppRoute.onGenerateInitialRoute,
-              theme: themeData,
-              home: UserListingScreen(),
+            return ToastificationWrapper(
+              child: MaterialApp(
+                localizationsDelegates: const [
+                  CountryLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                ],
+                navigatorObservers: [observer],
+                navigatorKey: navigatorKey,
+                debugShowCheckedModeBanner: false,
+                onGenerateRoute: AppRoute.onGenerateRoute,
+                // onGenerateInitialRoutes: AppRoute.onGenerateInitialRoute,
+                theme: themeData,
+                home: UserListingScreen(),
+              ),
             );
           },
     );
