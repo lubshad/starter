@@ -22,6 +22,7 @@ import 'package:toastification/toastification.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
+// ignore: strict_top_level_inference
 mainCommon() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(

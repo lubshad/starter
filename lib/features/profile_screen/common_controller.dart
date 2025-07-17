@@ -12,7 +12,7 @@ class CommonController extends ChangeNotifier {
 
   bool initialized = false;
 
-  init() {
+  void init() {
     if (initialized) return;
     fetchProfileDetails();
     initialized = true;
@@ -20,7 +20,7 @@ class CommonController extends ChangeNotifier {
 
   ProfileDetailsModel? profileDetails;
 
-  fetchProfileDetails() {
+  void fetchProfileDetails() {
     DataRepository.i.fetchProfileDetails().then(
       (value) {
         profileDetails = value;
@@ -35,7 +35,7 @@ class CommonController extends ChangeNotifier {
 
  
 
-  clear() {
+  void clear() {
     initialized = false;
   }
 }

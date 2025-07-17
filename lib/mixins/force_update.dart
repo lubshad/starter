@@ -55,7 +55,7 @@ class VersionCheckResponseModel {
 mixin ForceUpdateMixin<T extends StatefulWidget> on State<T> {
   final db = FirebaseFirestore.instance;
 
-  checkVersion() async {
+  Future<void> checkVersion() async {
     final packageInfo = await PackageInfo.fromPlatform();
 
     final platform = Platform.isAndroid ? "android" : "ios";

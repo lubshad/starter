@@ -64,7 +64,7 @@ class CustomException implements Exception {
 }
 
 mixin ErrorExceptionHandler {
-  handleError(exception) {
+  dynamic handleError(dynamic exception) {
     switch (exception.runtimeType) {
       case const (DioException):
         dynamic message = CustomExceptionType.somethingWentWrong;

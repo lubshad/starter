@@ -25,7 +25,7 @@ class _UserListingScreenState extends State<UserListingScreen> {
     pagingController.addPageRequestListener((pageKey) => getData(pageKey));
   }
 
-  getData(int pageKey) async {
+  Future<void> getData(int pageKey) async {
     pagingController.appendLastPage([
       NameId(
         id: "lubshad",

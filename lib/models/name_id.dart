@@ -25,7 +25,7 @@ class NameId {
     };
   }
 
-  static NameId? fromMap(map) {
+  static NameId? fromMap(dynamic map) {
     if (map == null || map is List) return null;
     return NameId(
       third: map["email"],

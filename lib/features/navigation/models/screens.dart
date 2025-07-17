@@ -119,7 +119,7 @@ enum Screens {
     }
   }
 
-  popAll() {
+  void popAll() {
     Navigator.popUntil(context, (route) => route.settings.name == initialRoute);
   }
 }

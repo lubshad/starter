@@ -10,7 +10,7 @@ enum RegistrationState {
   final String value;
   const RegistrationState(this.value);
 
-  static RegistrationState fromString(value) {
+  static RegistrationState fromString(dynamic value) {
     return RegistrationState.values.firstWhereOrNull((element) =>
             value.toString().toLowerCase() == element.value.toLowerCase()) ??
         RegistrationState.basicDetails;

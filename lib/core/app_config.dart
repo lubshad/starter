@@ -20,7 +20,7 @@ enum ENV {
     }
   }
 
-  static ENV fromValue(value) {
+  static ENV fromValue(dynamic value) {
     return ENV.values.firstWhereOrNull((element) => element.index == value) ??
         ENV.local;
   }

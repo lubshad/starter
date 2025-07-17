@@ -48,14 +48,14 @@ void showSuccessMessage(dynamic message, {Widget? icon}) {
   );
 }
 
-showLoading() {
+void showLoading() {
   showDialog(
       barrierDismissible: false,
       context: navigatorKey.currentContext!,
       builder: (context) => const LoadingWidget());
 }
 
-stopLoading() {
+void stopLoading() {
   Navigator.pop(navigatorKey.currentContext!, true);
 }
 
@@ -89,7 +89,7 @@ void showErrorDialog(String? errorMessage) {
 }
 
 
-showAlertDialogCustom(String message) {
+void showAlertDialogCustom(String message) {
   HapticFeedback.heavyImpact();
   showDialog(
     context: navigatorKey.currentContext!,

@@ -5,7 +5,7 @@ import 'package:flutter_activity_recognition/flutter_activity_recognition.dart';
 import 'package:geolocator/geolocator.dart' hide ActivityType;
 
 extension ActivityTypExtension on ActivityType {
-  static ActivityType fromValue(value) {
+  static ActivityType fromValue(dynamic value) {
     return ActivityType.values.firstWhere(
       (element) => element.name == value,
     );

@@ -80,7 +80,7 @@ class FCMService {
     }
   }
 
-  requestPermission() async {
+  Future<void> requestPermission() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@drawable/ic_launcher');
 
@@ -194,7 +194,7 @@ class FCMService {
     return await token ?? "";
   }
 
-  static onMessage(RemoteMessage event) {
+  static void onMessage(RemoteMessage event) {
     logInfo(event.toMap());
     FCMService().showNotification(
       title: event.notification?.title,
@@ -204,7 +204,7 @@ class FCMService {
     EventListener.i.sendEvent(Event(eventType: EventType.notification));
   }
 
-  static onMessageOpenedApp(RemoteMessage event) async {
+  static Future<void> onMessageOpenedApp(RemoteMessage event) async {
     // ignore: avoid_print
     print(event.toMap());
     if (event.data["url"] == null) return;
@@ -221,7 +221,7 @@ class FCMService {
       data = initialMessage?.data["url"];
     }
     if (data == null || data.isEmpty) return;
-    await handleHrefLink(data);
+    handleHrefLink(data);
     SharedPreferencesService.i.setValue(key: notificationDataKey, value: "");
   }
 
@@ -295,7 +295,7 @@ class FCMService {
     handleHrefLink(event.payload);
   }
 
-  static handleHrefLink(link) {
+  static void handleHrefLink(dynamic link) {
     logInfo(link);
     Uri? uri = Uri.tryParse(link);
     if (uri == null) return;

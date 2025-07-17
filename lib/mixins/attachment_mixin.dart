@@ -41,7 +41,7 @@ enum AttachmentType {
   network,
   memmory;
 
-  static AttachmentType fromValue(value) {
+  static AttachmentType fromValue(dynamic value) {
     return AttachmentType.values.firstWhere((element) => element.name == value,
         orElse: () => AttachmentType.network);
   }
@@ -109,7 +109,7 @@ class AttachmentModel {
 
 mixin AttachmentMixin<T extends StatefulWidget> on State<T> {
   List<AttachmentModel> attachments = [];
-  deleteAttachements(AttachmentModel p1) {
+  void deleteAttachements(AttachmentModel p1) {
     attachments.remove(p1);
     setState(() {});
   }

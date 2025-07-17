@@ -12,7 +12,7 @@ import '../navigation/navigation_screen.dart';
 import 'common_controller.dart';
 import 'profile_details_model.dart';
 
-showConfirmation({required String text, required String buttonText}) async {
+Future showConfirmation({required String text, required String buttonText}) async {
   return DeviceType.mobile == SizeUtils.deviceType
       ? await showModalBottomSheet(
           context: navigatorKey.currentContext!,
@@ -47,7 +47,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
     getData();
   }
 
-  getData() async {
+  Future<void> getData() async {
     // future = DataRepository.i.fetchProfileDetails();
     packageInfo = await PackageInfo.fromPlatform();
     setState(() {});
@@ -169,7 +169,7 @@ void showPrivacyPolicy() {
   //     }).toString());
 }
 
-logout() async {
+Future<void> logout() async {
   bool? result = true;
   result = await showConfirmation(
     text:
@@ -183,7 +183,7 @@ logout() async {
 void signOut() async {
   navigationController.value = Screens.home;
   await SharedPreferencesService.i.clear();
-  await CommonController.i.clear();
+  CommonController.i.clear();
   await Navigator.pushReplacementNamed(
     navigatorKey.currentContext!,
     SocialAuthenticationScreen.path,

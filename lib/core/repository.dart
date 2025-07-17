@@ -137,7 +137,7 @@ class DataRepository with ErrorExceptionHandler {
     }
   }
 
-  serverTime() {}
+  Future<DateTime> serverTime() async => DateTime.now( );
 
   Future<PaginationModel<NotificationModel>> fetchNotifications({
     required int pageNo,

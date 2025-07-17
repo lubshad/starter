@@ -62,7 +62,7 @@ class _ProfileListTileState extends State<ProfileListTile>
 
   bool get expanded => animationController.isCompleted;
 
-  tougleExpansion() {
+  void tougleExpansion() {
     if (expanded) {
       animationController.reverse();
     } else {

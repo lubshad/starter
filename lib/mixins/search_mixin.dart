@@ -8,7 +8,7 @@ mixin SearchMixin {
 
   final searchController = TextEditingController();
 
-  addSearchListener(VoidCallback search) {
+  void addSearchListener(VoidCallback search) {
     searchController.addListener(() {
       debouncer?.cancel();
       debouncer = Timer(debouneDuration, () {
@@ -17,7 +17,7 @@ mixin SearchMixin {
     });
   }
 
-  removeSearchListener() {
+  void removeSearchListener() {
     searchController.removeListener(() {});
     searchController.dispose();
   }

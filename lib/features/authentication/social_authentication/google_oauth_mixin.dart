@@ -8,42 +8,37 @@ import '../../../core/logger.dart';
 import '../../splash_screen/splash_screen.dart';
 
 mixin GoogleOauthMixin<T extends StatefulWidget> on State<T> {
-  // static List<String> scopes = <String>[
-  //   'email',
-  //   'https://www.googleapis.com/auth/contacts.readonly',
-  // ];
+  static List<String> scopes = <String>[
+    'email',
+    'https://www.googleapis.com/auth/contacts.readonly',
+  ];
 
-  static final GoogleSignIn _googleSignIn = GoogleSignIn(
-      // scopes: scopes,
-      );
+  static final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
   bool buttonLoading = false;
-  makeButtonLoading() {
+  void makeButtonLoading() {
     buttonLoading = true;
     setState(() {});
   }
 
-  makeButtonNotLoading() {
+  void makeButtonNotLoading() {
     buttonLoading = false;
     setState(() {});
   }
 
-  Future signInWithGoogle() async {
+  Future<void> signInWithGoogle() async {
     if (buttonLoading) return;
     makeButtonLoading();
     try {
-      final GoogleSignInAccount? googleSignInAccount =
-          await _googleSignIn.signIn();
-
-      final GoogleSignInAuthentication googleSignInAuthentication =
-          await googleSignInAccount!.authentication;
+      final GoogleSignInAccount googleSignInAccount = await _googleSignIn.authenticate();
+      final authorizationClient = await googleSignInAccount.authorizationClient.authorizationForScopes(scopes);
+      final GoogleSignInAuthentication googleSignInAuthentication = googleSignInAccount.authentication;
 
       final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleSignInAuthentication.accessToken,
+        accessToken:  authorizationClient?.accessToken,
         idToken: googleSignInAuthentication.idToken,
       );
-
-      FirebaseAuth.instance.signInWithCredential(credential);
+      await FirebaseAuth.instance.signInWithCredential(credential);
       makeButtonNotLoading();
       Navigator.pushNamedAndRemoveUntil(
           context, SplashScreen.path, (route) => false);
@@ -53,9 +48,7 @@ mixin GoogleOauthMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  static signOut() {
-    _googleSignIn.signOut().then((value) {
-      value?.clearAuthCache();
-    });
+  static Future<void> signOut() async {
+    await _googleSignIn.signOut();
   }
 }

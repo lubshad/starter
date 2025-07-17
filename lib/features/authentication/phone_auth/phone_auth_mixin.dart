@@ -123,7 +123,7 @@ mixin PhoneAuthMixin<T extends StatefulWidget> on State<T> {
 
   bool tandcChecked = false;
 
-  tougleTandC() {
+  void tougleTandC() {
     setState(() {
       tandcChecked = !tandcChecked;
     });
@@ -165,13 +165,13 @@ mixin PhoneAuthMixin<T extends StatefulWidget> on State<T> {
   }
 
   bool buttonLoading = false;
-  makeButtonLoading() {
+  void makeButtonLoading() {
     setState(() {
       buttonLoading = true;
     });
   }
 
-  makeButtonNotLoading() {
+  void makeButtonNotLoading() {
     buttonLoading = false;
     if (mounted) {
       setState(() {});

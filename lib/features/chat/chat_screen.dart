@@ -53,13 +53,13 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
   }
 
-  removeChatEventHandler() {
+  void removeChatEventHandler() {
     ChatClient.getInstance.chatManager.removeEventHandler('chat_event_handler');
   }
 
   final scrollController = ScrollController();
 
-  scrolltoBottom() {
+  void scrolltoBottom() {
     if (!scrollController.hasClients) return;
     scrollController.animateTo(
       0,
@@ -68,7 +68,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  addChatEventHandler() {
+  void addChatEventHandler() {
     ChatClient.getInstance.chatManager.addEventHandler(
       'chat_event_handler',
       ChatEventHandler(
@@ -86,7 +86,7 @@ class _ChatScreenState extends State<ChatScreen> {
     logInfo("chat_event_handler added");
   }
 
-  fetchMessages(String? pageKey) async {
+  Future<void> fetchMessages(String? pageKey) async {
     ChatClient.getInstance.chatManager
         .fetchHistoryMessagesByOption(
           widget.conversation.conversation.id,
@@ -395,7 +395,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-showCallSheet(
+Future<void> showCallSheet(
   ChatUserInfo user,
   String channel, {
   CallState initialState = CallState.incomingCall,

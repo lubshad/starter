@@ -5,7 +5,7 @@ import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 
-void logInfo(msg) {
+void logInfo(dynamic msg) {
   String? jsonData;
   try {
     jsonData = jsonEncode(msg);
@@ -18,7 +18,7 @@ void logInfo(msg) {
 }
 
 // Green text
-void logSuccess(msg) {
+void logSuccess(dynamic msg) {
   String? jsonData;
   try {
     jsonData = jsonEncode(msg);
@@ -33,7 +33,7 @@ void logSuccess(msg) {
 }
 
 // Yellow text
-void logWarning(msg) {
+void logWarning(dynamic msg) {
   String? jsonData;
   try {
     jsonData = jsonEncode(msg);
@@ -46,7 +46,7 @@ void logWarning(msg) {
 }
 
 // Red text
-void logError(msg) {
+void logError(dynamic msg) {
   String? jsonData;
   try {
     jsonData = jsonEncode(msg);

@@ -42,13 +42,13 @@ mixin EventListenerMixin<T extends StatefulWidget> on State<T> {
 
   List<EventType> allowedEvents = [];
 
-  listenForEvents(Function(Event) callback) {
+  void listenForEvents(Function(Event) callback) {
     subscription = EventListener.i.eventStream.listen((event) {
       callback(event);
     });
   }
 
-  disposeEventListener() {
+  void disposeEventListener() {
     subscription?.cancel();
   }
 }

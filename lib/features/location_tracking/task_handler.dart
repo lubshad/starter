@@ -24,7 +24,7 @@ void startCallback() {
 }
 
 @pragma('vm:entry-point')
-Future<bool> sendLocationUpdatesToServer(identifier) async {
+Future<bool> sendLocationUpdatesToServer(dynamic identifier) async {
   if (!await checkConnectivity()) return false;
   final locationData = await LocationDatabaseHelper.i.getLocations(
     1,
@@ -106,7 +106,7 @@ class MyTaskHandler extends TaskHandler {
 
   // EmployeeModel? employee;
 
-  onActivityPositionUpdate() async {
+  Future<void> onActivityPositionUpdate() async {
     // if (employee == null) return;
     // final wrappedLocationData = LocationDataWrapper(
     //   activityPosition: wrappedLocation,
@@ -123,7 +123,7 @@ class MyTaskHandler extends TaskHandler {
     // });
   }
 
-  startActivityStream() async {
+  Future<void> startActivityStream() async {
     if (kDebugMode) {
       await Future.delayed(Duration(
         minutes: 2,
@@ -169,7 +169,7 @@ class MyTaskHandler extends TaskHandler {
     }
   }
 
-  stopActivityStream() {
+  void stopActivityStream() {
     if (activityStreamSubscription == null) return;
     activityStreamSubscription?.cancel().then((value) {
       activityStreamSubscription = null;

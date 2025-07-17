@@ -17,12 +17,12 @@ import 'otp_validation_screen.dart';
 mixin EmailPasswordMixin<T extends StatefulWidget> on State<T> {
   bool loginButtonLoading = false;
 
-  makeLoginButtonLoading() {
+  void makeLoginButtonLoading() {
     loginButtonLoading = true;
     setState(() {});
   }
 
-  makeLoginButtonNotLoading() {
+  void makeLoginButtonNotLoading() {
     loginButtonLoading = false;
     setState(() {});
   }

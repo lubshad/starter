@@ -28,7 +28,7 @@ class _NotificationListingScreenState extends State<NotificationListingScreen> {
     pagingController.addPageRequestListener((pageKey) => getData(pageKey));
   }
 
-  getData(int pageKey) async {
+  Future<void> getData(int pageKey) async {
     DataRepository.i.fetchNotifications(pageNo: pageKey).then((value) {
       if (value.isLastPage) {
         pagingController.appendLastPage(value.newItems);

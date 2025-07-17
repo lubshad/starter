@@ -66,7 +66,7 @@ enum CmdActionType {
   startTyping,
   endTyping;
 
-  static CmdActionType fromValue(value) {
+  static CmdActionType fromValue(dynamic value) {
     return CmdActionType.values.firstWhere((element) => element.name == value);
   }
 }
@@ -289,7 +289,7 @@ class AgoraUtils {
     await engine?.setEnableSpeakerphone(isSpeakerOn.value);
   }
 
-  initiateIncommingCall(RemoteMessage message) async {
+  Future<void> initiateIncommingCall(RemoteMessage message) async {
     var extraParams = message.data["e"];
     if (extraParams == null) return;
     extraParams = jsonDecode(extraParams);

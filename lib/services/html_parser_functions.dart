@@ -1,12 +1,12 @@
 // ignore: depend_on_referenced_packages
 import 'package:html/parser.dart';
 
-fixHtmlContent(html) {
+String? fixHtmlContent(dynamic html) {
   if (html == null) return null;
   return html.toString().replaceAll("&amp;", "&").replaceAll("#", "?");
 }
 
-List<String> listStringFromHtml(html) {
+List<String> listStringFromHtml(dynamic html) {
   try {
     if (html == null) return [];
     fixHtmlContent(html);
@@ -23,7 +23,7 @@ List<String> listStringFromHtml(html) {
   }
 }
 
-String stringFromHtml(html) {
+String stringFromHtml(dynamic html) {
   try {
     if (html == null) return "";
     html = fixHtmlContent(html);

@@ -100,7 +100,7 @@ ButtonStyle get shrinkedButton => TextButton.styleFrom(
   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
 );
 
-setSystemOverlay() {
+void setSystemOverlay() {
   if (kIsWeb) return;
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(

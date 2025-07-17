@@ -53,12 +53,12 @@ class _OTPScreenState extends State<OTPScreen> {
   bool donotAsk = false;
 
   bool buttonLoading = false;
-  makeButtonLoading() {
+  void makeButtonLoading() {
     buttonLoading = true;
     setState(() {});
   }
 
-  makeButtonNotLoading() {
+  void makeButtonNotLoading() {
     buttonLoading = false;
     setState(() {});
   }

@@ -4,7 +4,7 @@ import '../exporter.dart';
 mixin DateSelectionMixin<T extends StatefulWidget> on State<T> {
   DateTime? primaryDate;
 
-  pickDate({
+  Future<void> pickDate({
     required DateTime firstDate,
     required DateTime lastDate,
     Function(DateTime)? onChanged,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-delayed({Duration duration = const Duration(seconds: 2)}) async {
+Future delayed({Duration duration = const Duration(seconds: 2)}) async {
   return await Future.delayed(duration);
 }
 

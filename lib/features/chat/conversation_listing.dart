@@ -36,7 +36,7 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
     with EventListenerMixin {
   PagingController<String?, ConversationModel> pagingController =
       PagingController(firstPageKey: null);
-  loginUser() {
+  void loginUser() {
     if (AgoraUtils.i.isLoggedIn) return;
     DataRepository.i.generateRTMToken(CommonController.i.profileDetails!).then((
       agoraConfig,
@@ -55,7 +55,7 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
     });
   }
 
-  addChatEventHandler() {
+  void addChatEventHandler() {
     ChatClient.getInstance.chatManager.addEventHandler(
       'convo_chat_event_handler',
       ChatEventHandler(
@@ -143,7 +143,7 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
     super.initState();
   }
 
-  checkOngoingCall() async {
+  Future<void> checkOngoingCall() async {
     final ongoingCalls = (await FlutterCallkitIncoming.activeCalls() as List);
     if (ongoingCalls.isEmpty) return;
     if (SharedPreferencesService.i.getValue(key: incomingCallKey).isEmpty) {
@@ -160,7 +160,7 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
 
   AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
 
-  updateOrAddConversation(String conversationId) async {
+  Future<void> updateOrAddConversation(String conversationId) async {
     final chatConversation = await ChatClient.getInstance.chatManager
         .getConversation(conversationId);
     final latestMessage = await chatConversation!.latestMessage();
@@ -181,7 +181,7 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
     setState(() {});
   }
 
-  removeChatEventHandler() {
+  void removeChatEventHandler() {
     ChatClient.getInstance.chatManager.removeEventHandler(
       'convo_chat_event_handler',
     );
@@ -194,7 +194,7 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
     super.dispose();
   }
 
-  getData(String? pageKey) async {
+  Future<void> getData(String? pageKey) async {
     if (!AgoraUtils.i.isLoggedIn) {
       pagingController.appendLastPage([]);
       return;

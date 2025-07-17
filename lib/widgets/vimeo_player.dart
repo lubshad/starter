@@ -186,7 +186,7 @@ class _VimeoPlayerState extends State<VimeoPlayer> with EventListenerMixin {
 
   int lastpercentage = 0;
 
-  onTimeUpdate(data) {
+  void onTimeUpdate(dynamic data) {
     final percentage = (((data["percent"] ?? 0) as num) * 100).toInt();
     if (lastpercentage == percentage) return;
     // DataRepository.i

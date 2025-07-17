@@ -185,7 +185,7 @@ class LocationService extends ChangeNotifier {
     notifyListeners();
   }
 
-  setPlaceMarks() async {
+  Future<void> setPlaceMarks() async {
     if (position == null) return;
     placemarks =
         await placemarkFromCoordinates(position!.latitude, position!.longitude);

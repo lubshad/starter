@@ -45,7 +45,7 @@ class _CallScreenState extends State<CallScreen> {
   Timer? _timer;
   Stopwatch? _stopwatch;
 
-  requestPermissions() async {
+  Future<void> requestPermissions() async {
     final permission = await [
       Permission.microphone,
       Permission.camera,
@@ -69,7 +69,7 @@ class _CallScreenState extends State<CallScreen> {
     super.initState();
   }
 
-  _callDeclineListener() {
+  void _callDeclineListener() {
     ChatClient.getInstance.chatManager.addEventHandler(
       "call-decline",
       ChatEventHandler(
@@ -90,7 +90,7 @@ class _CallScreenState extends State<CallScreen> {
     );
   }
 
-  setupEventHandlers() {
+  void setupEventHandlers() {
     AgoraUtils.i.setupVoiceCallEventHanders(
       RtcEngineEventHandler(
         onVideoStopped: () {

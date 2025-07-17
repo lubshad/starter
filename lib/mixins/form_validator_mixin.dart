@@ -9,12 +9,12 @@ import '../widgets/loading_button.dart';
 
 mixin FormValidatorMixin<T extends StatefulWidget> on State<T> {
   bool buttonLoading = false;
-  makeButtonLoading() {
+  void makeButtonLoading() {
     buttonLoading = true;
     setState(() {});
   }
 
-  makeButtonNotLoading() {
+  void makeButtonNotLoading() {
     buttonLoading = false;
     setState(() {});
   }
@@ -37,7 +37,7 @@ mixin FormValidatorMixin<T extends StatefulWidget> on State<T> {
         ],
       ));
 
-  onFormPopInvoked(didPop, result) async {
+  Future<void> onFormPopInvoked(bool didPop, dynamic result) async {
     if (didPop) return;
     if (dataChanged) {
       final result = await showModalBottomSheet(
@@ -58,7 +58,7 @@ mixin FormValidatorMixin<T extends StatefulWidget> on State<T> {
 
   bool dataChanged = false;
 
-  makeDataChanged() {
+  void makeDataChanged() {
     dataChanged = true;
   }
 
@@ -102,7 +102,7 @@ mixin FormValidatorMixin<T extends StatefulWidget> on State<T> {
     return false;
   }
 
-  scrollToTop() {
+  void scrollToTop() {
     if (!formScrollController.hasClients) return;
     formScrollController.animateTo(
       0,
@@ -111,7 +111,7 @@ mixin FormValidatorMixin<T extends StatefulWidget> on State<T> {
     );
   }
 
-  scrollToBottom() {
+  void scrollToBottom() {
     if (!formScrollController.hasClients) return;
     formScrollController.animateTo(
       formScrollController.position.maxScrollExtent,
