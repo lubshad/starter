@@ -13,6 +13,7 @@ import '../features/chat/models/conversation_model.dart';
 import '../features/home_screen/home_screen.dart';
 import '../features/navigation/navigation_screen.dart';
 import '../features/splash_screen/splash_screen.dart';
+import '../mixins/force_update.dart';
 import '../services/shared_preferences_services.dart';
 import 'logger.dart';
 
@@ -64,6 +65,9 @@ class AppRoute {
         break;
       case NavigationScreen.path:
         screen = const NavigationScreen();
+        break;
+      case UnavailabilityScreen.path:
+        screen = const UnavailabilityScreen();
         break;
       case OTPScreen.path:
         Map data = settings.arguments as Map;
