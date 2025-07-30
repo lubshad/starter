@@ -93,6 +93,8 @@ dependencies:
   toastification: ^3.0.2
   camera: ^0.11.2
   google_mlkit_barcode_scanning: ^0.14.1
+  flutter_in_app_pip: ^1.7.4
+  open_file: ^3.5.10
 
 dependency_overrides: 
   infinite_scroll_pagination: ^4.0.0
@@ -124,6 +126,7 @@ flutter:
     - assets/pngs/
     - assets/svgs/
     - assets/lotties/
+    - assets/html/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

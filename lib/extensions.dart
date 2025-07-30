@@ -39,7 +39,7 @@ extension DateTimeExtension on DateTime? {
       this == null ? null : DateFormat("E, MMM, d, y, hh:mm aa").format(this!);
   String? get timeFormat =>
       this == null ? null : DateFormat("hh:mm aa").format(this!);
-  String? get dateFormat {
+  String? dateFormat({bool year = true}) {
     if (this == null) return null;
     DateTime today = serverUtcTime.copyWith(
       hour: 0,
@@ -68,7 +68,10 @@ extension DateTimeExtension on DateTime? {
     if (daysDifference == 0) {
       return "Today";
     }
-    return DateFormat("E, MMM, d, y").format(this!);
+    if (year) {
+      return DateFormat("E, MMM, d, y").format(this!);
+    }
+    return DateFormat("E, MMM, d").format(this!);
   }
 
   TimeOfDay get timeofday =>

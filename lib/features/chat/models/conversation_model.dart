@@ -11,7 +11,10 @@ class ConversationModel {
     required this.user,
     this.latestMessage,
     required this.unreadCount,
-  });
+  }); 
+
+
+  
 
   @override
   bool operator ==(covariant ConversationModel other) {
@@ -24,5 +27,14 @@ class ConversationModel {
   @override
   int get hashCode {
     return conversation.id.hashCode;
+  }
+
+  static ConversationModel fromMap(dynamic e) {
+    return ConversationModel(
+      conversation: e['conversation'] as ChatConversation,
+      user: e['user'] as ChatUserInfo,
+      latestMessage: e['latestMessage'] as ChatMessage?,
+      unreadCount: e['unreadCount'] as int,
+    );
   }
 }

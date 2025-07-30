@@ -3,6 +3,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart';
 import '../../../core/app_route.dart';
+import '../../../main.dart';
 import '../../../widgets/user_avatar.dart';
 import '../chat_screen.dart';
 import '../models/conversation_model.dart';
@@ -17,10 +18,14 @@ class ConversationItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
-        navigate(context, ChatScreen.path, arguments: item);
+        navigate(
+          navigatorKey.currentContext!,
+          ChatScreen.path,
+          arguments: item,
+        );
       },
       leading: UserAvatar(
-        imageUrl: item.user.avatarUrl ?? "",
+        imageUrl: item.user.avatarUrl,
         size: 42.h,
         username: item.user.nickName ?? "",
       ),

@@ -4,7 +4,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get/utils.dart';
 import '../features/authentication/phone_auth/phone_auth_mixin.dart';
-import '../features/chat/agora_utils.dart';
+import '../features/chat/agora_rtm_service.dart';
 import '../features/notification/models/notification_model.dart';
 import '../features/profile_screen/profile_details_model.dart';
 import '../models/name_id.dart';
@@ -174,7 +174,7 @@ class DataRepository with ErrorExceptionHandler {
       final response = await Dio().get(
         "https://us-central1-eventxpro-66c0b.cloudfunctions.net/generateRtcToken",
         queryParameters: {
-          "uid": int.parse(AgoraUtils.i.currentUser?.userId ?? "0"),
+          "uid": int.parse(AgoraRTMService.i.currentUser?.userId ?? "0"),
           "channel": channel,
         },
       );

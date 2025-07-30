@@ -1,21 +1,18 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
-import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_callkit_incoming/entities/android_params.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
 import 'package:flutter_callkit_incoming/entities/ios_params.dart';
 import 'package:flutter_callkit_incoming/entities/notification_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:uuid/uuid.dart';
-
 import '../../exporter.dart';
 import '../../services/fcm_service.dart';
 import '../../services/shared_preferences_services.dart';
+
 final agoraConfig = AgoraConfig(
   appKey: "411355671#1562187",
   senderId: "774863640399",
@@ -71,56 +68,21 @@ enum CmdActionType {
   }
 }
 
-class AgoraUtils {
-  static final AgoraUtils _instance = AgoraUtils._internal();
-  factory AgoraUtils() => _instance;
-  AgoraUtils._internal();
-  static AgoraUtils get i => _instance;
+class AgoraRTMService {
+  static final AgoraRTMService _instance = AgoraRTMService._internal();
+  AgoraRTMService._internal();
+  static AgoraRTMService get i => _instance;
   Future<void> initSdk(AgoraConfig config) async {
     ChatOptions options = ChatOptions(
       appKey: config.appKey,
-      autoLogin: false,
-      debugMode: true,
+      requireAck: true,
+      requireDeliveryAck: true,
+      autoLogin: true,
+      debugMode: false,
     );
     options.enableFCM(config.senderId);
     options.enableAPNs(config.senderId);
     await ChatClient.getInstance.init(options);
-  }
-
-  RtcEngine? engine;
-
-  // Set up the Agora RTC engine instance
-  Future<void> initializeAgoraVoiceSDK(AgoraConfig config) async {
-    engine = createAgoraRtcEngine();
-    await engine?.initialize(
-      RtcEngineContext(
-        appId: config.appId,
-        channelProfile: ChannelProfileType.channelProfileCommunication,
-      ),
-    );
-  }
-
-  // Join a channel
-  Future<void> joinChannel(AgoraConfig config, String channel) async {
-    await engine?.joinChannel(
-      token: config.token,
-      channelId: channel,
-      options: const ChannelMediaOptions(
-        autoSubscribeVideo: true,
-        publishCameraTrack: true,
-        autoSubscribeAudio:
-            true, // Automatically subscribe to all audio streams
-        publishMicrophoneTrack: true, // Publish microphone-captured audio
-        // Use clientRoleBroadcaster to act as a host or clientRoleAudience for audience
-        clientRoleType: ClientRoleType.clientRoleBroadcaster,
-      ),
-      uid: int.parse(currentUser?.userId ?? "0"),
-    );
-  }
-
-  // Register an event handler for Agora RTC
-  void setupVoiceCallEventHanders(RtcEngineEventHandler handler) {
-    engine?.registerEventHandler(handler);
   }
 
   ChatUserInfo? currentUser;
@@ -167,7 +129,10 @@ class AgoraUtils {
     required String message,
   }) async {
     var msg = ChatMessage.createTxtSendMessage(targetId: id, content: message);
-    return await ChatClient.getInstance.chatManager.sendMessage(msg);
+    final serverMessg = await ChatClient.getInstance.chatManager.sendMessage(
+      msg,
+    );
+    return serverMessg;
   }
 
   Future<ChatMessage> sendImageMessage({
@@ -228,14 +193,6 @@ class AgoraUtils {
     return await ChatClient.getInstance.chatManager.sendMessage(msg);
   }
 
-  // Leaves the channel and releases resources
-  Future<void> cleanupAgoraEngine() async {
-    await engine?.leaveChannel();
-    await engine?.release();
-    isAudioMuted.value = false;
-    isVideoMuted.value = true;
-  }
-
   Future<ChatMessage?> sendCallStatusCMD({
     required String id,
     required ChatUserInfo user,
@@ -256,40 +213,7 @@ class AgoraUtils {
     return await ChatClient.getInstance.chatManager.sendMessage(msg);
   }
 
-  ValueNotifier<bool> isAudioMuted = ValueNotifier(false);
-
-  void tougleMicrophone() {
-    isAudioMuted.value = !isAudioMuted.value;
-    engine?.muteLocalAudioStream(isAudioMuted.value).then((value) {
-      logInfo("audio mute : ${isAudioMuted.value}");
-    });
-  }
-
-  ValueNotifier<bool> isVideoMuted = ValueNotifier(true);
-
-  ValueNotifier<bool> isSpeakerOn = ValueNotifier(false);
-
-  void tougleVideo() async {
-    isVideoMuted.value = !isVideoMuted.value;
-    if (!isVideoMuted.value) {
-      await engine?.enableVideo();
-      await engine?.startPreview();
-      if (!isSpeakerOn.value) {
-        tougleSpeakerMode();
-      }
-    } else {
-      await engine?.disableVideo();
-      await engine?.stopPreview();
-    }
-    logInfo("video mute : ${isVideoMuted.value}");
-  }
-
-  void tougleSpeakerMode() async {
-    isSpeakerOn.value = !isSpeakerOn.value;
-    await engine?.setEnableSpeakerphone(isSpeakerOn.value);
-  }
-
-  Future<void> initiateIncommingCall(RemoteMessage message) async {
+  Future initiateIncommingCall(RemoteMessage message) async {
     var extraParams = message.data["e"];
     if (extraParams == null) return;
     extraParams = jsonDecode(extraParams);
@@ -354,5 +278,32 @@ class AgoraUtils {
       ),
     );
     await FlutterCallkitIncoming.showCallkitIncoming(callKitParams);
+  }
+
+  Future<void> addReactionToMessage(String msgId, String reaction) async {
+    try {
+      await ChatClient.getInstance.chatManager.addReaction(
+        messageId: msgId,
+        reaction: reaction,
+      );
+      logInfo("success:");
+    } on ChatError catch (error) {
+      logInfo("fail: $error");
+    }
+  }
+
+  Future<void> removeReactionFromMessage(
+    String messageId,
+    String reaction,
+  ) async {
+    try {
+      await ChatClient.getInstance.chatManager.removeReaction(
+        messageId: messageId,
+        reaction: reaction,
+      );
+      logInfo("Reaction removed successfully");
+    } on ChatError catch (e) {
+      logInfo("Failed to remove reaction: ${e.code} - ${e.description}");
+    }
   }
 }

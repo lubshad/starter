@@ -16,8 +16,8 @@ import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/list_tile_shimmer.dart';
 import '../../widgets/no_item_found.dart';
 import '../profile_screen/common_controller.dart';
-import 'agora_utils.dart';
-import 'call_screen.dart';
+import 'agora_rtc_service.dart';
+import 'agora_rtm_service.dart';
 import 'chat_screen.dart';
 import 'models/conversation_model.dart';
 import 'widgets/conversation_item.dart';
@@ -37,11 +37,11 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
   PagingController<String?, ConversationModel> pagingController =
       PagingController(firstPageKey: null);
   void loginUser() {
-    if (AgoraUtils.i.isLoggedIn) return;
+    if (AgoraRTMService.i.isLoggedIn) return;
     DataRepository.i.generateRTMToken(CommonController.i.profileDetails!).then((
       agoraConfig,
     ) {
-      AgoraUtils.i
+      AgoraRTMService.i
           .signIn(
             userid: CommonController.i.profileDetails!.id.toString(),
             usertoken: agoraConfig.token,
@@ -51,6 +51,17 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
           .then((value) async {
             pagingController.refresh();
             addChatEventHandler();
+            await Future.delayed(const Duration(seconds: 2));
+            if (pagingController.itemList?.isEmpty == true) {
+              await ChatClient.getInstance.chatManager
+                  .fetchConversationsByOptions(
+                    options: ConversationFetchOptions(pageSize: 50),
+                  )
+                  .then((value) {
+                    pagingController.refresh();
+                  });
+            }
+            pagingController.refresh();
           });
     });
   }
@@ -73,12 +84,6 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
               body: (messages.first.body as ChatTextMessageBody).content,
             );
           }
-          EventListener.i.sendEvent(
-            Event(
-              eventType: EventType.converstaionUpdate,
-              data: messages.first.conversationId,
-            ),
-          );
         },
         onCmdMessagesReceived: onCmdMessagesRecieved,
       ),
@@ -96,7 +101,7 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
         final fromUser = ChatUserInfo.fromJson(action["from"]);
         final channel = action["channel"];
         if (appLifecycleState == AppLifecycleState.paused) {
-          AgoraUtils.i.initiateIncommingCall(
+          AgoraRTMService.i.initiateIncommingCall(
             RemoteMessage(
               data: {
                 "e": jsonEncode({
@@ -172,8 +177,13 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
       ])).values.first,
       unreadCount: await chatConversation.unreadCount(),
     );
-    if (pagingController.itemList!.contains(conversation)) {
-      final index = pagingController.itemList!.indexOf(conversation);
+    if (pagingController.itemList!
+        .map((e) => e.conversation.id)
+        .contains(conversation.conversation.id)) {
+      final index = pagingController.itemList!
+          .map((e) => e.conversation.id)
+          .toList()
+          .indexOf(conversation.conversation.id);
       pagingController.itemList!.replaceRange(index, index + 1, [conversation]);
     } else {
       pagingController.itemList!.add(conversation);
@@ -195,30 +205,27 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
   }
 
   Future<void> getData(String? pageKey) async {
-    if (!AgoraUtils.i.isLoggedIn) {
+    if (!AgoraRTMService.i.isLoggedIn) {
       pagingController.appendLastPage([]);
       return;
     }
-    // AgoraUtils.i.sendMessage(id: "18", message: "message");
     ChatClient.getInstance.chatManager
-        .fetchConversationsByOptions(
-          options: ConversationFetchOptions(cursor: pageKey),
-        )
+        .loadAllConversations()
         .then((value) async {
           final users =
               (await ChatClient.getInstance.userInfoManager.fetchUserInfoById(
-                value.data.map((e) => e.id).toList(),
+                value.map((e) => e.id).toList(),
               )).values.toList();
 
           final latestMessages = await Future.wait(
-            value.data.map((e) => e.latestMessage()),
+            value.map((e) => e.latestMessage()),
           );
 
           final unreadCounts = await Future.wait(
-            value.data.map((e) => e.unreadCount()),
+            value.map((e) => e.unreadCount()),
           );
 
-          final conversations = value.data.indexed
+          final conversations = value.indexed
               .map(
                 (conversation) => ConversationModel(
                   conversation: conversation.$2,
@@ -228,13 +235,8 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
                 ),
               )
               .toList();
-          if (value.cursor == null ||
-              value.cursor!.isEmpty ||
-              value.cursor == "undefined") {
-            pagingController.appendLastPage(conversations);
-          } else {
-            pagingController.appendPage(conversations, value.cursor);
-          }
+
+          pagingController.appendLastPage(conversations);
         })
         .onError((error, stackTrace) {
           pagingController.error = error;
@@ -244,7 +246,7 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Chat List")),
+      appBar: AppBar(title: Text("Messages")),
       body: RefreshIndicator(
         onRefresh: () async => pagingController.refresh(),
         child: PagedListView<String?, ConversationModel>.separated(
@@ -259,8 +261,11 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
               ),
             ),
             noItemsFoundIndicatorBuilder: (context) => const NoItemsFound(),
-            firstPageProgressIndicatorBuilder: (context) => Column(
-              children: List.generate(4, (index) => const ListTileShimmer()),
+            firstPageProgressIndicatorBuilder: (context) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: paddingLarge),
+              child: Column(
+                children: List.generate(4, (index) => const ListTileShimmer()),
+              ),
             ),
             itemBuilder: (context, item, index) => ConversationItem(item: item),
           ),

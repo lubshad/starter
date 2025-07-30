@@ -1,11 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
-import 'package:audio_waveforms/audio_waveforms.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -15,16 +11,17 @@ import '../../core/app_route.dart';
 import '../../exporter.dart';
 import '../../main.dart';
 import '../../mixins/event_listener.dart';
-import '../../services/file_picker_service.dart';
-import '../../services/snackbar_utils.dart';
-import '../../widgets/bottom_button_padding.dart';
 import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/list_tile_shimmer.dart';
 import '../../widgets/no_item_found.dart';
-import 'agora_utils.dart';
+import 'agora_rtc_service.dart';
+import 'agora_rtm_service.dart';
 import 'call_screen.dart';
 import 'models/conversation_model.dart';
+import 'sound_player_service.dart';
+import 'widgets/chat_date_seperator_item.dart';
 import 'widgets/chat_message_item.dart';
+import 'widgets/chat_bottom_bar.dart';
 
 class ChatScreen extends StatefulWidget {
   static const String path = "/chat-screen";
@@ -37,6 +34,9 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  ValueNotifier<bool> typing = ValueNotifier(false);
+  Timer? typingTimer;
+
   PagingController<String?, ChatMessage> pagingController = PagingController(
     firstPageKey: null,
   );
@@ -47,14 +47,21 @@ class _ChatScreenState extends State<ChatScreen> {
       (pageKey) => fetchMessages(pageKey),
     );
     addChatEventHandler();
-    widget.conversation.conversation.markAllMessagesAsRead().then((value) {
-      logInfo("all msg read");
-    });
+    clearUnreadMessages();
     super.initState();
+  }
+
+  void clearUnreadMessages() async {
+    final unreadCount = await widget.conversation.conversation.unreadCount();
+    if (unreadCount == 0) return;
+    widget.conversation.conversation.markAllMessagesAsRead();
   }
 
   void removeChatEventHandler() {
     ChatClient.getInstance.chatManager.removeEventHandler('chat_event_handler');
+    ChatClient.getInstance.chatManager.removeMessageEvent(
+      'message_event_handler',
+    );
   }
 
   final scrollController = ScrollController();
@@ -78,47 +85,60 @@ class _ChatScreenState extends State<ChatScreen> {
             pagingController.itemList?.insert(0, messages.first);
             setState(() {});
             scrolltoBottom();
+            SoundPlayerService.i.playMsgReceivedAudio();
           }
         },
         onCmdMessagesReceived: onCmdMessagesRecieved,
+        onMessagesRead: onMessageUpdate,
+        onMessagesDelivered: onMessageUpdate,
+      ),
+    );
+    ChatClient.getInstance.chatManager.addMessageEvent(
+      "message_event_handler",
+      ChatMessageEvent(
+        onSuccess: (msgId, msg) {
+          if (msg.body is ChatCmdMessageBody) return;
+          if (pagingController.itemList?.map((e) => e.msgId).contains(msgId) ??
+              false) {
+            onMessageUpdate([msg]);
+          } else {
+            pagingController.itemList!.insert(0, msg);
+            SoundPlayerService.i.playMsgSendAudio();
+            setState(() {});
+          }
+        },
       ),
     );
     logInfo("chat_event_handler added");
   }
 
   Future<void> fetchMessages(String? pageKey) async {
-    ChatClient.getInstance.chatManager
-        .fetchHistoryMessagesByOption(
-          widget.conversation.conversation.id,
-          widget.conversation.conversation.type,
-          cursor: pageKey,
-        )
+    widget.conversation.conversation
+        .loadMessages(startMsgId: pagingController.nextPageKey ?? "")
         .then((value) {
-          if (value.cursor == null ||
-              value.cursor!.isEmpty ||
-              value.cursor == "undefined") {
-            pagingController.appendLastPage(value.data);
+          final reversed = value.reversed.toList();
+          if (reversed.length < 20) {
+            pagingController.appendLastPage(reversed);
           } else {
-            pagingController.appendPage(value.data, value.cursor!);
+            pagingController.appendPage(reversed, reversed.last.msgId);
           }
         });
   }
 
   @override
-  dispose() {
+  void dispose() {
     removeChatEventHandler();
+    clearUnreadMessages();
     EventListener.i.sendEvent(
       Event(
         eventType: EventType.converstaionUpdate,
         data: widget.conversation.conversation.id,
       ),
     );
+    pagingController.dispose();
+    scrollController.dispose();
     super.dispose();
   }
-
-  final RecorderController recorderController = RecorderController();
-
-  final TextEditingController messageController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -126,32 +146,37 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: Text(widget.conversation.user.nickName.toString()),
         actions: [
-          IconButton(
-            onPressed: () {
-              final channel =
-                  "${AgoraUtils.i.currentUser?.userId ?? ""}-${widget.conversation.conversation.id}";
-              [Permission.microphone, Permission.camera].request().then((
-                value,
-              ) {
-                if (value.values.any(
-                  (element) => element != PermissionStatus.granted,
-                )) {
-                  return;
-                }
+          Material(
+            shadowColor: Colors.black26,
+            elevation: 2.0,
+            borderRadius: BorderRadius.circular(padding),
+            color: Colors.white,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(padding),
+              splashColor: Colors.grey[200],
+              onTap: () async {
+                final channel =
+                    "${AgoraRTMService.i.currentUser?.userId ?? ""}-${widget.conversation.conversation.id}";
+                final permission = await Permission.camera.request();
+                if (permission != PermissionStatus.granted) return;
+                AgoraRtcService.i.setArguments(
+                  widget.conversation.user,
+                  channel,
+                  CallState.outgoingCall,
+                );
                 navigate(
                   navigatorKey.currentContext!,
                   CallScreen.path,
-                  arguments: CallScreenArgs(
-                    user: widget.conversation.user,
-                    channelName: channel,
-                    initialState: CallState.outgoingCall,
-                  ),
                   duplicate: false,
                 );
-              });
-            },
-            icon: Icon(Icons.call),
+              },
+              child: Padding(
+                padding: EdgeInsets.all(padding),
+                child: Icon(Icons.call),
+              ),
+            ),
           ),
+          gap,
         ],
       ),
       body: Column(
@@ -161,7 +186,7 @@ class _ChatScreenState extends State<ChatScreen> {
               onRefresh: () async => pagingController.refresh(),
               child: PagedListView<String?, ChatMessage>.separated(
                 reverse: true,
-                padding: const EdgeInsets.all(padding),
+                padding: const EdgeInsets.all(paddingLarge),
                 pagingController: pagingController,
                 scrollController: scrollController,
                 builderDelegate: PagedChildBuilderDelegate(
@@ -174,16 +199,42 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   noItemsFoundIndicatorBuilder: (context) =>
                       const NoItemsFound(),
-                  firstPageProgressIndicatorBuilder: (context) => Column(
-                    children: List.generate(
-                      4,
-                      (index) => const ListTileShimmer(),
+                  firstPageProgressIndicatorBuilder: (context) => Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: paddingLarge,
+                    ),
+                    child: Column(
+                      children: List.generate(
+                        4,
+                        (index) => const ListTileShimmer(),
+                      ),
                     ),
                   ),
-                  itemBuilder: (context, item, index) => ChatMessageItem(
-                    item: item,
-                    other: widget.conversation.user,
-                  ),
+                  itemBuilder: (context, item, index) {
+                    final messages = pagingController.itemList!;
+                    final currentDate = DateTime.fromMillisecondsSinceEpoch(
+                      item.serverTime,
+                    );
+                    DateTime? prevDate;
+                    if (index < messages.length - 1) {
+                      prevDate = DateTime.fromMillisecondsSinceEpoch(
+                        messages[index + 1].serverTime,
+                      );
+                    }
+                    final showSeperator =
+                        prevDate == null || !currentDate.isSameDay(prevDate);
+                    return Column(
+                      children: [
+                        if (showSeperator)
+                          ChatDateSeperatorItem(date: currentDate),
+                        ChatMessageItem(
+                          key: ValueKey(item.msgId),
+                          item: item,
+                          other: widget.conversation.user,
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 separatorBuilder: (context, index) => gap,
               ),
@@ -211,161 +262,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: Builder(
-        builder: (context) {
-          if (recorderController.isRecording) {
-            return Row(
-              children: [
-                IconButton(
-                  onPressed: () {
-                    recorderController.stop().then((value) async {
-                      await File(value!).delete();
-                      setState(() {});
-                    });
-                  },
-                  icon: Icon(Icons.delete),
-                ),
-                Expanded(
-                  child: AudioWaveforms(
-                    waveStyle: WaveStyle(
-                      showMiddleLine: false,
-                      extendWaveform: true,
-                    ),
-                    margin: EdgeInsets.symmetric(vertical: padding),
-                    size: Size(SizeUtils.width, kToolbarHeight),
-                    recorderController: recorderController,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    recorderController.stop().then((value) {
-                      setState(() {});
-                      if (value == null) return;
-                      AgoraUtils.i
-                          .sendVoiceMessage(
-                            id: widget.conversation.conversation.id,
-                            file: File(value),
-                            duration: recorderController.recordedDuration,
-                          )
-                          .then((value) {
-                            pagingController.itemList?.insert(0, value);
-                            setState(() {});
-                          });
-                    });
-                  },
-                  icon: Icon(Icons.send),
-                ),
-              ],
-            );
-          }
-          return BottomButtonPadding(
-            child: Row(
-              children: [
-                // add attachments button
-                IconButton(
-                  icon: Icon(Icons.attach_file),
-                  onPressed: () async {
-                    final file = await FilePickerService.pickFile(
-                      fileType: FileType.any,
-                    );
-                    if (file == null) return;
-                    AgoraUtils.i
-                        .sendFileMessage(
-                          id: widget.conversation.conversation.id,
-                          file: file,
-                        )
-                        .then((value) {
-                          pagingController.itemList?.insert(0, value);
-                          setState(() {});
-                        });
-                  },
-                ),
-                gap,
-                Expanded(
-                  child: SizedBox(
-                    height: kToolbarHeight / 1.2,
-                    child: TextField(
-                      controller: messageController,
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: padding,
-                          vertical: 0,
-                        ),
-                        hintText: 'Type a message',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (value) => AgoraUtils.i.sendTypingIndicator(
-                        id: widget.conversation.conversation.id,
-                      ),
-                    ),
-                  ),
-                ),
-                gap,
-                ValueListenableBuilder(
-                  valueListenable: messageController,
-                  builder: (context, value, child) {
-                    if (value.text.isEmpty) {
-                      return Row(
-                        children: [
-                          // camera button
-                          IconButton(
-                            icon: Icon(Icons.camera_alt),
-                            onPressed: () async {
-                              // return;
-                              final image =
-                                  await FilePickerService.pickFileOrImage(
-                                    imageSource: ImageSource.gallery,
-                                    crop: false,
-                                  );
-                              if (image == null) return;
-                              AgoraUtils.i
-                                  .sendImageMessage(
-                                    id: widget.conversation.conversation.id,
-                                    file: image,
-                                  )
-                                  .then((value) {
-                                    pagingController.itemList?.insert(0, value);
-                                    setState(() {});
-                                  });
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.keyboard_voice),
-                            onPressed: () async {
-                              if (!(await recorderController
-                                  .checkPermission())) {
-                                showErrorMessage("You need to give permission");
-                                return;
-                              }
-                              if (!recorderController.hasPermission) return;
-                              recorderController.record().then((value) {
-                                setState(() {});
-                              });
-                            },
-                          ),
-                        ],
-                      );
-                    }
-                    return IconButton(
-                      icon: Icon(Icons.send),
-                      onPressed: () => AgoraUtils.i
-                          .sendMessage(
-                            id: widget.conversation.conversation.id,
-                            message: messageController.text,
-                          )
-                          .then((value) {
-                            messageController.clear();
-                            pagingController.itemList?.insert(0, value);
-                            setState(() {});
-                          }),
-                    );
-                  },
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+      bottomNavigationBar: ChatBottomBar(conversation: widget.conversation),
     );
   }
 
@@ -382,16 +279,21 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  ValueNotifier<bool> typing = ValueNotifier(false);
-
-  Timer? typingTimer;
-
   void showTyping() {
     typingTimer?.cancel();
     typing.value = true;
     typingTimer = Timer(Duration(seconds: 3), () {
       typing.value = false;
     });
+  }
+
+  void onMessageUpdate(List<ChatMessage> messages) {
+    final mesgIndex = pagingController.itemList?.indexWhere(
+      (element) => element.msgId == messages.first.msgId,
+    );
+    if (mesgIndex == null || mesgIndex.isNegative) return;
+    pagingController.itemList!.replaceRange(mesgIndex, mesgIndex + 1, messages);
+    setState(() {});
   }
 }
 
@@ -400,14 +302,6 @@ Future<void> showCallSheet(
   String channel, {
   CallState initialState = CallState.incomingCall,
 }) async {
-  navigate(
-    navigatorKey.currentContext!,
-    CallScreen.path,
-    arguments: CallScreenArgs(
-      user: user,
-      channelName: channel,
-      initialState: initialState,
-    ),
-    duplicate: false,
-  );
+  AgoraRtcService.i.setArguments(user, channel, initialState);
+  navigate(navigatorKey.currentContext!, CallScreen.path, duplicate: false);
 }

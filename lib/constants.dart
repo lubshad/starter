@@ -133,3 +133,24 @@ const List<BoxShadow> defaultShadow = [
     offset: Offset(1.1, 1.1),
   )
 ];
+
+
+const List<Color> pastelColors = [
+  Color(0xFFFFD1DC),
+  Color(0xFFFFF1C1),
+  Color(0xFFB5EAD7),
+  Color(0xFFC7CEEA),
+  Color(0xFFFFDAC1),
+  Color(0xFFDCEDC1),
+  Color(0xFFFFABAB),
+  Color(0xFFFFC3A0),
+  Color(0xFF9EE6CF),
+  Color(0xFFBFD8B8),
+  Color(0xFFD5AAFF),
+  Color(0xFFFFF5BA),
+];
+Color get randomColors {
+  List<Color> newList = List.from(pastelColors);
+  newList.shuffle();
+  return newList.first;
+}

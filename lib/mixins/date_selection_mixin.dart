@@ -40,7 +40,7 @@ mixin DateSelectionMixin<T extends StatefulWidget> on State<T> {
                 ))),
         readOnly: true,
         controller: TextEditingController(
-          text: primaryDate == null ? "" : primaryDate?.dateFormat,
+          text: primaryDate == null ? "" : primaryDate?.dateFormat(year: true),
         ),
         decoration: InputDecoration(
           label: Text(title ?? "Date"),
