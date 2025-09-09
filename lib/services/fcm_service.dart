@@ -212,7 +212,7 @@ class FCMService {
   }
 
   static void handleNotificationData() async {
-    String? data = SharedPreferencesService.i.getValue(
+    String? data = await SharedPreferencesService.i.getValue(
       key: notificationDataKey,
     );
     if (data.isEmpty) {

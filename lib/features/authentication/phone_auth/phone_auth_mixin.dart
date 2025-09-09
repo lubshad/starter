@@ -8,9 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/app_config.dart';
 import '../../../core/error_exception_handler.dart';
-import '../../../core/interceptors.dart';
 import '../../../core/repository.dart';
-import '../../../core/universal_argument.dart';
 import '../../../exporter.dart';
 import '../../../services/fcm_service.dart';
 import '../../../services/shared_preferences_services.dart';
@@ -25,19 +23,17 @@ class PhoneAuthApiConstants {
 class TokenAuthInterceptor extends Interceptor {
   @override
   void onRequest(
-      RequestOptions options, RequestInterceptorHandler handler) async {
-    String token = SharedPreferencesService.i.getValue();
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    String token = await SharedPreferencesService.i.getValue();
     if (token != "") {
-      options.headers.addAll({
-        "Authorization": "Bearer $token",
-      });
+      options.headers.addAll({"Authorization": "Bearer $token"});
     }
-    options.headers.addAll(
-      {
-        "User-Agent": Platform.isAndroid ? "ANDROID" : "IOS",
-        "Accept": Headers.jsonContentType
-      },
-    );
+    options.headers.addAll({
+      "User-Agent": Platform.isAndroid ? "ANDROID" : "IOS",
+      "Accept": Headers.jsonContentType,
+    });
     if (options.data == null) {
       options.headers.remove(Headers.contentTypeHeader);
     } else if (options.data is FormData) {
@@ -63,26 +59,29 @@ class TokenAuthInterceptor extends Interceptor {
 }
 
 class PhoneAuthRepository with ErrorExceptionHandler {
-  final Dio _client = Dio(BaseOptions(
-    validateStatus: validateStatus,
-    receiveDataWhenStatusError: true,
-    baseUrl: "${appConfig.domain}/api/phone_authentication/",
-    contentType: "application/json",
-  ));
+  final Dio _client = Dio(
+    BaseOptions(
+      receiveDataWhenStatusError: true,
+      baseUrl: "${appConfig.domain}/api/phone_authentication/",
+      contentType: "application/json",
+    ),
+  );
 
   PhoneAuthRepository._private() {
     // _client.interceptors.add(ErrorResolver());
     // _client.interceptors.add(AuthenticationInterceptor());
-    _client.interceptors.add(LoggingInterceptor());
+    _client.interceptors.add(TokenAuthInterceptor());
   }
 
   static PhoneAuthRepository get i => _instance;
   static final PhoneAuthRepository _instance = PhoneAuthRepository._private();
 
-  Future<String> sendOtp(UniversalArgument data) async {
+  Future<String> sendOtp(Map<String, dynamic> data) async {
     try {
-      final response =
-          await _client.post(PhoneAuthApiConstants.sendOtp, data: data.toMap());
+      final response = await _client.post(
+        PhoneAuthApiConstants.sendOtp,
+        data: data,
+      );
       return response.data as String;
     } catch (e) {
       throw handleError(e);
@@ -91,8 +90,10 @@ class PhoneAuthRepository with ErrorExceptionHandler {
 
   Future<String> verifyOtp(Map<String, String?> map) async {
     try {
-      final response =
-          await _client.post(PhoneAuthApiConstants.verifyOtp, data: map);
+      final response = await _client.post(
+        PhoneAuthApiConstants.verifyOtp,
+        data: map,
+      );
       return response.data as String;
     } catch (e) {
       throw handleError(e);
@@ -135,11 +136,11 @@ mixin PhoneAuthMixin<T extends StatefulWidget> on State<T> {
     }
     return pageController.page?.toInt() == 0
         ? phoneErrorText != null
-            ? SizeUtils.width * .9
-            : SizeUtils.width * .84
+              ? SizeUtils.width * .9
+              : SizeUtils.width * .84
         : otpErrorText != null
-            ? SizeUtils.width * .86
-            : SizeUtils.width * .81;
+        ? SizeUtils.width * .86
+        : SizeUtils.width * .81;
   }
 
   void sendOtp() async {
@@ -147,21 +148,22 @@ mixin PhoneAuthMixin<T extends StatefulWidget> on State<T> {
     if (pageController.page == 0 && !validate()) return;
     makeButtonLoading();
     PhoneAuthRepository.i
-        .sendOtp(UniversalArgument(text: phoneNumber))
+        .sendOtp({"text": phoneNumber})
         .then((value) {
-      onCodeSent(value, 1);
-    }).onError((error, stackTrace) {
-      phoneErrorText = error.toString();
-      makeButtonNotLoading();
-    });
+          onCodeSent(value, 1);
+        })
+        .onError((error, stackTrace) {
+          phoneErrorText = error.toString();
+          makeButtonNotLoading();
+        });
   }
 
   String? validatePhone(String? value) {
     return value!.isEmpty
         ? "Phone is required"
         : value.length < 7
-            ? "Please enter a valid number"
-            : null;
+        ? "Please enter a valid number"
+        : null;
   }
 
   bool buttonLoading = false;
@@ -203,19 +205,22 @@ mixin PhoneAuthMixin<T extends StatefulWidget> on State<T> {
   void validateOtp() async {
     if (!validatepin()) return;
     makeButtonLoading();
-    PhoneAuthRepository.i.verifyOtp({
-      "text": verificationId,
-      "otp": pincodeController.text
-    }).then((value) async {
-      SharedPreferencesService.i.setValue(value: value);
-      // await updateDevice();
-      makeButtonNotLoading();
-      Navigator.pushNamedAndRemoveUntil(
-          context, SplashScreen.path, (route) => false);
-    }).onError((error, stackTrace) {
-      otpErrorText = error.toString();
-      makeButtonNotLoading();
-    });
+    PhoneAuthRepository.i
+        .verifyOtp({"text": verificationId, "otp": pincodeController.text})
+        .then((value) async {
+          SharedPreferencesService.i.setValue(value: value);
+          // await updateDevice();
+          makeButtonNotLoading();
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            SplashScreen.path,
+            (route) => false,
+          );
+        })
+        .onError((error, stackTrace) {
+          otpErrorText = error.toString();
+          makeButtonNotLoading();
+        });
   }
 
   final pincodeController = TextEditingController();
@@ -226,8 +231,8 @@ mixin PhoneAuthMixin<T extends StatefulWidget> on State<T> {
     return value!.isEmpty
         ? "OTP is required"
         : value.length < otpLenth
-            ? "Please enter a valid otp"
-            : null;
+        ? "Please enter a valid otp"
+        : null;
   }
 
   final ValueNotifier<Duration> stopwatchValue = ValueNotifier(Duration.zero);
@@ -283,7 +288,9 @@ mixin PhoneAuthMixin<T extends StatefulWidget> on State<T> {
     _startStopwatch();
     if (pageController.page != 1) {
       pageController.nextPage(
-          duration: animationDuration, curve: Curves.fastOutSlowIn);
+        duration: animationDuration,
+        curve: Curves.fastOutSlowIn,
+      );
     }
   }
 

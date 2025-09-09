@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:starter/core/app_route.dart';
+import 'package:starter/core/repository.dart';
 import 'package:starter/firebase_options.dart';
 import 'features/chat/user_listing.dart';
 import 'services/size_utils.dart';
@@ -19,15 +20,12 @@ import 'services/shared_preferences_services.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:toastification/toastification.dart';
 
-
 final navigatorKey = GlobalKey<NavigatorState>();
 
 // ignore: strict_top_level_inference
 mainCommon() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await SharedPreferencesService.i.initialize();
   if (kIsWeb) {
     usePathUrlStrategy();
@@ -50,6 +48,7 @@ mainCommon() async {
       FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
     }
   }
+  await DataRepository.i.initialize();
 }
 
 class MyApp extends StatefulWidget {

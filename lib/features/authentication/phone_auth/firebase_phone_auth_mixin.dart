@@ -235,7 +235,7 @@ class FirebaseAuthInterceptor extends Interceptor {
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
-    String token = SharedPreferencesService.i.getValue();
+    String token = await SharedPreferencesService.i.getValue();
     try {
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
 

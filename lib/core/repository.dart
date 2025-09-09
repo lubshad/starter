@@ -12,41 +12,41 @@ import '../services/shared_preferences_services.dart';
 import 'api_constants.dart';
 import 'app_config.dart';
 import 'error_exception_handler.dart';
-import 'interceptors.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-
-import 'universal_argument.dart';
-
-bool validateStatus(int? status) {
-  List validStatusCodes = [304, 200, 201, 204];
-  return validStatusCodes.contains(status);
-}
+import 'pagination_response.dart';
 
 class DataRepository with ErrorExceptionHandler {
-  final Dio _client = Dio(
-    BaseOptions(
-      connectTimeout: const Duration(seconds: 120),
-      validateStatus: validateStatus,
-      baseUrl: SharedPreferencesService.i.domainUrl == ""
-          ? appConfig.baseUrl
-          : SharedPreferencesService.i.domainUrl + appConfig.slugUrl,
-      receiveDataWhenStatusError: true,
-      contentType: "application/json",
-    ),
-  );
+  DataRepository._private();
+  late final Dio _client;
 
-  static DataRepository get i => _instance;
-  static final DataRepository _instance = DataRepository._private();
-  void setBaseUrl(String text) {
-    _client.options.baseUrl = text + appConfig.slugUrl;
-  }
-
-  DataRepository._private() {
+  bool initialized = false;
+  Future<void> initialize() async {
+    if (initialized) return;
+    final domainUrl = await SharedPreferencesService.i.domainUrl;
+    _client = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 60),
+        baseUrl: domainUrl == ""
+            ? appConfig.baseUrl
+            : domainUrl + appConfig.slugUrl,
+        contentType: "application/json",
+      ),
+    );
     var cookieJar = CookieJar(ignoreExpires: false);
     _client.interceptors.add(CookieManager(cookieJar));
     _client.interceptors.add(TokenAuthInterceptor());
-    _client.interceptors.add(LoggingInterceptor());
+    _client.interceptors.add(
+      LogInterceptor(requestBody: true, responseBody: true),
+    );
+    initialized = true;
+  }
+
+  static DataRepository get i => _instance;
+  static final DataRepository _instance = DataRepository._private();
+
+  void setBaseUrl(String text) {
+    _client.options.baseUrl = text + appConfig.slugUrl;
   }
 
   Future<String> login({
@@ -55,132 +55,100 @@ class DataRepository with ErrorExceptionHandler {
     String? totp,
     bool donotAsk = false,
   }) async {
-    try {
-      Map<String, dynamic> data = {
-        "login": username,
-        "password": password,
-        "totp_token": totp,
-      };
+    Map<String, dynamic> data = {
+      "login": username,
+      "password": password,
+      "totp_token": totp,
+    };
 
-      if (donotAsk == true) {
-        data.addAll({"do_not_ask": donotAsk});
-      }
-      var response = await _client.post(
-        APIConstants.login,
-        data: FormData.fromMap(data),
-      );
-      response = await _client.post(
-        APIConstants.login,
-        data: FormData.fromMap(data),
-      );
-      final allowedCompanies = (response.data["companies"] as List)
-          .map((e) => NameId.fromMap(e)!)
-          .toList();
-      final defaultComapnyId = (response.data["company"] as List).first as int;
-      final defaultCompany = allowedCompanies.firstWhereOrNull(
-        (element) => element.id == defaultComapnyId,
-      );
-      SharedPreferencesService.i.setValue(
-        key: defaultCompanyKey,
-        value: defaultCompany?.toJson() ?? "",
-      );
-      return response.data["Token"];
-    } catch (e) {
-      throw handleError(e);
+    if (donotAsk == true) {
+      data.addAll({"do_not_ask": donotAsk});
     }
+    var response = await _client.post(
+      APIConstants.login,
+      data: FormData.fromMap(data),
+    );
+    response = await _client.post(
+      APIConstants.login,
+      data: FormData.fromMap(data),
+    );
+    final allowedCompanies = (response.data["companies"] as List)
+        .map((e) => NameId.fromMap(e)!)
+        .toList();
+    final defaultComapnyId = (response.data["company"] as List).first as int;
+    final defaultCompany = allowedCompanies.firstWhereOrNull(
+      (element) => element.id == defaultComapnyId,
+    );
+    SharedPreferencesService.i.setValue(
+      key: defaultCompanyKey,
+      value: defaultCompany?.toJson() ?? "",
+    );
+    return response.data["Token"];
   }
 
   Future<Response> updateDevice(BaseDeviceInfo deviceInfo) async {
-    try {
-      final response = await _client.put(
-        APIConstants.updateDevice,
-        data: deviceInfo.data,
-      );
-      return response;
-    } catch (e) {
-      throw handleError(e);
-    }
+    final response = await _client.put(
+      APIConstants.updateDevice,
+      data: deviceInfo.data,
+    );
+    return response;
   }
 
   Future<Response> updateProfileDetails(
     ProfileDetailsModel profileDetails,
   ) async {
-    try {
-      final response = await _client.put(
-        APIConstants.updateprofile,
-        data: profileDetails.toMap(),
-      );
-      return response;
-    } catch (e) {
-      throw handleError(e);
-    }
+    final response = await _client.put(
+      APIConstants.updateprofile,
+      data: profileDetails.toMap(),
+    );
+    return response;
   }
 
   Future<ProfileDetailsModel> fetchProfileDetails() async {
-    try {
-      final response = await _client.get(APIConstants.profileDetails);
-      return ProfileDetailsModel.fromMap(response.data);
-    } catch (e) {
-      throw handleError(e);
-    }
+    final response = await _client.get(APIConstants.profileDetails);
+    return ProfileDetailsModel.fromMap(response.data);
   }
 
   Future<Response> updateToken({required String token}) async {
-    try {
-      final response = await _client.put(
-        APIConstants.fcmtoken,
-        data: FormData.fromMap({"fcm_token": token}),
-      );
-      return response;
-    } catch (e) {
-      throw handleError(e);
-    }
+    final response = await _client.put(
+      APIConstants.fcmtoken,
+      data: FormData.fromMap({"fcm_token": token}),
+    );
+    return response;
   }
 
-  Future<DateTime> serverTime() async => DateTime.now( );
+  Future<DateTime> serverTime() async => DateTime.now();
 
-  Future<PaginationModel<NotificationModel>> fetchNotifications({
+  Future<PaginationResponse<NotificationModel>> fetchNotifications({
     required int pageNo,
   }) async {
-    try {
-      final response = await _client.get(APIConstants.notifications);
-      final newItems = (response.data["data"] as List)
-          .map((e) => NotificationModel.fromMap(e))
-          .toList();
-      return PaginationModel.fromMap(response.data, newItems);
-    } catch (e) {
-      throw handleError(e);
-    }
+    final response = await _client.get(APIConstants.notifications);
+    return PaginationResponse.fromJson(
+      response.data,
+      (json) => NotificationModel.fromMap(json),
+    );
   }
 
-    Future<AgoraConfig> generateRTMToken(ProfileDetailsModel profile) async {
-    try {
-      final response = await Dio().get(
-        "https://us-central1-eventxpro-66c0b.cloudfunctions.net/generateRtmToken",
-        queryParameters: {
-          "username": profile.id,
-          "avatarurl": profile.image,
-          "nickname": profile.name,
-        },
-      );
-      return AgoraConfig.fromMap(response.data);
-    } catch (e) {
-      throw handleError(e);
-    }
+  Future<AgoraConfig> generateRTMToken(ProfileDetailsModel profile) async {
+    final response = await Dio().get(
+      "https://us-central1-eventxpro-66c0b.cloudfunctions.net/generateRtmToken",
+      queryParameters: {
+        "username": profile.id,
+        "avatarurl": profile.image,
+        "nickname": profile.name,
+      },
+    );
+    return AgoraConfig.fromMap(response.data);
   }
 
   Future<AgoraConfig> generateRTCToken({required String channel}) async {
-    try {
-      final response = await Dio().get(
-        "https://us-central1-eventxpro-66c0b.cloudfunctions.net/generateRtcToken",
-        queryParameters: {
-          "uid": int.parse(AgoraRTMService.i.currentUser?.userId ?? "0"),
-          "channel": channel,
-        },
-      );
-      return AgoraConfig.fromMap(response.data);
-    } catch (e) {
-      throw handleError(e);
-    }
+    final response = await Dio().get(
+      "https://us-central1-eventxpro-66c0b.cloudfunctions.net/generateRtcToken",
+      queryParameters: {
+        "uid": int.parse(AgoraRTMService.i.currentUser?.userId ?? "0"),
+        "channel": channel,
+      },
+    );
+    return AgoraConfig.fromMap(response.data);
   }
 }

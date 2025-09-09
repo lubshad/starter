@@ -133,9 +133,6 @@ Future<bool> initializeUTCTime() async {
 }
 
 DateTime get serverUtcTime {
-  final serverTimeDifferenceString = SharedPreferencesService.i.getValue(
-    key: serverTimeDifferenceKey,
-  );
   if (serverTimeDifferenceString.isEmpty) {
     return DateTime.now();
   } else {

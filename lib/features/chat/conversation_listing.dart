@@ -151,12 +151,13 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
   Future<void> checkOngoingCall() async {
     final ongoingCalls = (await FlutterCallkitIncoming.activeCalls() as List);
     if (ongoingCalls.isEmpty) return;
-    if (SharedPreferencesService.i.getValue(key: incomingCallKey).isEmpty) {
+    final incoming = await SharedPreferencesService.i.getValue(
+      key: incomingCallKey,
+    );
+    if (incoming == "") {
       return;
     }
-    Map<String, dynamic> data = jsonDecode(
-      SharedPreferencesService.i.getValue(key: incomingCallKey),
-    );
+    Map<String, dynamic> data = jsonDecode(incoming);
     ChatUserInfo from = ChatUserInfo.fromJson(data["from"]);
     String channelName = data["channel"];
     showCallSheet(from, channelName, initialState: CallState.connected);

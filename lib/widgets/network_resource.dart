@@ -3,17 +3,17 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import 'default_loading_widget.dart';
 
-class NetworkResource<Type> extends StatelessWidget {
+class NetworkResource<T> extends StatelessWidget {
   const NetworkResource(this.future,
       {super.key,
       this.loading = const LoadingWidget(),
       required this.error,
       required this.success});
 
-  final Future<Type>? future;
+  final Future<T>? future;
   final Widget loading;
   final Widget Function(dynamic) error;
-  final Widget Function(Type) success;
+  final Widget Function(T) success;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class NetworkResource<Type> extends StatelessWidget {
             if (snapshot.hasError) {
               widget = error(snapshot.error);
             } else if (snapshot.hasData) {
-              widget = success(snapshot.data as Type);
+              widget = success(snapshot.data as T);
             }
             break;
           default:

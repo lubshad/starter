@@ -29,15 +29,23 @@ class _NotificationListingScreenState extends State<NotificationListingScreen> {
   }
 
   Future<void> getData(int pageKey) async {
-    DataRepository.i.fetchNotifications(pageNo: pageKey).then((value) {
-      if (value.isLastPage) {
-        pagingController.appendLastPage(value.newItems);
-      } else {
-        pagingController.appendPage(value.newItems, value.nextPage);
-      }
-    }).onError((error, stackTrace) {
-      pagingController.error = error;
-    });
+    DataRepository.i
+        .fetchNotifications(pageNo: pageKey)
+        .then((value) {
+          if (!value.hasNext) {
+            pagingController.appendLastPage(value.results);
+          } else {
+            // Extract page number from next URL or use current page + 1
+            final nextPage = value.next != null
+                ? Uri.parse(value.next!).queryParameters['page']
+                : null;
+            final pageNumber = nextPage != null ? int.tryParse(nextPage) : null;
+            pagingController.appendPage(value.results, pageNumber);
+          }
+        })
+        .onError((error, stackTrace) {
+          pagingController.error = error;
+        });
   }
 
   @override
@@ -58,9 +66,8 @@ class _NotificationListingScreenState extends State<NotificationListingScreen> {
               ),
             ),
             noItemsFoundIndicatorBuilder: (context) => const NoItemsFound(),
-            firstPageProgressIndicatorBuilder: (context) => Column(
-              children: List.generate(4, (index) => Placeholder()),
-            ),
+            firstPageProgressIndicatorBuilder: (context) =>
+                Column(children: List.generate(4, (index) => Placeholder())),
             itemBuilder: (context, item, index) =>
                 NotificationListingItem(item: item),
           ),

@@ -14,7 +14,6 @@ import '../../../exporter.dart';
 import '../../../widgets/loading_button.dart';
 import 'dart:convert';
 
-import '../core/universal_argument.dart';
 import '../widgets/common_sheet.dart';
 import 'form_validator_mixin.dart';
 
@@ -30,11 +29,7 @@ class VersionCheckResponseModel {
   });
 
   Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'url': url,
-      'message': message,
-      'force': force,
-    };
+    return <String, dynamic>{'url': url, 'message': message, 'force': force};
   }
 
   factory VersionCheckResponseModel.fromMap(Map<String, dynamic> map) {
@@ -49,7 +44,8 @@ class VersionCheckResponseModel {
 
   factory VersionCheckResponseModel.fromJson(String source) =>
       VersionCheckResponseModel.fromMap(
-          json.decode(source) as Map<String, dynamic>);
+        json.decode(source) as Map<String, dynamic>,
+      );
 }
 
 mixin ForceUpdateMixin<T extends StatefulWidget> on State<T> {
@@ -64,54 +60,59 @@ mixin ForceUpdateMixin<T extends StatefulWidget> on State<T> {
 
     final docRef = db.collection(packageInfo.appName).doc(platform);
 
-    docRef.get().then((value) async {
-      final data = value.data();
-      if (data == null) {
-        await createDefaultData(docRef, {
-          "current_version": appVersion,
-          "minimum_version": appVersion,
-          "url": "https://google.com",
-          "message": "New version is available!",
-          "app_available": true,
-          "availability_description":
-              "App is temporarily unavailable.please try again later",
-          "availablity_image":
-              "https://firebasestorage.googleapis.com/v0/b/eventxpro-66c0b.appspot.com/o/CRM%2Fserverdown.png?alt=media&token=812e8645-5cbe-46af-b185-e9e93170d924"
+    docRef
+        .get()
+        .then((value) async {
+          final data = value.data();
+          if (data == null) {
+            await createDefaultData(docRef, {
+              "current_version": appVersion,
+              "minimum_version": appVersion,
+              "url": "https://google.com",
+              "message": "New version is available!",
+              "app_available": true,
+              "availability_description":
+                  "App is temporarily unavailable.please try again later",
+              "availablity_image":
+                  "https://firebasestorage.googleapis.com/v0/b/eventxpro-66c0b.appspot.com/o/CRM%2Fserverdown.png?alt=media&token=812e8645-5cbe-46af-b185-e9e93170d924",
+            });
+            return;
+          }
+
+          bool isUpdateAvailable = data["current_version"] > appVersion;
+
+          if (!isUpdateAvailable) {
+            bool isAppAvailable = data["app_available"] == true;
+            if (isAppAvailable) return;
+            String image = data["availablity_image"] is String
+                ? data["availablity_image"]
+                : "";
+
+            String description = data["availability_description"] ?? "";
+            Navigator.pushNamed(
+              context,
+              UnavailabilityScreen.path,
+              arguments: {"image": image, "description": description},
+            );
+            return;
+          }
+
+          final versionModel = VersionCheckResponseModel(
+            url: data["url"],
+            message: data["message"],
+            force: data["minimum_version"] > appVersion,
+          );
+          showModalBottomSheet(
+            isDismissible: false,
+            enableDrag: false,
+            context: context,
+            builder: (context) =>
+                ForceUpdateBottomSheet(versionData: versionModel),
+          );
+        })
+        .onError((error, stackTrace) {
+          logError(error);
         });
-        return;
-      }
-
-      bool isUpdateAvailable = data["current_version"] > appVersion;
-
-      if (!isUpdateAvailable) {
-        bool isAppAvailable = data["app_available"] == true;
-        if (isAppAvailable) return;
-        String image = data["availablity_image"] is String
-            ? data["availablity_image"]
-            : "";
-
-        String description = data["availability_description"] ?? "";
-        Navigator.pushNamed(context, UnavailabilityScreen.path,
-            arguments: UniversalArgument(
-                extra: {"image": image, "description": description}));
-        return;
-      }
-
-      final versionModel = VersionCheckResponseModel(
-          url: data["url"],
-          message: data["message"],
-          force: data["minimum_version"] > appVersion);
-      showModalBottomSheet(
-        isDismissible: false,
-        enableDrag: false,
-        context: context,
-        builder: (context) => ForceUpdateBottomSheet(
-          versionData: versionModel,
-        ),
-      );
-    }).onError((error, stackTrace) {
-      logError(error);
-    });
 
     // DataRepository.i
     //     .checkVersion(UniversalArgument(id: int.parse(packageInfo.buildNumber)))
@@ -128,7 +129,9 @@ mixin ForceUpdateMixin<T extends StatefulWidget> on State<T> {
   }
 
   Future<bool> createDefaultData(
-      DocumentReference<Map<String, dynamic>> docRef, data) async {
+    DocumentReference<Map<String, dynamic>> docRef,
+    data,
+  ) async {
     await docRef.set(data);
     return true;
   }
@@ -144,31 +147,34 @@ class ForceUpdateBottomSheet extends StatelessWidget {
     return PopScope(
       canPop: !versionData.force,
       child: CommonBottomSheet(
-          title: "Update Avaialable",
-          popButton: const SizedBox(),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              gapXL,
-              Lottie.asset(Assets.lotties.update, height: 100),
-              Text(versionData.message),
-              gapXL,
-              Column(
-                children: [
+        title: "Update Avaialable",
+        popButton: const SizedBox(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            gapXL,
+            Lottie.asset(Assets.lotties.update, height: 100),
+            Text(versionData.message),
+            gapXL,
+            Column(
+              children: [
+                LoadingButton(
+                  buttonLoading: false,
+                  text: "Update Now",
+                  onPressed: updateAction,
+                ),
+                if (!versionData.force) gapLarge,
+                if (!versionData.force)
                   LoadingButton(
-                      buttonLoading: false,
-                      text: "Update Now",
-                      onPressed: updateAction),
-                  if (!versionData.force) gapLarge,
-                  if (!versionData.force)
-                    LoadingButton(
-                        buttonLoading: false,
-                        onPressed: () => Navigator.pop(context),
-                        text: ("Cancel")),
-                ],
-              )
-            ],
-          )),
+                    buttonLoading: false,
+                    onPressed: () => Navigator.pop(context),
+                    text: ("Cancel"),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -179,17 +185,12 @@ class ForceUpdateBottomSheet extends StatelessWidget {
   }
 }
 
-
-
 class UnavailabilityScreen extends StatefulWidget {
   static const String path = "/availability-screen";
 
-  const UnavailabilityScreen({
-    super.key,
-    this.argument,
-  });
+  const UnavailabilityScreen({super.key, this.argument});
 
-  final UniversalArgument? argument;
+  final Map<String, dynamic>? argument;
 
   @override
   State<UnavailabilityScreen> createState() => _UnavailabilityScreenState();
@@ -197,11 +198,10 @@ class UnavailabilityScreen extends StatefulWidget {
 
 class _UnavailabilityScreenState extends State<UnavailabilityScreen>
     with FormValidatorMixin {
-  String get image =>
-      widget.argument?.extra?["image"] ?? Assets.svgs.serverdown;
+  String get image => widget.argument?["image"] ?? Assets.svgs.serverdown;
 
   String get description =>
-      widget.argument?.extra?["description"] ??
+      widget.argument?["description"] ??
       "App is temporarily unavailable.\nplease try again later";
 
   @override
@@ -212,7 +212,9 @@ class _UnavailabilityScreenState extends State<UnavailabilityScreen>
         body: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(
-                horizontal: paddingXL, vertical: paddingLarge),
+              horizontal: paddingXL,
+              vertical: paddingLarge,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -220,17 +222,20 @@ class _UnavailabilityScreenState extends State<UnavailabilityScreen>
                 SizedBox(
                   height: 140,
                   width: 140,
-                  child: Builder(builder: (context) {
-                    bool isSvg = Uri.parse(image).path.split(".").last == "svg";
-                    if (isSvg) {
-                      return SvgPicture.asset(
-                        image,
-                        // color: Colors.yellow[600],
-                      );
-                    } else {
-                      return CachedNetworkImage(imageUrl: image);
-                    }
-                  }),
+                  child: Builder(
+                    builder: (context) {
+                      bool isSvg =
+                          Uri.parse(image).path.split(".").last == "svg";
+                      if (isSvg) {
+                        return SvgPicture.asset(
+                          image,
+                          // color: Colors.yellow[600],
+                        );
+                      } else {
+                        return CachedNetworkImage(imageUrl: image);
+                      }
+                    },
+                  ),
                 ),
                 gap,
                 Text(
@@ -240,11 +245,12 @@ class _UnavailabilityScreenState extends State<UnavailabilityScreen>
                 ),
                 gapLarge,
                 LoadingButton(
-                    buttonLoading: buttonLoading,
-                    text: "0K",
-                    onPressed: () async {
-                      await SystemNavigator.pop();
-                    })
+                  buttonLoading: buttonLoading,
+                  text: "0K",
+                  onPressed: () async {
+                    await SystemNavigator.pop();
+                  },
+                ),
               ],
             ),
           ),

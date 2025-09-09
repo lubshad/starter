@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 const String _token = "token";
 const String domainKey = "domain";
@@ -12,8 +9,11 @@ const String serverTimeDifferenceKey = "server_time_diff_key";
 
 const String notificationDataKey = "notification_data_key";
 const String incomingCallKey = "incoming_call_key";
+
+String serverTimeDifferenceString = DateTime.now().toUtc().toString();
+
 class SharedPreferencesService {
-  String get domainUrl => getValue(key: domainKey);
+  Future<String> get domainUrl => getValue(key: domainKey);
 
   SharedPreferencesService._private();
 
@@ -22,63 +22,28 @@ class SharedPreferencesService {
   static final SharedPreferencesService _instance =
       SharedPreferencesService._private();
 
-  late final Box _prefs;
+  late final FlutterSecureStorage _storage;
 
-  String get token => _prefs.get(_token) ?? "";
+  Future<String> get token => getValue(key: _token);
 
   Future<void> initialize() async {
-    final key = [
-      108,
-      12,
-      208,
-      199,
-      135,
-      235,
-      129,
-      43,
-      230,
-      7,
-      237,
-      38,
-      252,
-      146,
-      16,
-      29,
-      244,
-      205,
-      186,
-      135,
-      102,
-      124,
-      35,
-      231,
-      245,
-      42,
-      198,
-      211,
-      229,
-      140,
-      53,
-      186
-    ];
-    Directory? appDir;
-    if (!kIsWeb) {
-      appDir = await getApplicationDocumentsDirectory();
-    }
-    final encryptionCipher = HiveAesCipher(key);
-    _prefs = await Hive.openBox("my-box",
-        encryptionCipher: encryptionCipher, path: appDir?.path);
+    _storage = const FlutterSecureStorage(
+      aOptions: AndroidOptions(encryptedSharedPreferences: true),
+      iOptions: IOSOptions(
+        accessibility: KeychainAccessibility.first_unlock_this_device,
+      ),
+    );
   }
 
-  String getValue({String key = _token}) {
-    return _prefs.get(key) ?? '';
+  Future<String> getValue({String key = _token}) async {
+    return await _storage.read(key: key) ?? '';
   }
 
   Future<void> clear() async {
-    await _prefs.clear();
+    await _storage.deleteAll();
   }
 
   Future<void> setValue({String key = _token, required String value}) async {
-    await _prefs.put(key, value);
+    await _storage.write(key: key, value: value);
   }
 }

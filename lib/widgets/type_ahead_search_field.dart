@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import '../core/app_route.dart';
-import '../core/universal_argument.dart';
+import '../core/pagination_response.dart';
 import '../exporter.dart';
 import '../mixins/search_mixin.dart';
 import '../models/name_id.dart';
@@ -37,9 +37,9 @@ class TypeAheadSearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding).copyWith(
-        top: paddingLarge,
-      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: horizontalPadding,
+      ).copyWith(top: paddingLarge),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -58,8 +58,9 @@ class TypeAheadSearchField extends StatelessWidget {
                 ),
               ),
             ),
-            validator:
-                validator == null ? null : (value) => validator!(selected),
+            validator: validator == null
+                ? null
+                : (value) => validator!(selected),
             controller: TextEditingController(text: selected?.name),
             decoration: InputDecoration(
               // hintStyle: hintStyle.copyWith(
@@ -67,19 +68,21 @@ class TypeAheadSearchField extends StatelessWidget {
               // ),
               contentPadding: const EdgeInsets.only(top: paddingLarge),
               hintText: "Eg : $hint",
-              suffixIcon: Builder(builder: (context) {
-                if (selected != null) {
-                  return IconButton(
-                    onPressed: clearSelection,
-                    icon: const Icon(Icons.clear_sharp),
+              suffixIcon: Builder(
+                builder: (context) {
+                  if (selected != null) {
+                    return IconButton(
+                      onPressed: clearSelection,
+                      icon: const Icon(Icons.clear_sharp),
+                    );
+                  }
+                  return const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [Icon(Icons.arrow_drop_down)],
                   );
-                }
-                return const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Icon(Icons.arrow_drop_down)],
-                );
-              }),
+                },
+              ),
             ),
           ),
           Positioned(
@@ -121,22 +124,22 @@ class SelectionScreen extends StatefulWidget {
 }
 
 class _SelectionScreenState extends State<SelectionScreen> with SearchMixin {
-  PagingController<int, NameId> pagingController =
-      PagingController(firstPageKey: 1);
+  PagingController<int, NameId> pagingController = PagingController(
+    firstPageKey: 1,
+  );
   @override
   void initState() {
     super.initState();
-    pagingController
-        .addPageRequestListener((pageKey) => widget.suggestionsCallback(
-              pageKey,
-              searchController.text,
-              pagingController,
-            ));
-    addSearchListener(
-      () {
-        pagingController.refresh();
-      },
+    pagingController.addPageRequestListener(
+      (pageKey) => widget.suggestionsCallback(
+        pageKey,
+        searchController.text,
+        pagingController,
+      ),
     );
+    addSearchListener(() {
+      pagingController.refresh();
+    });
   }
 
   @override
@@ -150,21 +153,21 @@ class _SelectionScreenState extends State<SelectionScreen> with SearchMixin {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: paddingLarge,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: paddingLarge),
           child: Column(
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   InkWell(
-                      onTap: () => Navigator.maybePop(context, true),
-                      child: const Text("Cancel")),
+                    onTap: () => Navigator.maybePop(context, true),
+                    child: const Text("Cancel"),
+                  ),
                   Text(widget.label),
                   InkWell(
-                      onTap: () => Navigator.maybePop(context, true),
-                      child: const Text("Done ")),
+                    onTap: () => Navigator.maybePop(context, true),
+                    child: const Text("Done "),
+                  ),
                 ],
               ),
               SearchField(
@@ -174,54 +177,55 @@ class _SelectionScreenState extends State<SelectionScreen> with SearchMixin {
               ),
               Expanded(
                 child: RefreshIndicator(
-                    onRefresh: () async => pagingController.refresh(),
-                    child: PagedListView<int, NameId>(
-                      padding: const EdgeInsets.all(padding),
-                      pagingController: pagingController,
-                      builderDelegate: PagedChildBuilderDelegate(
-                          firstPageErrorIndicatorBuilder: (context) => SizedBox(
-                                height: 400,
-                                child: ErrorWidgetWithRetry(
-                                    exception: pagingController.error,
-                                    retry: pagingController.refresh),
-                              ),
-                          noItemsFoundIndicatorBuilder: (context) =>
-                              const NoItemsFound(),
-                          firstPageProgressIndicatorBuilder: (context) =>
-                              Column(
-                                children: List.generate(
-                                  10,
-                                  (index) => const ListTile(
-                                      contentPadding: EdgeInsets.zero,
-                                      title: Shimwrapper(child: Text("data"))),
-                                ),
-                              ),
-                          itemBuilder: (context, item, index) => ListTile(
-                                leading: widget.selectedItems.contains(item)
-                                    ? const Icon(Icons.check)
-                                    : null,
-                                contentPadding: EdgeInsets.zero,
-                                dense: true,
-                                onTap: () {
-                                  widget.onSuggestionSelected(item);
-                                  if (widget.poponSelection) {
-                                    Navigator.maybePop(context, true);
-                                  } else {
-                                    if (widget.selectedItems.contains(item)) {
-                                      widget.selectedItems.remove(item);
-                                    } else {
-                                      widget.selectedItems.add(item);
-                                    }
-                                    setState(() {});
-                                  }
-                                },
-                                title: Text(
-                                  item.name,
-                                ),
-                              )),
-                      // separatorBuilder: (context, index) => gap,
-                    )),
-              )
+                  onRefresh: () async => pagingController.refresh(),
+                  child: PagedListView<int, NameId>(
+                    padding: const EdgeInsets.all(padding),
+                    pagingController: pagingController,
+                    builderDelegate: PagedChildBuilderDelegate(
+                      firstPageErrorIndicatorBuilder: (context) => SizedBox(
+                        height: 400,
+                        child: ErrorWidgetWithRetry(
+                          exception: pagingController.error,
+                          retry: pagingController.refresh,
+                        ),
+                      ),
+                      noItemsFoundIndicatorBuilder: (context) =>
+                          const NoItemsFound(),
+                      firstPageProgressIndicatorBuilder: (context) => Column(
+                        children: List.generate(
+                          10,
+                          (index) => const ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Shimwrapper(child: Text("data")),
+                          ),
+                        ),
+                      ),
+                      itemBuilder: (context, item, index) => ListTile(
+                        leading: widget.selectedItems.contains(item)
+                            ? const Icon(Icons.check)
+                            : null,
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        onTap: () {
+                          widget.onSuggestionSelected(item);
+                          if (widget.poponSelection) {
+                            Navigator.maybePop(context, true);
+                          } else {
+                            if (widget.selectedItems.contains(item)) {
+                              widget.selectedItems.remove(item);
+                            } else {
+                              widget.selectedItems.add(item);
+                            }
+                            setState(() {});
+                          }
+                        },
+                        title: Text(item.name),
+                      ),
+                    ),
+                    // separatorBuilder: (context, index) => gap,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -231,10 +235,17 @@ class _SelectionScreenState extends State<SelectionScreen> with SearchMixin {
 }
 
 FutureOr onSuccess(
-    PaginationModel<NameId> value, PagingController pagingController) {
-  if (value.isLastPage) {
-    pagingController.appendLastPage(value.newItems);
+  PaginationResponse<NameId> value,
+  PagingController pagingController,
+) {
+  if (!value.hasNext) {
+    pagingController.appendLastPage(value.results);
   } else {
-    pagingController.appendPage(value.newItems, value.nextPage);
+    // Extract page number from next URL or use current page + 1
+    final nextPage = value.next != null
+        ? Uri.parse(value.next!).queryParameters['page']
+        : null;
+    final pageNumber = nextPage != null ? int.tryParse(nextPage) : null;
+    pagingController.appendPage(value.results, pageNumber);
   }
 }

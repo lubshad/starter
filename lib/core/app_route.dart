@@ -3,7 +3,6 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
-import '../features/authentication/landing_screen/landing_screen.dart';
 import '../features/authentication/phone_auth/phone_auth_screen.dart';
 import '../features/authentication/social_authentication/otp_validation_screen.dart';
 import '../features/authentication/social_authentication/social_authentication_screen.dart';
@@ -14,22 +13,12 @@ import '../features/home_screen/home_screen.dart';
 import '../features/navigation/navigation_screen.dart';
 import '../features/splash_screen/splash_screen.dart';
 import '../mixins/force_update.dart';
-import '../services/shared_preferences_services.dart';
 import 'logger.dart';
 
 class AppRoute {
   static List<Route<dynamic>> onGenerateInitialRoute(String path) {
     Uri uri = Uri.parse(path);
     logInfo(uri);
-    if (SharedPreferencesService.i.token == "") {
-      // if (FirebaseAuth.instance.currentUser == null) {
-      return [
-        pageRoute(
-          const RouteSettings(name: LandingPage.path),
-          const LandingPage(),
-        ),
-      ];
-    }
     return [
       pageRoute(
         const RouteSettings(name: SplashScreen.path),
