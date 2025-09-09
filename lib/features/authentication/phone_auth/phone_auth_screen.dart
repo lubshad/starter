@@ -50,7 +50,7 @@ class _PhoneVerificationState extends State<PhoneVerification>
                   top: 0,
                   left: 0,
                   right: 0,
-                  bottom: SizeUtils.height * .2,
+                  bottom: 1.sh * .2,
                   child: Assets.pngs.loginBackground.image(fit: BoxFit.cover),
                 ),
                 Positioned(
@@ -112,8 +112,8 @@ class _PhoneVerificationState extends State<PhoneVerification>
                 textStyle: context.bodySmall.copyWith(
                   color: Color(0xff1C1F1D),
                 ),
-                height: 55.fSize,
-                width: 75.fSize,
+                height: 55.sp,
+                width: 75.sp,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(padding),
                   border: Border.all(color: Color(0xffDCDBDB)),

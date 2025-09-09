@@ -50,9 +50,9 @@ class ChatReactions extends StatelessWidget {
                           color: Colors.purple.shade50,
                           shape: BoxShape.circle,
                         ),
-                        child: Text(e, style: TextStyle(fontSize: 24.fSize)),
+                        child: Text(e, style: TextStyle(fontSize: 24.sp)),
                       )
-                    : Text(e, style: TextStyle(fontSize: 24.fSize)),
+                    : Text(e, style: TextStyle(fontSize: 24.sp)),
               ),
             ),
           ),
@@ -63,7 +63,7 @@ class ChatReactions extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: paddingSmall),
               child: Icon(
                 Icons.add_circle_outline,
-                size: 26.fSize,
+                size: 26.sp,
                 color: Colors.purple,
               ),
             ),
@@ -124,7 +124,7 @@ class _ReactionPopupPositionerState extends State<ReactionPopupPositioner> {
         widget.bubbleOffset.dx +
         (widget.bubbleSize.width / 2) -
         ((_popupWidth ?? 0) / 2);
-    left = left.clamp(8.0, SizeUtils.width - (_popupWidth ?? 0) - 8.0);
+    left = left.clamp(8.0, 1.sw - (_popupWidth ?? 0) - 8.0);
     double top =
         widget.bubbleOffset.dy - (_popupHeight ?? 0) - widget.verticalGap;
     if (top < 8.0) {

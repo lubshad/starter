@@ -33,25 +33,29 @@ class _CurrentDateState extends State<CurrentDate> {
 
   late DateTime selectedDate;
 
-  int itemsCount = SizeUtils.deviceType == DeviceType.mobile ? 7 : 9;
-  int get dateCount {
-    int result = today.day + (itemsCount / 2).toInt() + 1;
-    if (result < itemsCount) {
-      result = itemsCount;
+  int itemsCount(BuildContext context) =>
+      ScreenUtil().deviceType(context) == DeviceType.mobile ? 7 : 9;
+
+  int dateCount(BuildContext context) {
+    int result = today.day + (itemsCount(context) / 2).toInt() + 1;
+    if (result < itemsCount(context)) {
+      result = itemsCount(context);
     }
     return result;
   }
 
   @override
   Widget build(BuildContext context) {
-    final itemWidth = context.width / itemsCount;
+    final itemWidth = context.width / itemsCount(context);
 
     return SizedBox(
       height: itemWidth,
       child: AnimatedBuilder(
         animation: dateNotifier,
         builder: (context, child) {
-          final totalDates = selectedDate.month == today.month ? dateCount : 33;
+          final totalDates = selectedDate.month == today.month
+              ? dateCount(context)
+              : 33;
           return ListView.builder(
             controller: scrollController,
             scrollDirection: Axis.horizontal,
@@ -74,7 +78,7 @@ class _CurrentDateState extends State<CurrentDate> {
               // put date picker on last
               if (index == totalDates - 1) {
                 return Container(
-                  width: context.width / itemsCount,
+                  width: context.width / itemsCount(context),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(padding),
                     border: Border.all(color: const Color(0xffefefef)),
@@ -98,7 +102,7 @@ class _CurrentDateState extends State<CurrentDate> {
               return GestureDetector(
                 onTap: isFutureDate ? null : () => changeDate(date),
                 child: Container(
-                  width: context.width / itemsCount,
+                  width: context.width / itemsCount(context),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(padding),
                     gradient: date.isSameDay(selectedDate)
@@ -128,8 +132,8 @@ class _CurrentDateState extends State<CurrentDate> {
                           color: date.isSameDay(selectedDate)
                               ? Colors.white
                               : isPastDate
-                                  ? Colors.black
-                                  : const Color(0xff999999),
+                              ? Colors.black
+                              : const Color(0xff999999),
                         ),
                       ),
                       Text(
@@ -138,8 +142,8 @@ class _CurrentDateState extends State<CurrentDate> {
                           color: date.isSameDay(selectedDate)
                               ? Colors.white
                               : isPastDate
-                                  ? Colors.black
-                                  : const Color(0xff999999),
+                              ? Colors.black
+                              : const Color(0xff999999),
                         ),
                       ),
                     ],
@@ -154,9 +158,10 @@ class _CurrentDateState extends State<CurrentDate> {
   }
 
   void animateToCurrentDate() {
-    final itemWidth = context.width / itemsCount;
+    final itemWidth = context.width / itemsCount(context);
 
-    double offset = (selectedDate.day - (itemsCount / 2).toInt()) * (itemWidth);
+    double offset =
+        (selectedDate.day - (itemsCount(context) / 2).toInt()) * (itemWidth);
     scrollController.animateTo(
       offset,
       duration: animationDuration,

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -24,45 +23,32 @@ class _SocialAuthenticationScreenState extends State<SocialAuthenticationScreen>
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Container(
-            color: primaryColor,
-          ),
+          Container(color: primaryColor),
           const LoginBackground(),
           LoginBottomSheet(
             child: Form(
               key: formKey,
               child: Theme(
                 data: Theme.of(context).copyWith(
-                  inputDecorationTheme:
-                      Theme.of(context).inputDecorationTheme.copyWith(
-                            hintStyle: hintStyle.copyWith(
-                              fontSize: 15.fSize,
-                            ),
-                          ),
+                  inputDecorationTheme: Theme.of(context).inputDecorationTheme
+                      .copyWith(hintStyle: hintStyle.copyWith(fontSize: 15.sp)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Log in",
-                      style: context.labelLarge,
-                    ),
+                    Text("Log in", style: context.labelLarge),
                     gapLarge,
                     TextFormField(
                       autofillHints: const [AutofillHints.url],
                       keyboardType: TextInputType.url,
                       textInputAction: TextInputAction.next,
                       controller: domainController,
-                      validator: (value) => domainValidator(
-                        domainController,
-                        required: true,
-                      ),
+                      validator: (value) =>
+                          domainValidator(domainController, required: true),
                       decoration: InputDecoration(
                         suffixIcon: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(Assets.svgs.domainGlobe),
-                          ],
+                          children: [SvgPicture.asset(Assets.svgs.domainGlobe)],
                         ),
                         hintText: "https://yourcompany.com",
                       ),
@@ -90,18 +76,20 @@ class _SocialAuthenticationScreenState extends State<SocialAuthenticationScreen>
                       validator: passwordValidator,
                       controller: passwordController,
                       decoration: InputDecoration(
-                          errorText: passwordError,
-                          hintText: "Password",
-                          suffixIcon: IconButton(
-                            onPressed: touglePasswordVisibility,
-                            icon: SvgPicture.asset(Assets.svgs.lockOutline),
-                          )),
+                        errorText: passwordError,
+                        hintText: "Password",
+                        suffixIcon: IconButton(
+                          onPressed: touglePasswordVisibility,
+                          icon: SvgPicture.asset(Assets.svgs.lockOutline),
+                        ),
+                      ),
                     ),
                     gapXL,
                     LoadingButton(
-                        buttonLoading: loginButtonLoading,
-                        text: "SUBMIT",
-                        onPressed: signInWithEmailAndPassword),
+                      buttonLoading: loginButtonLoading,
+                      text: "SUBMIT",
+                      onPressed: signInWithEmailAndPassword,
+                    ),
                   ],
                 ),
               ),
@@ -132,9 +120,7 @@ class LoginBottomSheet extends StatelessWidget {
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(
-            top: Radius.circular(
-              paddingLarge,
-            ),
+            top: Radius.circular(paddingLarge),
           ),
         ),
         padding: const EdgeInsets.symmetric(
@@ -148,40 +134,36 @@ class LoginBottomSheet extends StatelessWidget {
 }
 
 class LoginBackground extends StatelessWidget {
-  const LoginBackground({
-    super.key,
-    this.assetImage,
-  });
+  const LoginBackground({super.key, this.assetImage});
 
   final String? assetImage;
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-        top: 100.v,
-        right: 40.h,
-        left: 40.h,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Your app description here.",
-              style: context.labelLarge.copyWith(
-                color: Colors.white,
-              ),
-            ),
-            gapXL,
-            Row(
-              children: [
-                Expanded(
-                  child: SvgPicture.asset(
-                    assetImage ?? Assets.svgs.loginGraphics,
-                  ),
+      top: 100.h,
+      right: 40.h,
+      left: 40.h,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Your app description here.",
+            style: context.labelLarge.copyWith(color: Colors.white),
+          ),
+          gapXL,
+          Row(
+            children: [
+              Expanded(
+                child: SvgPicture.asset(
+                  assetImage ?? Assets.svgs.loginGraphics,
                 ),
-              ],
-            ),
-          ],
-        ));
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 

@@ -33,11 +33,11 @@ class PersonTile extends StatelessWidget {
     return Column(
       children: [
         ListTile(
-          contentPadding: EdgeInsets.symmetric(horizontal: 25.h),
+          contentPadding: EdgeInsets.symmetric(horizontal: 25.w),
           onTap: onTap,
           leading: UserAvatar(
             bgColor: randomColors,
-            size: 40.h,
+            size: 40.w,
             imageUrl: imageUrl,
             username: name ?? "",
             borderColor: borderColor,
@@ -45,7 +45,7 @@ class PersonTile extends StatelessWidget {
           ),
           title: Text(
             name ?? 'N/A',
-            style: context.montserrat50017.copyWith(fontSize: 13.fSize),
+            style: context.montserrat50017.copyWith(fontSize: 13.sp),
           ),
           subtitle: hasSubTitle == true
               ? Column(
@@ -59,7 +59,7 @@ class PersonTile extends StatelessWidget {
                   ],
                 )
               : null,
-          trailing: trailing ?? Icon(Icons.arrow_forward_ios, size: 15.fSize),
+          trailing: trailing ?? Icon(Icons.arrow_forward_ios, size: 15.sp),
         ),
         Visibility(
           visible: hasDivider!,

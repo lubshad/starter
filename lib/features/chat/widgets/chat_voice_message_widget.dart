@@ -85,7 +85,7 @@ class _ChatVoiceMessageWidgetState extends State<ChatVoiceMessageWidget> {
                         seconds: (sliderValue * totalDuration.inSeconds)
                             .toInt(),
                       ).toMinuteSeconds,
-                style: TextStyle(fontSize: 10.fSize),
+                style: TextStyle(fontSize: 10.sp),
               ),
             ],
           );

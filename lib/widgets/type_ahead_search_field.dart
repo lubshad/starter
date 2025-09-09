@@ -64,7 +64,7 @@ class TypeAheadSearchField extends StatelessWidget {
             controller: TextEditingController(text: selected?.name),
             decoration: InputDecoration(
               // hintStyle: hintStyle.copyWith(
-              //   fontSize: 12.fSize,
+              //   fontSize: 12.sp,
               // ),
               contentPadding: const EdgeInsets.only(top: paddingLarge),
               hintText: "Eg : $hint",

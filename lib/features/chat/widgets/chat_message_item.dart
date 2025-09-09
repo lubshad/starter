@@ -111,7 +111,7 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
             ).copyWith(bottom: paddingLarge),
 
             child: UserAvatar(
-              size: 35.h,
+              size: 35.w,
               imageUrl: widget.other.avatarUrl,
               // addMediaUrl: false,
             ),
@@ -136,8 +136,8 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
                           onLongPress: () => showReactionPopup(widget.item),
                           child: Container(
                             constraints: BoxConstraints(
-                              maxWidth: SizeUtils.width * .5,
-                              minWidth: 80.h,
+                              maxWidth: 1.sw * .5,
+                              minWidth: 80.w,
                             ),
                             padding: EdgeInsets.symmetric(
                               horizontal: padding,
@@ -239,7 +239,7 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
                                 "",
                             style: context.bodySmall.copyWith(
                               fontWeight: FontWeight.w400,
-                              fontSize: 9.fSize,
+                              fontSize: 9.sp,
                               color: isMe ? Colors.white : Color(0xFF505050),
                             ),
                           ),
@@ -260,7 +260,7 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
               horizontal: padding,
             ).copyWith(bottom: paddingLarge),
             child: UserAvatar(
-              size: 35.h,
+              size: 35.w,
               imageUrl: AgoraRTMService.i.currentUser?.avatarUrl,
               // addMediaUrl: false,
             ),
@@ -274,19 +274,19 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
     if (!isMe) return SizedBox.shrink();
 
     if (message.hasReadAck) {
-      return Icon(Icons.done_all, color: Colors.blue, size: 16.fSize);
+      return Icon(Icons.done_all, color: Colors.blue, size: 16.sp);
     }
     if (message.hasDeliverAck) {
-      return Icon(Icons.done_all, color: Colors.grey, size: 16.fSize);
+      return Icon(Icons.done_all, color: Colors.grey, size: 16.sp);
     }
     if (message.status == MessageStatus.SUCCESS) {
-      return Icon(Icons.done, color: Colors.grey, size: 16.fSize);
+      return Icon(Icons.done, color: Colors.grey, size: 16.sp);
     }
     if (message.status == MessageStatus.PROGRESS) {
-      return Icon(Icons.access_time, color: Colors.grey, size: 16.fSize);
+      return Icon(Icons.access_time, color: Colors.grey, size: 16.sp);
     }
     if (message.status == MessageStatus.FAIL) {
-      return Icon(Icons.error, color: Colors.red, size: 16.fSize);
+      return Icon(Icons.error, color: Colors.red, size: 16.sp);
     }
     return SizedBox.shrink();
   }
@@ -319,12 +319,9 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
                           color: Colors.purple.shade50,
                           shape: BoxShape.circle,
                         ),
-                        child: Text(
-                          emoji,
-                          style: TextStyle(fontSize: 28.fSize),
-                        ),
+                        child: Text(emoji, style: TextStyle(fontSize: 28.sp)),
                       )
-                    : Text(emoji, style: TextStyle(fontSize: 28.fSize)),
+                    : Text(emoji, style: TextStyle(fontSize: 28.sp)),
               ),
             );
           }).toList(),

@@ -12,7 +12,7 @@ class ListTileShimmer extends StatelessWidget {
       leading:
           Shimwrapper(child: AspectRatio(aspectRatio: 1, child: Container())),
       title: Shimwrapper(
-          child: SizedBox(width: SizeUtils.width * .5, child: Text("Title"))),
+          child: SizedBox(width: 1.sw * .5, child: Text("Title"))),
       subtitle: Shimwrapper(child: Text("Subtitle")),
     );
   }

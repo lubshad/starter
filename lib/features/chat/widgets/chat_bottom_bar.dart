@@ -143,7 +143,7 @@ class _ChatBottomBarState extends State<ChatBottomBar> {
                       extendWaveform: true,
                     ),
                     margin: EdgeInsets.symmetric(vertical: padding),
-                    size: Size(SizeUtils.width, kToolbarHeight),
+                    size: Size(1.sw, kToolbarHeight),
                     recorderController: _recorderController,
                   ),
                 ),

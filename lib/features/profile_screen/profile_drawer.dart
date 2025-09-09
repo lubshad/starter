@@ -12,8 +12,12 @@ import '../navigation/navigation_screen.dart';
 import 'common_controller.dart';
 import 'profile_details_model.dart';
 
-Future showConfirmation({required String text, required String buttonText}) async {
-  return DeviceType.mobile == SizeUtils.deviceType
+Future showConfirmation({
+  required String text,
+  required String buttonText,
+}) async {
+  return DeviceType.mobile ==
+          ScreenUtil().deviceType(navigatorKey.currentContext!)
       ? await showModalBottomSheet(
           context: navigatorKey.currentContext!,
           builder: (context) =>
@@ -78,7 +82,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                     ),
                     child: UserAvatar(
                       borderRadius: paddingXL,
-                      size: 51.fSize,
+                      size: 51.sp,
                       imageUrl: CommonController.i.profileDetails?.image,
                     ),
                   ),

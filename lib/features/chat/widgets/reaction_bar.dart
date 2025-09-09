@@ -98,7 +98,7 @@ class _ReactionBarState extends State<ReactionBar> {
                       Text(
                         r.reaction,
                         style: TextStyle(
-                          fontSize: 14.fSize,
+                          fontSize: 14.sp,
                           fontWeight: isMine
                               ? FontWeight.bold
                               : FontWeight.normal,
@@ -112,7 +112,7 @@ class _ReactionBarState extends State<ReactionBar> {
                           child: Text(
                             r.userList.length.toString(),
                             style: TextStyle(
-                              fontSize: 10.fSize,
+                              fontSize: 10.sp,
                               color: Colors.grey[700],
                             ),
                           ),

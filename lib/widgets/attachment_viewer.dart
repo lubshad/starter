@@ -86,7 +86,7 @@ class ImageAttachment extends StatelessWidget {
                         backgroundColor: Colors.black,
                         body: InteractiveViewer(
                           child: SizedBox(
-                            width: SizeUtils.width,
+                            width: 1.sw,
                             child: Builder(
                               builder: (context) {
                                 if (image.type == AttachmentType.file) {

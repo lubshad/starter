@@ -95,6 +95,7 @@ dependencies:
   flutter_in_app_pip: ^1.7.4
   open_file: ^3.5.10
   pretty_dio_logger: ^1.4.0
+  flutter_screenutil: ^5.9.3
 
 dependency_overrides: 
   infinite_scroll_pagination: ^4.0.0

@@ -38,8 +38,8 @@ class _FaceScanOverlayState extends State<FaceScanOverlay>
 
   @override
   Widget build(BuildContext context) {
-    final frameHeight = SizeUtils.width * .8;
-    final frameWidth = SizeUtils.width * .7;
+    final frameHeight = 1.sw * .8;
+    final frameWidth = 1.sw * .7;
 
     return Stack(
       alignment: Alignment.center,

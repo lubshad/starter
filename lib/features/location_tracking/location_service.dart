@@ -80,7 +80,7 @@ class LocationService extends ChangeNotifier {
     try {
       final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
       final Canvas canvas = Canvas(pictureRecorder);
-      final double size = SizeUtils.width * .5;
+      final double size = 1.sw * .5;
       final double borderSize = 10.0;
 
       // Draw border

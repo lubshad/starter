@@ -108,7 +108,7 @@ class LoadingButton extends StatelessWidget {
                 final textWidget = Text(
                   text,
                   style: context.labelLarge.copyWith(
-                    fontSize: 15.adaptSize,
+                    fontSize: 15.r,
                     color: buttonType.textColor,
                   ),
                 );

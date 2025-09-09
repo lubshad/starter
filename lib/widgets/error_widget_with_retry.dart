@@ -88,7 +88,7 @@ class CustomExceptionWidget extends StatelessWidget {
           gap,
           Text(exception.message.toString(),
               textAlign: TextAlign.center,
-              style: context.bodyLarge.copyWith(fontSize: 18.fSize)),
+              style: context.bodyLarge.copyWith(fontSize: 18.sp)),
         ],
       ),
     );

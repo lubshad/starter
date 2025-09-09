@@ -12,7 +12,7 @@ import 'package:starter/core/app_route.dart';
 import 'package:starter/core/repository.dart';
 import 'package:starter/firebase_options.dart';
 import 'features/chat/user_listing.dart';
-import 'services/size_utils.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'theme/theme.dart';
 // import 'package:firebase_core/firebase_core.dart';
 // import 'firebase_options.dart';
@@ -74,30 +74,28 @@ class _MyAppState extends State<MyApp> {
   late FirebaseAnalyticsObserver observer;
   @override
   Widget build(BuildContext context) {
-    return Sizer(
-      builder:
-          (
-            BuildContext context,
-            Orientation orientation,
-            DeviceType deviceType,
-          ) {
-            return ToastificationWrapper(
-              child: MaterialApp(
-                localizationsDelegates: const [
-                  CountryLocalizations.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                ],
-                navigatorObservers: [observer],
-                navigatorKey: navigatorKey,
-                debugShowCheckedModeBanner: false,
-                onGenerateRoute: AppRoute.onGenerateRoute,
-                // onGenerateInitialRoutes: AppRoute.onGenerateInitialRoute,
-                theme: themeData,
-                home: UserListingScreen(),
-              ),
-            );
-          },
+    return ScreenUtilInit(
+      designSize: const Size(390, 844),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return ToastificationWrapper(
+          child: MaterialApp(
+            localizationsDelegates: const [
+              CountryLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
+            navigatorObservers: [observer],
+            navigatorKey: navigatorKey,
+            debugShowCheckedModeBanner: false,
+            onGenerateRoute: AppRoute.onGenerateRoute,
+            // onGenerateInitialRoutes: AppRoute.onGenerateInitialRoute,
+            theme: themeData,
+            home: UserListingScreen(),
+          ),
+        );
+      },
     );
   }
 }

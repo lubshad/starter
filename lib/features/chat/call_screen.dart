@@ -170,7 +170,7 @@ class _CallScreenState extends State<CallScreen> with StateFullMixin {
                             AgoraRtcService.i.callScreenArgs!.user.nickName ??
                                 "",
                             style: TextStyle(
-                              fontSize: 26.fSize,
+                              fontSize: 26.sp,
                               color: Colors.white,
                             ),
                           ),
@@ -356,7 +356,7 @@ class _CallScreenState extends State<CallScreen> with StateFullMixin {
             ),
           ],
         ),
-        child: Icon(icon, size: 28.fSize, color: Colors.white),
+        child: Icon(icon, size: 28.sp, color: Colors.white),
       ),
     );
   }

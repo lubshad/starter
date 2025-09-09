@@ -93,7 +93,7 @@ class LocationEnableGuideState extends State<LocationEnableGuide>
                   Text(
                     'Enable Location Services',
                     style: TextStyle(
-                      fontSize: 24.fSize,
+                      fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
@@ -102,7 +102,7 @@ class LocationEnableGuideState extends State<LocationEnableGuide>
                   Text(
                     message,
                     style: TextStyle(
-                      fontSize: 16.fSize,
+                      fontSize: 16.sp,
                       color: Colors.grey,
                     ),
                     textAlign: TextAlign.center,

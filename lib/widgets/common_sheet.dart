@@ -27,14 +27,14 @@ class CommonBottomSheet extends StatelessWidget {
     return Material(
       borderRadius: BorderRadius.vertical(
         top: Radius.circular(paddingXL),
-        bottom: SizeUtils.deviceType == DeviceType.mobile
+        bottom: ScreenUtil().deviceType(context) == DeviceType.mobile
             ? Radius.zero
             : Radius.circular(paddingXL),
       ),
       child: Container(
         constraints: BoxConstraints(
-            maxWidth:
-                maxWidth ?? (context.width < 600 ? double.infinity : 400)),
+          maxWidth: maxWidth ?? (context.width < 600 ? double.infinity : 400),
+        ),
         padding: EdgeInsets.only(bottom: bottomPadding),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -43,14 +43,10 @@ class CommonBottomSheet extends StatelessWidget {
               children: [
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: paddingLarge,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: paddingLarge),
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(
-                        paddingXL,
-                      ),
+                      top: Radius.circular(paddingXL),
                     ),
                     gradient: buttonGradient,
                   ),
@@ -61,9 +57,12 @@ class CommonBottomSheet extends StatelessWidget {
                       textAlign: TextAlign.center,
                       (title ?? ""),
                       style: context.labelLarge.copyWith(
-                          fontSize: SizeUtils.deviceType == DeviceType.mobile
-                              ? 20.fSize
-                              : 40.fSize),
+                        fontSize:
+                            ScreenUtil().deviceType(context) ==
+                                DeviceType.mobile
+                            ? 20.sp
+                            : 40.sp,
+                      ),
                     ),
                   ),
                 ),
@@ -97,10 +96,7 @@ class CommonBottomSheet extends StatelessWidget {
                 ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(paddingXL),
-              child: child,
-            ),
+            Padding(padding: const EdgeInsets.all(paddingXL), child: child),
           ],
         ),
       ),
@@ -108,17 +104,15 @@ class CommonBottomSheet extends StatelessWidget {
   }
 }
 
-
 class ConfirmationSheet extends StatelessWidget {
   const ConfirmationSheet({
     super.key,
-    required this.buttonText, 
-    required this.text, 
+    required this.buttonText,
+    required this.text,
   });
 
   final String text;
   final String buttonText;
-
 
   @override
   Widget build(BuildContext context) {
@@ -138,4 +132,3 @@ class ConfirmationSheet extends StatelessWidget {
     );
   }
 }
-

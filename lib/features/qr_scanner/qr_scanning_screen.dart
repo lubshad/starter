@@ -20,9 +20,15 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
   bool _canProcess = true;
   bool _isBusy = false;
   CustomPaint? _customPaint;
-  var _cameraLensDirection = SizeUtils.deviceType == DeviceType.mobile
-      ? CameraLensDirection.back
-      : CameraLensDirection.front;
+  late CameraLensDirection _cameraLensDirection;
+
+  @override
+  void initState() {
+    super.initState();
+    _cameraLensDirection = ScreenUtil().deviceType(context) == DeviceType.mobile
+        ? CameraLensDirection.back
+        : CameraLensDirection.front;
+  }
 
   @override
   void dispose() {

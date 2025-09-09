@@ -94,7 +94,7 @@ class TypeAheadMultiSelectionSearchField extends StatelessWidget {
               // controller: TextEditingController(text: selected?.name),
               decoration: const InputDecoration(
                 // hintStyle: hintStyle.copyWith(
-                //   fontSize: 12.fSize,
+                //   fontSize: 12.sp,
                 // ),
                 contentPadding: EdgeInsets.only(top: paddingLarge),
                 // hintText: "Eg : $hint",

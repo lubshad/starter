@@ -52,7 +52,7 @@ mixin UserImageMixin<T extends StatefulWidget> on State<T> {
   Widget userImage({String? networkImage, VoidCallback? onChanged}) => Stack(
         children: [
           UserAvatar(
-            size: SizeUtils.width * .5,
+            size: 1.sw * .5,
             imageFile: selectedProfileImage,
             imageUrl: networkImage,
           ),
@@ -64,7 +64,7 @@ mixin UserImageMixin<T extends StatefulWidget> on State<T> {
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(SizeUtils.width * .5),
+                borderRadius: BorderRadius.circular(1.sw * .5),
                 onTap: () =>
                     showImagePicker(image: "profile", onChanged: onChanged),
                 child: Column(

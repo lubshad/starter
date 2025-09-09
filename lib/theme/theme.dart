@@ -30,11 +30,11 @@ ThemeData get themeData => ThemeData(
     unselectedItemColor: const Color(0xff8E8E8E),
     showUnselectedLabels: true,
     selectedLabelStyle: baseStyle.copyWith(
-      fontSize: 12.fSize,
+      fontSize: 12.sp,
       fontWeight: FontWeight.w500,
     ),
     unselectedLabelStyle: baseStyle.copyWith(
-      fontSize: 12.fSize,
+      fontSize: 12.sp,
       fontWeight: FontWeight.w400,
     ),
   ),
@@ -78,17 +78,17 @@ extension BuildContextExtension on BuildContext {
   TextStyle get bodySmall => textTheme.bodySmall!;
 
   TextStyle get montserrat50016 =>
-      baseStyle.copyWith(fontSize: 16.fSize, fontWeight: FontWeight.w500);
+      baseStyle.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w500);
   TextStyle get montserrat50017 =>
-      baseStyle.copyWith(fontSize: 17.fSize, fontWeight: FontWeight.w500);
-    
+      baseStyle.copyWith(fontSize: 17.sp, fontWeight: FontWeight.w500);
+
   TextStyle get montserrat40013 => baseStyle.copyWith(
-    fontSize: 13.fSize,
+    fontSize: 13.sp,
     fontWeight: FontWeight.w400,
     color: Color(0xff9A9BB1),
   );
   TextStyle get montserrat50014 => baseStyle.copyWith(
-    fontSize: 14.fSize,
+    fontSize: 14.sp,
     fontWeight: FontWeight.w500,
     color: Colors.white,
   );
