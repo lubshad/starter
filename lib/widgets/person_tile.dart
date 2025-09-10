@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:starter/exporter.dart';
-
 import 'user_avatar.dart';
+import '../exporter.dart';
 
 class PersonTile extends StatelessWidget {
   final bool hasSubTitle;

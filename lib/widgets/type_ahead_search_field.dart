@@ -222,7 +222,6 @@ class _SelectionScreenState extends State<SelectionScreen> with SearchMixin {
                         title: Text(item.name),
                       ),
                     ),
-                    // separatorBuilder: (context, index) => gap,
                   ),
                 ),
               ),

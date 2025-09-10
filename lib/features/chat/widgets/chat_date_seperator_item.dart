@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:starter/extensions.dart';
-import 'package:starter/theme/theme.dart';
+import 'package:starter/exporter.dart';
 
 
-import '../../../constants.dart';
 
 class ChatDateSeperatorItem extends StatelessWidget {
   final DateTime date;
