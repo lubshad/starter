@@ -4,11 +4,13 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'default_loading_widget.dart';
 
 class NetworkResource<T> extends StatelessWidget {
-  const NetworkResource(this.future,
-      {super.key,
-      this.loading = const LoadingWidget(),
-      required this.error,
-      required this.success});
+  const NetworkResource(
+    this.future, {
+    super.key,
+    this.loading = const LoadingWidget(),
+    required this.error,
+    required this.success,
+  });
 
   final Future<T>? future;
   final Widget loading;
@@ -35,7 +37,7 @@ class NetworkResource<T> extends StatelessWidget {
             break;
           default:
         }
-        return widget .animate().fadeIn();
+        return widget.animate().fadeIn();
       },
     );
   }
