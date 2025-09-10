@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
+import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
@@ -9,19 +10,19 @@ import 'package:gap/gap.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:starter/features/chat/chat_screen.dart';
 import '../../../widgets/bottom_button_padding.dart';
 import '../../../services/file_picker_service.dart';
 import '../agora_rtm_service.dart';
-import '../models/conversation_model.dart';
 import '../sound_player_service.dart';
 import '../../../exporter.dart';
 
 ValueNotifier<String?> repliedText = ValueNotifier(null);
 
 class ChatBottomBar extends StatefulWidget {
-  final ConversationModel conversation;
+  final ChatScreenArg arguments;
 
-  const ChatBottomBar({super.key, required this.conversation});
+  const ChatBottomBar({super.key, required this.arguments});
 
   @override
   State<ChatBottomBar> createState() => _ChatBottomBarState();
@@ -107,6 +108,10 @@ class _ChatBottomBarState extends State<ChatBottomBar> {
     _timer = null;
   }
 
+  ChatType get chatType => widget.arguments.type == ChatConversationType.Chat
+      ? ChatType.Chat
+      : ChatType.GroupChat;
+
   void sendMessage() async {
     final message = messageController.text.trim();
     if (message.isEmpty) return;
@@ -116,12 +121,13 @@ class _ChatBottomBarState extends State<ChatBottomBar> {
         : null;
 
     await AgoraRTMService.i.sendMessageWithReply(
-      id: widget.conversation.conversation.id,
+      id: widget.arguments.id,
       message: message,
       replyToMessageId: replyData?.messageId,
       replyToContent: replyData?.content,
       replyToSender: replyData?.senderName,
       replyToType: replyData?.messageType,
+      chatType: chatType,
     );
     messageController.clear();
     repliedText.value = null;
@@ -135,12 +141,13 @@ class _ChatBottomBarState extends State<ChatBottomBar> {
         : null;
 
     await AgoraRTMService.i.sendFileMessageWithReply(
-      id: widget.conversation.conversation.id,
+      id: widget.arguments.id,
       file: file,
       replyToMessageId: replyData?.messageId,
       replyToContent: replyData?.content,
       replyToSender: replyData?.senderName,
       replyToType: replyData?.messageType,
+      chatType: chatType,
     );
 
     repliedText.value = null;
@@ -153,12 +160,13 @@ class _ChatBottomBarState extends State<ChatBottomBar> {
         : null;
 
     await AgoraRTMService.i.sendImageMessageWithReply(
-      id: widget.conversation.conversation.id,
+      id: widget.arguments.id,
       file: image,
       replyToMessageId: replyData?.messageId,
       replyToContent: replyData?.content,
       replyToSender: replyData?.senderName,
       replyToType: replyData?.messageType,
+      chatType: chatType,
     );
 
     repliedText.value = null;
@@ -172,13 +180,14 @@ class _ChatBottomBarState extends State<ChatBottomBar> {
         : null;
 
     await AgoraRTMService.i.sendVoiceMessageWithReply(
-      id: widget.conversation.conversation.id,
+      id: widget.arguments.id,
       file: File(voicePath),
       duration: recorderController.recordedDuration,
       replyToMessageId: replyData?.messageId,
       replyToContent: replyData?.content,
       replyToSender: replyData?.senderName,
       replyToType: replyData?.messageType,
+      chatType: chatType,
     );
 
     repliedText.value = null;
@@ -399,7 +408,8 @@ class _ChatBottomBarState extends State<ChatBottomBar> {
                       border: OutlineInputBorder(),
                     ),
                     onChanged: (value) => AgoraRTMService.i.sendTypingIndicator(
-                      id: widget.conversation.conversation.id,
+                      id: widget.arguments.id,
+                      chatType: chatType,
                     ),
                   ),
                 ),

@@ -5,15 +5,17 @@ import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
+import 'package:starter/widgets/person_tile.dart';
 
+import '../../core/app_route.dart';
 import '../../exporter.dart';
+import '../../main.dart';
 import '../../mixins/event_listener.dart';
 import '../../services/fcm_service.dart';
 import '../../services/shared_preferences_services.dart';
 import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/list_tile_shimmer.dart';
 import '../../widgets/network_resource.dart';
-import '../../widgets/no_item_found.dart';
 import '../profile_screen/common_controller.dart';
 import 'agora_rtc_service.dart';
 import 'agora_rtm_service.dart';
@@ -107,11 +109,38 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
     }
   }
 
+  Future<void> joinPublicGroup(String groupId) async {
+    try {
+      await ChatClient.getInstance.groupManager.joinPublicGroup(groupId);
+      logInfo("✅ Joined group: $groupId");
+    } catch (e) {
+      logInfo("❌ Failed to join group: $e");
+    }
+  }
+
+  List<ChatGroup> groups = [];
+
+  Future<void> getMyGroups() async {
+    groups = await ChatClient.getInstance.groupManager.getJoinedGroups();
+    setState(() {});
+    if (groups.isEmpty) {
+      await joinPublicGroup(publicGroupId);
+      getMyGroups();
+    }
+    if (AgoraRTMService.i.currentUser?.userId == "18") {
+      await ChatClient.getInstance.groupManager.updateGroupExtension(
+        publicGroupId,
+        jsonEncode({"groupIcon": randomProfileImage}),
+      );
+    }
+  }
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       loginUser();
       checkOngoingCall();
+      getMyGroups();
     });
     loadConversations();
     allowedEvents = [
@@ -186,11 +215,6 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
     final value = await ChatClient.getInstance.chatManager
         .loadAllConversations();
 
-    final users =
-        (await ChatClient.getInstance.userInfoManager.fetchUserInfoById(
-          value.map((e) => e.id).toList(),
-        )).values.toList();
-
     final latestMessages = await Future.wait(
       value.map((e) => e.latestMessage()),
     );
@@ -201,7 +225,6 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
         .map(
           (conversation) => ConversationModel(
             conversation: conversation.$2,
-            user: users[conversation.$1],
             latestMessage: latestMessages[conversation.$1],
             unreadCount: unreadCounts[conversation.$1],
           ),
@@ -236,15 +259,55 @@ class _ConversationListingScreenState extends State<ConversationListingScreen>
             ),
           ),
           success: (conversations) {
-            if (conversations.isEmpty) {
-              return const NoItemsFound();
-            }
-            return ListView.separated(
-              padding: const EdgeInsets.all(padding),
-              itemCount: conversations.length,
-              itemBuilder: (context, index) =>
-                  ConversationItem(item: conversations[index]),
-              separatorBuilder: (context, index) => gap,
+            return Column(
+              children: [
+                ...groups
+                    .where(
+                      (element) => !conversations
+                          .map((e) => e.conversation.id)
+                          .contains(element.groupId),
+                    )
+                    .map(
+                      (e) => FutureBuilder(
+                        future: ChatClient.getInstance.groupManager
+                            .fetchGroupInfoFromServer(e.groupId),
+                        builder: (context, asyncSnapshot) {
+                          if (asyncSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return PersonListingTileShimmer();
+                          }
+                          final group = asyncSnapshot.data!;
+                          return PersonTile(
+                            onTap: () {
+                              navigate(
+                                navigatorKey.currentContext!,
+                                ChatScreen.path,
+                                arguments: ChatScreenArg(
+                                  id: e.groupId,
+                                  type: ChatConversationType.GroupChat,
+                                ),
+                              );
+                            },
+                            name: e.name,
+                            imageUrl:
+                                jsonDecode(
+                                  group.extension ?? "{}",
+                                )["groupIcon"] ??
+                                "",
+                          );
+                        },
+                      ),
+                    ),
+                Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(padding),
+                    itemCount: conversations.length,
+                    itemBuilder: (context, index) =>
+                        ConversationItem(item: conversations[index]),
+                    separatorBuilder: (context, index) => gap,
+                  ),
+                ),
+              ],
             );
           },
         ),

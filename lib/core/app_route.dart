@@ -7,8 +7,8 @@ import '../features/authentication/phone_auth/phone_auth_screen.dart';
 import '../features/authentication/social_authentication/otp_validation_screen.dart';
 import '../features/authentication/social_authentication/social_authentication_screen.dart';
 import '../features/chat/chat_screen.dart';
+import '../features/chat/group_members_screen.dart';
 import '../features/chat/conversation_listing.dart';
-import '../features/chat/models/conversation_model.dart';
 import '../features/home_screen/home_screen.dart';
 import '../features/navigation/navigation_screen.dart';
 import '../features/splash_screen/splash_screen.dart';
@@ -36,9 +36,10 @@ class AppRoute {
         screen = const SplashScreen();
         break;
       case ChatScreen.path:
-        screen = ChatScreen(
-          conversation: settings.arguments as ConversationModel,
-        );
+        screen = ChatScreen(arguments: settings.arguments as ChatScreenArg);
+        break;
+      case GroupMembersScreen.path:
+        screen = GroupMembersScreen(groupId: settings.arguments as String);
         break;
       case ConversationListingScreen.path:
         screen = ConversationListingScreen();

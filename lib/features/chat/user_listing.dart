@@ -10,7 +10,7 @@ import '../../widgets/person_tile.dart';
 import 'conversation_listing.dart';
 
 List<NameId> usersList = [
-  NameId(id: "lubshad", name: "Lubshad", third: profileImages.first),
+  NameId(id: "58", name: "Zannan", third: profileImages.first),
   NameId(id: "18", name: "Eventxpro", third: profileImages[1]),
   NameId(id: "50", name: "Adarsh", third: profileImages[2]),
 ];

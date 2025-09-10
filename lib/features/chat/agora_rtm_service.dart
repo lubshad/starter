@@ -22,6 +22,8 @@ final agoraConfig = AgoraConfig(
   appId: "fba212c248f64309802c8c5f8f5e9172",
 );
 
+String publicGroupId = "291610357202945";
+
 class ReplyMessageData {
   final String messageId;
   final String content;
@@ -141,6 +143,7 @@ class AgoraRTMService {
     ChatOptions options = ChatOptions(
       appKey: config.appKey,
       requireDeliveryAck: true,
+      debugMode: true
     );
     options.enableFCM(config.senderId);
     options.enableAPNs(config.senderId);
@@ -159,8 +162,13 @@ class AgoraRTMService {
     String? replyToContent,
     String? replyToSender,
     MessageType? replyToType,
+    ChatType chatType = ChatType.Chat,
   }) async {
-    var msg = ChatMessage.createTxtSendMessage(targetId: id, content: message);
+    var msg = ChatMessage.createTxtSendMessage(
+      targetId: id,
+      content: message,
+      chatType: chatType,
+    );
 
     // Add reply information as extensions
     if (replyToMessageId != null) {
@@ -182,11 +190,13 @@ class AgoraRTMService {
     String? replyToContent,
     String? replyToSender,
     MessageType? replyToType,
+    ChatType chatType = ChatType.Chat,
   }) async {
     var msg = ChatMessage.createImageSendMessage(
       targetId: id,
       filePath: file.path,
       displayName: file.uri.pathSegments.last,
+      chatType: chatType,
     );
 
     if (replyToMessageId != null) {
@@ -208,11 +218,13 @@ class AgoraRTMService {
     String? replyToContent,
     String? replyToSender,
     MessageType? replyToType,
+    ChatType chatType = ChatType.Chat,
   }) async {
     var msg = ChatMessage.createFileSendMessage(
       targetId: id,
       filePath: file.path,
       displayName: file.uri.pathSegments.last,
+      chatType: chatType,
     );
 
     if (replyToMessageId != null) {
@@ -235,11 +247,13 @@ class AgoraRTMService {
     String? replyToContent,
     String? replyToSender,
     MessageType? replyToType,
+    ChatType chatType = ChatType.Chat,
   }) async {
     var msg = ChatMessage.createVoiceSendMessage(
       targetId: id,
       filePath: file.path,
       duration: duration.inSeconds,
+      chatType: chatType,
     );
 
     if (replyToMessageId != null) {
@@ -291,7 +305,7 @@ class AgoraRTMService {
 
   bool get isLoggedIn => currentUser != null;
 
-  Future<ChatMessage?> sendTypingIndicator({required String id}) async {
+  Future<ChatMessage?> sendTypingIndicator({required String id,  ChatType chatType = ChatType.Chat}) async {
     if (serverUtcTime.subtract(Duration(seconds: 2)).isBefore(lastTypingSend)) {
       return null;
     }
@@ -299,7 +313,7 @@ class AgoraRTMService {
       targetId: id,
       action: jsonEncode({"type": CmdActionType.startTyping.name}),
       deliverOnlineOnly: true,
-      chatType: ChatType.Chat,
+      chatType: chatType,
     );
 
     lastTypingSend = serverUtcTime;

@@ -4,7 +4,6 @@ import '../../../core/app_route.dart';
 import '../../../main.dart';
 import '../../../services/snackbar_utils.dart';
 import '../chat_screen.dart';
-import '../models/conversation_model.dart';
 
 mixin ChatMixin {
   ValueNotifier<bool> buttonLoading = ValueNotifier(false);
@@ -18,13 +17,7 @@ mixin ChatMixin {
             // ignore: use_build_context_synchronously
             context ?? navigatorKey.currentContext!,
             ChatScreen.path,
-            arguments: ConversationModel(
-              conversation: ChatConversation.fromJson({
-                "convId": id.toString(),
-              }),
-              user: value.values.first,
-              unreadCount: 0,
-            ),
+            arguments: ChatScreenArg(id: id.toString()),
           );
         })
         .onError((error, stackTrace) {

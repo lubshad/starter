@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:starter/widgets/person_tile.dart';
 import 'package:timeago/timeago.dart';
 import '../../../core/app_route.dart';
 import '../../../main.dart';
@@ -16,75 +19,107 @@ class ConversationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () {
-        navigate(
-          navigatorKey.currentContext!,
-          ChatScreen.path,
-          arguments: item,
-        );
-      },
-      leading: UserAvatar(
-        imageUrl: item.user.avatarUrl,
-        size: 42.h,
-        username: item.user.nickName ?? "",
-        addMediaUrl: false,
-      ),
-      title: AutoSizeText(
-        item.user.nickName ?? "",
-        style: context.montserrat50017,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: lastMessageBuilder(context, item),
-      trailing: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Builder(
-            builder: (context) {
-              if (item.latestMessage == null) return SizedBox();
-              return Text(
-                format(
-                  DateTime.fromMillisecondsSinceEpoch(
-                    item.latestMessage!.localTime,
-                  ),
-                ),
-                style: context.montserrat40013,
-              );
-            },
+    return FutureBuilder(
+      future: item.conversation.type == ChatConversationType.Chat
+          ? ChatClient.getInstance.userInfoManager.fetchUserInfoById([
+              item.conversation.id,
+            ])
+          : ChatClient.getInstance.groupManager.fetchGroupInfoFromServer(
+              item.conversation.id,
+            ),
+      builder: (context, asyncSnapshot) {
+        if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+          return PersonListingTileShimmer();
+        }
+        final imageUrl = asyncSnapshot.data is Map<String, ChatUserInfo>
+            ? (asyncSnapshot.data as Map<String, ChatUserInfo>)
+                  .values
+                  .first
+                  .avatarUrl
+            : jsonDecode(
+                    (asyncSnapshot.data as ChatGroup).extension ?? "{}",
+                  )["groupIcon"] ??
+                  "";
+        final name = asyncSnapshot.data is Map<String, ChatUserInfo>
+            ? (asyncSnapshot.data as Map<String, ChatUserInfo>)
+                  .values
+                  .first
+                  .nickName
+            : (asyncSnapshot.data as ChatGroup).name;
+        return ListTile(
+          onTap: () {
+            navigate(
+              navigatorKey.currentContext!,
+              ChatScreen.path,
+              arguments: ChatScreenArg(
+                id: item.conversation.id,
+                type: item.conversation.type,
+              ),
+            );
+          },
+          leading: UserAvatar(
+            imageUrl: imageUrl,
+            size: 42.h,
+            username: name ?? "",
+            addMediaUrl: false,
           ),
-          Visibility(
-            visible: item.unreadCount > 0,
-            child: Padding(
-              padding: EdgeInsets.all(paddingTiny),
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: paddingSmall,
-                  vertical: paddingTiny,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Wrap(
-                  alignment: WrapAlignment.center,
-                  children: [
-                    Text(
-                      item.unreadCount.toString(),
-                      style: context.montserrat40013.copyWith(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+          title: AutoSizeText(
+            name ?? "",
+            style: context.montserrat50017,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: lastMessageBuilder(context, item),
+          trailing: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Builder(
+                builder: (context) {
+                  if (item.latestMessage == null) return SizedBox();
+                  return Text(
+                    format(
+                      DateTime.fromMillisecondsSinceEpoch(
+                        item.latestMessage!.localTime,
                       ),
                     ),
-                  ],
+                    style: context.montserrat40013,
+                  );
+                },
+              ),
+              Visibility(
+                visible: item.unreadCount > 0,
+                child: Padding(
+                  padding: EdgeInsets.all(paddingTiny),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: paddingSmall,
+                      vertical: paddingTiny,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      children: [
+                        Text(
+                          item.unreadCount.toString(),
+                          style: context.montserrat40013.copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

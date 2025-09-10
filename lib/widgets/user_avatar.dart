@@ -9,9 +9,12 @@ import 'package:flutter/material.dart';
 
 import '../core/app_config.dart';
 import '../exporter.dart';
+
 String mediaurl(String? url) {
+  if (url?.startsWith("http") == true) return url ?? "";
   return Uri.parse(appConfig.domainOnly + (url ?? "")).toString();
 }
+
 class UserAvatar extends StatelessWidget {
   UserAvatar({
     super.key,
