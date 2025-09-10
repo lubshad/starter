@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../../exporter.dart';
+import 'package:starter/exporter.dart';
 
 class ChatReactions extends StatelessWidget {
   final void Function(String emoji) onEmojiSelected;
@@ -15,11 +14,11 @@ class ChatReactions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final emojis = ['👍', '😂', '😍', '😮', '😢', '👏'];
+    final emojis = ['❤️', '👍', '😂', '😍', '😮', '👏'];
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: padding * 1.5,
-        // vertical: padding,
+
         vertical: paddingSmall,
       ),
       decoration: BoxDecoration(
@@ -98,14 +97,28 @@ class ReactionPopupPositioner extends StatefulWidget {
       _ReactionPopupPositionerState();
 }
 
-class _ReactionPopupPositionerState extends State<ReactionPopupPositioner> {
+class _ReactionPopupPositionerState extends State<ReactionPopupPositioner>
+    with SingleTickerProviderStateMixin {
   final GlobalKey _popupKey = GlobalKey();
   double? _popupWidth;
   double? _popupHeight;
 
+  late AnimationController animationController;
+  late Animation<double> fadeAnimation;
+
   @override
   void initState() {
     super.initState();
+    animationController = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+
+    fadeAnimation = CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeInOut,
+    );
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final context = _popupKey.currentContext;
       if (context != null) {
@@ -115,23 +128,27 @@ class _ReactionPopupPositionerState extends State<ReactionPopupPositioner> {
           _popupHeight = box.size.height;
         });
       }
+
+      animationController.forward();
     });
   }
 
   @override
+  dispose() {
+    animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    double left =
-        widget.bubbleOffset.dx +
-        (widget.bubbleSize.width / 2) -
-        ((_popupWidth ?? 0) / 2);
-    left = left.clamp(8.0, 1.sw - (_popupWidth ?? 0) - 8.0);
+    double left = widget.bubbleOffset.dx - (_popupWidth ?? 0) / 2;
+    left = left.clamp(8.0, context.width - (_popupWidth ?? 0) - 8.0);
+
     double top =
         widget.bubbleOffset.dy - (_popupHeight ?? 0) - widget.verticalGap;
+
     if (top < 8.0) {
-      top =
-          widget.bubbleOffset.dy +
-          widget.bubbleSize.height +
-          widget.verticalGap;
+      top = widget.bubbleOffset.dy + widget.verticalGap;
     }
 
     return Stack(
@@ -146,15 +163,18 @@ class _ReactionPopupPositionerState extends State<ReactionPopupPositioner> {
         Positioned(
           left: left,
           top: top,
-          child: Material(
-            color: Colors.transparent,
-            child: IntrinsicWidth(
-              child: IntrinsicHeight(
-                child: ChatReactions(
-                  selectedReaction: widget.selectedReaction,
-                  key: _popupKey,
-                  onEmojiSelected: widget.onEmojiSelected,
-                  onAddPressed: widget.onAddPressed,
+          child: FadeTransition(
+            opacity: fadeAnimation,
+            child: Material(
+              color: Colors.transparent,
+              child: IntrinsicWidth(
+                child: IntrinsicHeight(
+                  child: ChatReactions(
+                    selectedReaction: widget.selectedReaction,
+                    key: _popupKey,
+                    onEmojiSelected: widget.onEmojiSelected,
+                    onAddPressed: widget.onAddPressed,
+                  ),
                 ),
               ),
             ),
@@ -166,34 +186,34 @@ class _ReactionPopupPositionerState extends State<ReactionPopupPositioner> {
 }
 
 final List<String> commonEmojis = [
-  '😀',
-  '😁',
-  '😂',
-  '🤣',
-  '😃',
-  '😄',
-  '😅',
-  '😆',
-  '😉',
-  '😊',
-  '😍',
-  '😘',
-  '😗',
-  '😚',
-  '😋',
-  '😜',
-  '🤪',
-  '😎',
-  '🥳',
-  '😢',
-  '😭',
-  '😡',
-  '😱',
-  '🤔',
-  '😐',
-  '😴',
-  '🤗',
+  '❤️',
   '👍',
+  '😂',
+  '😍',
+  '😮',
   '👏',
+  '😊',
+  '🤝',
+  '🙌',
+  '😌',
+  '😃',
+  '😇',
+  '😉',
+  '😢',
+  '🤔',
   '🙏',
+  '🔥',
+  '💯',
+  '🎉',
+  '🎯',
+  '💡',
+  '✅',
+  '❗',
+  '📢',
+  '📌',
+  '📅',
+  '📍',
+  '💬',
+  '📝',
+  '📈',
 ];

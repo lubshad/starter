@@ -3,17 +3,20 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:permission_handler/permission_handler.dart';
+
 import '../../core/app_route.dart';
 import '../../exporter.dart';
 import '../../main.dart';
 import '../../mixins/event_listener.dart';
+import '../../widgets/custom_appbar.dart';
 import '../../widgets/error_widget_with_retry.dart';
-import '../../widgets/list_tile_shimmer.dart';
-import '../../widgets/no_item_found.dart';
+import '../../widgets/person_tile.dart';
+import '../../widgets/user_avatar.dart';
 import 'agora_rtc_service.dart';
 import 'agora_rtm_service.dart';
 import 'call_screen.dart';
@@ -33,22 +36,85 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> with EventListenerMixin {
+  final Map<String, GlobalKey> messageKeys = {};
+  final ScrollController scrollController = ScrollController();
+
   ValueNotifier<bool> typing = ValueNotifier(false);
+  ValueNotifier<String> presenceStatus = ValueNotifier("Offline");
   Timer? typingTimer;
 
-  PagingController<String?, ChatMessage> pagingController = PagingController(
-    firstPageKey: null,
+  String cursor = "";
+
+  late final PagingController<String?, ChatMessage>
+  pagingController = PagingController<String?, ChatMessage>(
+    getNextPageKey: (state) {
+      if (state.lastPageIsEmpty) return null;
+      // This convenience getter increments the page key by 1, assuming keys start at 1.
+      return state.hasNextPage ? cursor : null;
+    },
+    fetchPage: fetchMessages,
   );
 
   @override
   void initState() {
-    pagingController.addPageRequestListener(
-      (pageKey) => fetchMessages(pageKey),
-    );
+    allowedEvents = [EventType.chatDeleted];
+    listenForEvents((event) {
+      if (pagingController.items != null && event.data is ChatMessage) {
+        final deletedMessage = event.data as ChatMessage;
+        setState(() {
+          pagingController.items?.removeWhere(
+            (element) => element.msgId == deletedMessage.msgId,
+          );
+        });
+      }
+    });
     addChatEventHandler();
+    fetchCurrentPresenceStatus();
     clearUnreadMessages();
     super.initState();
+  }
+
+  void scrollToMessage(String messageId) {
+    final messageKey = messageKeys[messageId];
+    if (messageKey != null && messageKey.currentContext != null) {
+      final messageIndex = pagingController.items!.indexWhere(
+        (msg) => msg.msgId == messageId,
+      );
+
+      if (messageIndex != -1) {
+        Scrollable.ensureVisible(
+          messageKey.currentContext!,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+          alignment: 0.5,
+        ).then((_) {
+          final chatMessageState =
+              messageKey.currentState as ChatMessageItemState?;
+          chatMessageState?.highlightMessage();
+        });
+      }
+    }
+  }
+
+  void fetchCurrentPresenceStatus() async {
+    try {
+      final status = await ChatClient.getInstance.presenceManager
+          .fetchPresenceStatus(members: [widget.conversation.user.userId]);
+      if (status.isNotEmpty) {
+        final currentStatus = status.first.statusDescription;
+        presenceStatus.value = currentStatus.isNotEmpty
+            ? currentStatus
+            : "Offline";
+      }
+      await ChatClient.getInstance.presenceManager.subscribe(
+        members: [widget.conversation.user.userId],
+        expiry: Duration(hours: 1).inSeconds,
+      );
+    } catch (e) {
+      logError("Error fetching presence status: $e");
+      presenceStatus.value = "Offline";
+    }
   }
 
   void clearUnreadMessages() async {
@@ -62,9 +128,19 @@ class _ChatScreenState extends State<ChatScreen> {
     ChatClient.getInstance.chatManager.removeMessageEvent(
       'message_event_handler',
     );
+    ChatClient.getInstance.presenceManager.removeEventHandler(
+      'presence_event_handler',
+    );
   }
 
-  final scrollController = ScrollController();
+  void scrolltoTop() {
+    if (!scrollController.hasClients) return;
+    scrollController.animateTo(
+      scrollController.position.maxScrollExtent,
+      duration: animationDurationLarge,
+      curve: Curves.fastOutSlowIn,
+    );
+  }
 
   void scrolltoBottom() {
     if (!scrollController.hasClients) return;
@@ -79,13 +155,24 @@ class _ChatScreenState extends State<ChatScreen> {
     ChatClient.getInstance.chatManager.addEventHandler(
       'chat_event_handler',
       ChatEventHandler(
+        onMessagesRecalled: (messages) {
+          if (pagingController.items != null) {
+            for (final message in messages) {
+              pagingController.items!.removeWhere(
+                (element) => element.msgId == message.msgId,
+              );
+              setState(() {});
+            }
+          }
+        },
         onMessagesReceived: (messages) {
           if (messages.first.conversationId ==
               widget.conversation.conversation.id) {
-            pagingController.itemList?.insert(0, messages.first);
+            pagingController.items!.insert(0, messages.first);
             setState(() {});
             scrolltoBottom();
             SoundPlayerService.i.playMsgReceivedAudio();
+            HapticFeedback.lightImpact();
           }
         },
         onCmdMessagesReceived: onCmdMessagesRecieved,
@@ -98,31 +185,65 @@ class _ChatScreenState extends State<ChatScreen> {
       ChatMessageEvent(
         onSuccess: (msgId, msg) {
           if (msg.body is ChatCmdMessageBody) return;
-          if (pagingController.itemList?.map((e) => e.msgId).contains(msgId) ??
-              false) {
+          if (pagingController.items!.map((e) => e.msgId).contains(msgId)) {
             onMessageUpdate([msg]);
           } else {
-            pagingController.itemList!.insert(0, msg);
+            pagingController.items!.insert(0, msg);
             SoundPlayerService.i.playMsgSendAudio();
             setState(() {});
           }
         },
       ),
     );
+    addPresenceEventHandler();
     logInfo("chat_event_handler added");
   }
 
-  Future<void> fetchMessages(String? pageKey) async {
-    widget.conversation.conversation
-        .loadMessages(startMsgId: pagingController.nextPageKey ?? "")
-        .then((value) {
-          final reversed = value.reversed.toList();
-          if (reversed.length < 20) {
-            pagingController.appendLastPage(reversed);
-          } else {
-            pagingController.appendPage(reversed, reversed.last.msgId);
+  void addPresenceEventHandler() {
+    ChatClient.getInstance.presenceManager.addEventHandler(
+      'presence_event_handler',
+      ChatPresenceEventHandler(
+        onPresenceStatusChanged: (list) {
+          for (var presence in list) {
+            if (presence.publisher != widget.conversation.user.userId) return;
+            presenceStatus.value = presence.statusDescription == "Online"
+                ? "Online"
+                : "Offline";
           }
-        });
+        },
+      ),
+    );
+  }
+
+  Future<List<ChatMessage>> fetchMessages(String? pageKey) async {
+    try {
+      logInfo(
+        "Fetching messages for conversation: ${widget.conversation.conversation.id}",
+      );
+      logInfo("Using cursor: $cursor");
+
+      final messages = await widget.conversation.conversation.loadMessages(
+        startMsgId: cursor,
+      );
+
+      logInfo("Loaded ${messages.length} messages");
+
+      if (messages.isEmpty) {
+        logInfo("No more messages to load");
+        // Set cursor to null to indicate no more pages
+        return [];
+      }
+
+      final reversed = messages.reversed.toList();
+
+      cursor = reversed.last.msgId;
+
+      return reversed;
+    } catch (e) {
+      logError("Error fetching messages: $e");
+      // Re-throw the error so PagingController can handle it
+      rethrow;
+    }
   }
 
   @override
@@ -144,37 +265,106 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.conversation.user.nickName.toString()),
-        actions: [
-          Material(
-            shadowColor: Colors.black26,
-            elevation: 2.0,
-            borderRadius: BorderRadius.circular(padding),
-            color: Colors.white,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(padding),
-              splashColor: Colors.grey[200],
-              onTap: () async {
-                final channel =
-                    "${AgoraRTMService.i.currentUser?.userId ?? ""}-${widget.conversation.conversation.id}";
-                final permission = await Permission.camera.request();
-                if (permission != PermissionStatus.granted) return;
-                AgoraRtcService.i.setArguments(
-                  widget.conversation.user,
-                  channel,
-                  CallState.outgoingCall,
-                );
-                navigate(
-                  navigatorKey.currentContext!,
-                  CallScreen.path,
-                  duplicate: false,
-                );
-              },
-              child: Padding(
-                padding: EdgeInsets.all(padding),
-                child: Icon(Icons.call),
-              ),
+        title: Row(
+          children: [
+            UserAvatar(
+              imageUrl: widget.conversation.user.avatarUrl ?? "",
+              addMediaUrl: false,
+              size: 38.h,
             ),
+            gap,
+            if (widget.conversation.user.nickName != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.conversation.user.nickName.toString(),
+                    style: context.montserrat60015.copyWith(
+                      color: Color(0xff3C3F4E),
+                    ),
+                  ),
+                  ValueListenableBuilder<String>(
+                    valueListenable: presenceStatus,
+                    builder: (context, status, child) {
+                      final isOnline = status.toLowerCase() == 'online';
+                      return Row(
+                        children: [
+                          Text(
+                            status,
+                            style: context.montserrat40013.copyWith(
+                              color: Color(0xff3C3F4E).withAlpha(0.6.alpha),
+                            ),
+                          ),
+                          gap,
+                          Icon(
+                            Icons.circle,
+                            size: 10.h,
+                            color: isOnline ? Colors.green : Colors.grey,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
+          ],
+        ),
+        surfaceTintColor: Colors.transparent,
+        leading: backButtonWithSafety(context),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.call),
+            onPressed: () async {
+              final channel =
+                  "${AgoraRTMService.i.currentUser?.userId ?? ""}-${widget.conversation.conversation.id}";
+              final permission = await Permission.microphone.request();
+              if (permission != PermissionStatus.granted) return;
+              showCallSheet(
+                widget.conversation.user,
+                channel,
+                initialState: CallState.outgoingCall,
+              );
+              if (permission == PermissionStatus.permanentlyDenied) {
+                showDialog(
+                  // ignore: use_build_context_synchronously
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(
+                      'Microphone Acces Required',
+                      style: context.montserrat60016,
+                    ),
+                    content: Text(
+                      'Please enable microphone permission in settings in order to make calls',
+                      style: context.montserrat40014,
+                    ),
+
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          openAppSettings();
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'Open Setttigs',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              if (permission != PermissionStatus.granted) return;
+
+              showCallSheet(
+                widget.conversation.user,
+                channel,
+                initialState: CallState.outgoingCall,
+              );
+            },
           ),
           gap,
         ],
@@ -184,59 +374,76 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async => pagingController.refresh(),
-              child: PagedListView<String?, ChatMessage>.separated(
-                reverse: true,
-                padding: const EdgeInsets.all(paddingLarge),
-                pagingController: pagingController,
-                scrollController: scrollController,
-                builderDelegate: PagedChildBuilderDelegate(
-                  firstPageErrorIndicatorBuilder: (context) => SizedBox(
-                    height: 400,
-                    child: ErrorWidgetWithRetry(
-                      exception: pagingController.error,
-                      retry: pagingController.refresh,
-                    ),
-                  ),
-                  noItemsFoundIndicatorBuilder: (context) =>
-                      const NoItemsFound(),
-                  firstPageProgressIndicatorBuilder: (context) => Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: paddingLarge,
-                    ),
-                    child: Column(
-                      children: List.generate(
-                        4,
-                        (index) => const ListTileShimmer(),
-                      ),
-                    ),
-                  ),
-                  itemBuilder: (context, item, index) {
-                    final messages = pagingController.itemList!;
-                    final currentDate = DateTime.fromMillisecondsSinceEpoch(
-                      item.serverTime,
-                    );
-                    DateTime? prevDate;
-                    if (index < messages.length - 1) {
-                      prevDate = DateTime.fromMillisecondsSinceEpoch(
-                        messages[index + 1].serverTime,
-                      );
-                    }
-                    final showSeperator =
-                        prevDate == null || !currentDate.isSameDay(prevDate);
-                    return Column(
-                      children: [
-                        if (showSeperator)
-                          ChatDateSeperatorItem(date: currentDate),
-                        ChatMessageItem(
-                          key: ValueKey(item.msgId),
-                          item: item,
-                          other: widget.conversation.user,
+              child: PagingListener(
+                controller: pagingController,
+                builder: (context, state, fetchNextPage) {
+                  return PagedListView<String?, ChatMessage>.separated(
+                    reverse: true,
+                    padding: const EdgeInsets.all(paddingLarge),
+                    scrollController: scrollController,
+                    builderDelegate: PagedChildBuilderDelegate(
+                      firstPageErrorIndicatorBuilder: (context) => SizedBox(
+                        height: 400,
+                        child: ErrorWidgetWithRetry(
+                          exception: pagingController.error,
+                          retry: pagingController.refresh,
                         ),
-                      ],
-                    );
-                  },
-                ),
-                separatorBuilder: (context, index) => gap,
+                      ),
+                      noItemsFoundIndicatorBuilder: (context) => Center(
+                        child: Image.asset(
+                          Assets.pngs.noChat.path,
+                          fit: BoxFit.cover,
+                          width: ScreenUtil().screenWidth * .8,
+                        ),
+                      ),
+                      firstPageProgressIndicatorBuilder: (context) => Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: paddingLarge,
+                        ),
+                        child: Column(
+                          children: List.generate(
+                            4,
+                            (index) => const PersonListingTileShimmer(),
+                          ),
+                        ),
+                      ),
+                      itemBuilder: (context, item, index) {
+                        final messages = pagingController.items!;
+                        final message = messages[index];
+                        if (!messageKeys.containsKey(message.msgId)) {
+                          messageKeys[message.msgId] = GlobalKey();
+                        }
+                        final currentDate = DateTime.fromMillisecondsSinceEpoch(
+                          item.serverTime,
+                        );
+                        DateTime? prevDate;
+                        if (index < messages.length - 1) {
+                          prevDate = DateTime.fromMillisecondsSinceEpoch(
+                            messages[index + 1].serverTime,
+                          );
+                        }
+                        final showSeperator =
+                            prevDate == null ||
+                            !currentDate.isSameDay(prevDate);
+                        return Column(
+                          children: [
+                            if (showSeperator)
+                              ChatDateSeperatorItem(date: currentDate),
+                            ChatMessageItem(
+                              key: messageKeys[message.msgId],
+                              item: item,
+                              other: widget.conversation.user,
+                              onScrollToMessage: scrollToMessage,
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    separatorBuilder: (context, index) => gap,
+                    state: state,
+                    fetchNextPage: fetchNextPage,
+                  );
+                },
               ),
             ),
           ),
@@ -288,11 +495,11 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void onMessageUpdate(List<ChatMessage> messages) {
-    final mesgIndex = pagingController.itemList?.indexWhere(
+    final mesgIndex = pagingController.items!.indexWhere(
       (element) => element.msgId == messages.first.msgId,
     );
-    if (mesgIndex == null || mesgIndex.isNegative) return;
-    pagingController.itemList!.replaceRange(mesgIndex, mesgIndex + 1, messages);
+    if (mesgIndex.isNegative) return;
+    pagingController.items!.replaceRange(mesgIndex, mesgIndex + 1, messages);
     setState(() {});
   }
 }

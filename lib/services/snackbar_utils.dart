@@ -1,4 +1,3 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
@@ -8,20 +7,6 @@ import '../exporter.dart';
 import '../main.dart';
 import '../widgets/default_loading_widget.dart';
 import '../widgets/loading_button.dart';
-
-Future<bool> checkConnectivity() async {
-  final positiveResult = [
-    ConnectivityResult.mobile,
-    ConnectivityResult.wifi,
-  ];
-  final result = await Connectivity().checkConnectivity();
-  if (!result.any(
-    (element) => positiveResult.contains(element),
-  )) {
-    return false;
-  }
-  return true;
-}
 
 void showErrorMessage(dynamic message, {Widget? icon}) {
   HapticFeedback.heavyImpact();

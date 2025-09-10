@@ -5,30 +5,29 @@ import 'main.dart';
 
 class AppConfigLocal extends AppConfig {
   @override
-  String get domain => throw UnimplementedError();
+  String get domain => "domain";
 
   @override
-  String get slugUrl => throw UnimplementedError();
+  String get slugUrl => "/api/";
 
   @override
-  String get port => throw UnimplementedError();
-  
+  String get port => "8000";
+
   @override
-  String get scheme => throw UnimplementedError();
-  
+  String get scheme => "http";
+
   @override
   ENV get env => ENV.local;
 
-
   @override
   String get password => "password";
-  
+
   @override
   String get username => "username";
 }
 
 void main() async {
-  await mainCommon();
   appConfig = AppConfigLocal();
+  await mainCommon();
   runApp(const MyApp());
 }

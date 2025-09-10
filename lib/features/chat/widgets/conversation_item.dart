@@ -28,6 +28,7 @@ class ConversationItem extends StatelessWidget {
         imageUrl: item.user.avatarUrl,
         size: 42.h,
         username: item.user.nickName ?? "",
+        addMediaUrl: false,
       ),
       title: AutoSizeText(
         item.user.nickName ?? "",

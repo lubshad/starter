@@ -4,8 +4,7 @@ import 'dart:io';
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-
-import '../../core/logger.dart';
+import 'package:starter/exporter.dart';
 
 class SoundPlayerService extends ChangeNotifier {
   void close() {
@@ -86,12 +85,30 @@ class SoundPlayerService extends ChangeNotifier {
       notifyListeners();
     });
     await _player.play(audioSource);
+    await _player.setPlaybackRate(_currentPlaybackRate);
     notifyListeners();
   }
 
   Future<void> seekTo(Duration position) async {
     await _player.seek(position);
     await _player.resume();
+  }
+
+  List<double> availablePlaybackRates = [0.5, 1, 1.5, 2];
+  double _currentPlaybackRate = 1;
+  double get currentPlaybackRate => _currentPlaybackRate;
+  Future<void> playBackRate(double rate) async {
+    if (availablePlaybackRates.contains(rate)) {
+      _currentPlaybackRate = rate;
+    }
+    await _player.setPlaybackRate(rate);
+    notifyListeners();
+  }
+
+  void resetPlaybackRate() async {
+    final currentIndex = availablePlaybackRates.indexOf(_currentPlaybackRate);
+    final nextIndex = (currentIndex + 1) % availablePlaybackRates.length;
+    await playBackRate(availablePlaybackRates[nextIndex]);
   }
 
   @override

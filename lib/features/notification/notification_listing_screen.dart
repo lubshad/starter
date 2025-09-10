@@ -19,33 +19,26 @@ class NotificationListingScreen extends StatefulWidget {
 }
 
 class _NotificationListingScreenState extends State<NotificationListingScreen> {
-  PagingController<int, NotificationModel> pagingController = PagingController(
-    firstPageKey: 1,
-  );
+  late final PagingController<int, NotificationModel> pagingController;
+
   @override
   void initState() {
     super.initState();
-    pagingController.addPageRequestListener((pageKey) => getData(pageKey));
+    pagingController = PagingController(
+      getNextPageKey: (state) => state.nextIntPageKey,
+      fetchPage: (pageKey) => _fetchNotifications(pageKey),
+    );
   }
 
-  Future<void> getData(int pageKey) async {
-    DataRepository.i
-        .fetchNotifications(pageNo: pageKey)
-        .then((value) {
-          if (!value.hasNext) {
-            pagingController.appendLastPage(value.results);
-          } else {
-            // Extract page number from next URL or use current page + 1
-            final nextPage = value.next != null
-                ? Uri.parse(value.next!).queryParameters['page']
-                : null;
-            final pageNumber = nextPage != null ? int.tryParse(nextPage) : null;
-            pagingController.appendPage(value.results, pageNumber);
-          }
-        })
-        .onError((error, stackTrace) {
-          pagingController.error = error;
-        });
+  Future<List<NotificationModel>> _fetchNotifications(int pageKey) async {
+    final value = await DataRepository.i.fetchNotifications(pageNo: pageKey);
+    return value.results;
+  }
+
+  @override
+  void dispose() {
+    pagingController.dispose();
+    super.dispose();
   }
 
   @override
@@ -54,24 +47,37 @@ class _NotificationListingScreenState extends State<NotificationListingScreen> {
       appBar: AppBar(title: Text("Notifications")),
       body: RefreshIndicator(
         onRefresh: () async => pagingController.refresh(),
-        child: PagedListView<int, NotificationModel>.separated(
-          padding: const EdgeInsets.all(middlePadding),
-          pagingController: pagingController,
-          builderDelegate: PagedChildBuilderDelegate(
-            firstPageErrorIndicatorBuilder: (context) => SizedBox(
-              height: 400,
-              child: ErrorWidgetWithRetry(
-                exception: pagingController.error,
-                retry: pagingController.refresh,
+        child: PagingListener(
+          controller: pagingController,
+          builder: (context, state, fetchNextPage) =>
+              PagedListView<int, NotificationModel>.separated(
+                fetchNextPage: fetchNextPage,
+                state: state,
+                padding: const EdgeInsets.all(middlePadding),
+                builderDelegate: PagedChildBuilderDelegate(
+                  firstPageErrorIndicatorBuilder: (context) => SizedBox(
+                    height: 400,
+                    child: ErrorWidgetWithRetry(
+                      exception: state.error,
+                      retry: pagingController.refresh,
+                    ),
+                  ),
+                  noItemsFoundIndicatorBuilder: (context) =>
+                      const NoItemsFound(),
+                  firstPageProgressIndicatorBuilder: (context) => Column(
+                    children: List.generate(
+                      4,
+                      (index) => const ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Placeholder(),
+                      ),
+                    ),
+                  ),
+                  itemBuilder: (context, item, index) =>
+                      NotificationListingItem(item: item),
+                ),
+                separatorBuilder: (context, index) => gapLarge,
               ),
-            ),
-            noItemsFoundIndicatorBuilder: (context) => const NoItemsFound(),
-            firstPageProgressIndicatorBuilder: (context) =>
-                Column(children: List.generate(4, (index) => Placeholder())),
-            itemBuilder: (context, item, index) =>
-                NotificationListingItem(item: item),
-          ),
-          separatorBuilder: (context, index) => gapLarge,
         ),
       ),
     );

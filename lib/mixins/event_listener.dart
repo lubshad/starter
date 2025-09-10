@@ -6,13 +6,21 @@ import 'package:flutter/material.dart';
 class Event {
   final EventType eventType;
   final dynamic data;
-  Event({
-    required this.eventType,
-    this.data, 
-  });
+  Event({required this.eventType, this.data});
 }
 
-enum EventType { tagUpdate, updateState, notification, changeVideo, videoEnd , resumed, converstaionUpdate, paused}
+enum EventType {
+  tagUpdate,
+  updateState,
+  notification,
+  changeVideo,
+  videoEnd,
+  resumed,
+  converstaionUpdate,
+  paused,
+  inactive,
+  chatDeleted, 
+}
 
 class EventListener {
   EventListener._private();

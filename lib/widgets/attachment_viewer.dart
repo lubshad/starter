@@ -4,7 +4,7 @@ import 'package:animations/animations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:open_filex/open_filex.dart';
+import 'package:open_file/open_file.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../exporter.dart';
@@ -28,95 +28,81 @@ class ImageAttachment extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(padding),
-          child: Builder(builder: (context) {
-            return OpenContainer(
+          child: Builder(
+            builder: (context) {
+              return OpenContainer(
                 closedBuilder: (context, action) {
                   if (image.type == AttachmentType.file) {
-                    return Image.file(
-                      File(image.data),
-                      fit: BoxFit.cover,
-                    );
+                    return Image.file(File(image.data), fit: BoxFit.cover);
                   } else if (image.type == AttachmentType.network) {
                     return CachedNetworkImage(
                       imageUrl: image.data,
                       fit: BoxFit.cover,
                       errorWidget: (context, url, error) =>
-                          Assets.pngs.brokenImage.image(
-                        fit: BoxFit.cover,
-                      ),
+                          Assets.pngs.brokenImage.image(fit: BoxFit.cover),
                     );
                   } else {
-                    return Image.memory(
-                      image.bytes!,
-                      fit: BoxFit.cover,
-                    );
+                    return Image.memory(image.bytes!, fit: BoxFit.cover);
                   }
                 },
                 openBuilder: (context, _) => Dismissible(
-                      onUpdate: (details) => Navigator.maybePop(context),
-                      direction: DismissDirection.down,
-                      key: const Key("imageView"),
-                      child: Scaffold(
-                        appBar: AppBar(
-                          title: Text(image.name),
-                          automaticallyImplyLeading: false,
-                          backgroundColor: Colors.black,
-                          actions: [
-                            if (image.type == AttachmentType.network)
-                              IconButton(
-                                color: Colors.white,
-                                onPressed: () => launchUrl(
-                                  Uri.parse(
-                                    image.data,
-                                  ),
-                                ),
-                                icon: const Icon(
-                                  Icons.download,
-                                ),
-                              ),
-                            IconButton(
-                              color: Colors.white,
-                              onPressed: () => Navigator.maybePop(context),
-                              icon: const Icon(
-                                Icons.close,
-                              ),
-                            )
-                          ],
-                        ),
-                        backgroundColor: Colors.black,
-                        body: InteractiveViewer(
-                          child: SizedBox(
-                            width: 1.sw,
-                            child: Builder(
-                              builder: (context) {
-                                if (image.type == AttachmentType.file) {
-                                  return Image.file(
-                                    File(image.data),
-                                    fit: BoxFit.contain,
-                                  );
-                                } else if (image.type ==
-                                    AttachmentType.network) {
-                                  return CachedNetworkImage(
-                                    imageUrl: image.data,
-                                    fit: BoxFit.contain,
-                                    errorWidget: (context, url, error) =>
-                                        Assets.pngs.brokenImage.image(
-                                      fit: BoxFit.cover,
-                                    ),
-                                  );
-                                } else {
-                                  return Image.memory(
-                                    image.bytes!,
-                                    fit: BoxFit.contain,
-                                  );
-                                }
-                              },
-                            ),
+                  onUpdate: (details) => Navigator.maybePop(context),
+                  direction: DismissDirection.down,
+                  key: const Key("imageView"),
+                  child: Scaffold(
+                    appBar: AppBar(
+                      title: Text(image.name),
+                      automaticallyImplyLeading: false,
+                      backgroundColor: Colors.black,
+                      actions: [
+                        if (image.type == AttachmentType.network)
+                          IconButton(
+                            color: Colors.white,
+                            onPressed: () => launchUrl(Uri.parse(image.data)),
+                            icon: const Icon(Icons.download),
                           ),
+                        IconButton(
+                          color: Colors.white,
+                          onPressed: () => Navigator.maybePop(context),
+                          icon: const Icon(Icons.close),
+                        ),
+                      ],
+                    ),
+                    backgroundColor: Colors.black,
+                    body: InteractiveViewer(
+                      child: SizedBox(
+                        width: 1.sw,
+                        child: Builder(
+                          builder: (context) {
+                            if (image.type == AttachmentType.file) {
+                              return Image.file(
+                                File(image.data),
+                                fit: BoxFit.contain,
+                              );
+                            } else if (image.type == AttachmentType.network) {
+                              return CachedNetworkImage(
+                                imageUrl: image.data,
+                                fit: BoxFit.contain,
+                                errorWidget: (context, url, error) => Assets
+                                    .pngs
+                                    .brokenImage
+                                    .image(fit: BoxFit.cover),
+                              );
+                            } else {
+                              return Image.memory(
+                                image.bytes!,
+                                fit: BoxFit.contain,
+                              );
+                            }
+                          },
                         ),
                       ),
-                    ));
-          }),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         ),
         Visibility(
           visible: onDelete != null,
@@ -144,7 +130,7 @@ class ImageAttachment extends StatelessWidget {
               ),
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -155,22 +141,16 @@ class AttachmentItem extends StatelessWidget {
     super.key,
     required this.attachment,
     required this.onDelete,
-
   });
 
   final AttachmentModel attachment;
   final Function(AttachmentModel)? onDelete;
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(
-        bottom: padding,
-      ),
-      decoration: messageBorder.copyWith(
-        color: Colors.transparent,
-      ),
+      margin: const EdgeInsets.only(bottom: padding),
+      decoration: messageBorder.copyWith(color: Colors.transparent),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -190,16 +170,11 @@ class AttachmentItem extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        attachment.name,
-                        style: context.bodySmall,
-                      ),
+                      Text(attachment.name, style: context.bodySmall),
                       Text(
                         (attachment.name).split(".").last.toUpperCase(),
                         style: context.bodySmall.copyWith(
-                          color: const Color(
-                            0xff666666,
-                          ),
+                          color: const Color(0xff666666),
                         ),
                       ),
                     ],
@@ -209,22 +184,20 @@ class AttachmentItem extends StatelessWidget {
                   visible: onDelete != null,
                   child: IconButton(
                     style: const ButtonStyle(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                    onPressed: () => onDelete!(attachment),
-                    icon: const Icon(
-                      Icons.delete_outline,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
+                    onPressed: () => onDelete!(attachment),
+                    icon: const Icon(Icons.delete_outline),
                   ),
                 ),
                 Visibility(
                   visible: attachment.type == AttachmentType.network,
                   child: IconButton(
                     style: const ButtonStyle(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                    onPressed: openAttachment,
-                    icon: const Icon(
-                      Icons.file_download_outlined,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
+                    onPressed: openAttachment,
+                    icon: const Icon(Icons.file_download_outlined),
                   ),
                 ),
               ],
@@ -237,13 +210,9 @@ class AttachmentItem extends StatelessWidget {
 
   void openAttachment() {
     if (attachment.type == AttachmentType.network) {
-      launchUrl(
-        Uri.parse(
-          attachment.data,
-        ),
-      );
+      launchUrl(Uri.parse(attachment.data));
     } else if (attachment.type == AttachmentType.file) {
-      OpenFilex.open(attachment.data);
+      OpenFile.open(attachment.data);
     }
   }
 }
@@ -260,23 +229,17 @@ class AttachmentItems extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<AttachmentModel> images = attachments
-        .where(
-          (e) => CustomFileType.isImage(e.name),
-        )
+        .where((e) => CustomFileType.isImage(e.name))
         .toList();
     final List<AttachmentModel> files = attachments
-        .where(
-          (element) => !images.contains(element),
-        )
+        .where((element) => !images.contains(element))
         .toList();
 
     return Column(
       children: [
         if (images.isNotEmpty)
           GridView(
-            padding: const EdgeInsets.only(
-              top: paddingLarge,
-            ),
+            padding: const EdgeInsets.only(top: paddingLarge),
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -341,8 +304,10 @@ enum CustomFileType {
   }
 
   static CustomFileType fromString(String fileName) {
-    return CustomFileType.values.firstWhereOrNull((item) =>
-            fileName.split(".").last.toLowerCase() == item.fileExtension) ??
+    return CustomFileType.values.firstWhereOrNull(
+          (item) =>
+              fileName.split(".").last.toLowerCase() == item.fileExtension,
+        ) ??
         CustomFileType.zip;
   }
 

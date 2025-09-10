@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:starter/exporter.dart';
 
-
-
 class ChatDateSeperatorItem extends StatelessWidget {
   final DateTime date;
   const ChatDateSeperatorItem({super.key, required this.date});
@@ -20,7 +18,7 @@ class ChatDateSeperatorItem extends StatelessWidget {
 
           child: Padding(
             padding: const EdgeInsets.all(padding),
-            child: Text(label, style: context.bodySmall),
+            child: Text(label, style: context.montserrat50013),
           ),
         ),
       ),

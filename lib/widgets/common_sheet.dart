@@ -12,6 +12,7 @@ class CommonBottomSheet extends StatelessWidget {
     this.title,
     this.popButton,
     this.maxWidth,
+    this.headerWidget,
   });
 
   final Widget child;
@@ -20,6 +21,7 @@ class CommonBottomSheet extends StatelessWidget {
 
   final Widget? popButton;
   final double? maxWidth;
+  final Widget? headerWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -41,35 +43,33 @@ class CommonBottomSheet extends StatelessWidget {
           children: [
             Stack(
               children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: paddingLarge),
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(paddingXL),
-                    ),
-                    gradient: buttonGradient,
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: paddingXXL),
-                    child: AutoSizeText(
-                      maxLines: 1,
-                      textAlign: TextAlign.center,
-                      (title ?? ""),
-                      style: context.labelLarge.copyWith(
-                        fontSize:
-                            ScreenUtil().deviceType(context) ==
-                                DeviceType.mobile
-                            ? 20.sp
-                            : 40.sp,
+                headerWidget ??
+                    SizedBox(
+                      width: double.infinity,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: paddingSmall,
+                          horizontal: paddingXXL,
+                        ),
+                        child: AutoSizeText(
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                          (title ?? ""),
+                          style: context.labelLarge.copyWith(
+                            fontSize:
+                                ScreenUtil().deviceType(context) ==
+                                    DeviceType.mobile
+                                ? 20.sp
+                                : 40.sp,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
+
                 Positioned(
                   left: 0,
                   right: paddingLarge,
-                  top: 0,
+                  top: 10,
                   bottom: 0,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -80,14 +80,14 @@ class CommonBottomSheet extends StatelessWidget {
                             borderRadius: BorderRadius.circular(paddingXL),
                             onTap: () => Navigator.pop(context),
                             child: Container(
-                              padding: const EdgeInsets.all(paddingSmall),
+                              // padding: const EdgeInsets.all(paddingSmall),
                               decoration: const BoxDecoration(
-                                color: Colors.white,
+                                color: Color(0xFFFF7CAC),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
                                 Icons.close,
-                                color: Colors.black,
+                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -128,6 +128,25 @@ class ConfirmationSheet extends StatelessWidget {
             onPressed: () => Navigator.pop(context, true),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class BottomSheetHandle extends StatelessWidget {
+  const BottomSheetHandle({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(top: paddingLarge),
+      child: Container(
+        width: 40.w,
+        height: 4.w,
+        decoration: BoxDecoration(
+          color: Colors.grey[400],
+          borderRadius: BorderRadius.circular(2.h),
+        ),
       ),
     );
   }

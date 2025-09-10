@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_in_app_pip/picture_in_picture.dart';
@@ -114,6 +115,37 @@ class AgoraRtcService {
   void tougleVideo() async {
     if (isVideoMuted.value) {
       final permission = await Permission.camera.request();
+      if (permission == PermissionStatus.permanentlyDenied) {
+        showDialog(
+          context: navigatorKey.currentContext!,
+          builder: (context) => AlertDialog(
+            title: Text(
+              'Camera Permission Denied',
+              style: context.montserrat60016,
+            ),
+            content: Text(
+              'Camera permission required to enable video call',
+              style: context.montserrat40014,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Open Settings',
+                  style: TextStyle(color: Colors.blue),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
       if (permission != PermissionStatus.granted) return;
     }
     isVideoMuted.value = !isVideoMuted.value;
@@ -302,5 +334,24 @@ class AgoraRtcService {
           });
     });
     HapticFeedback.lightImpact();
+  }
+}
+
+
+extension AgoraRTMExtension on DataRepository {
+
+  Future<AgoraConfig> generateRTCToken({required String channel}) async {
+    try {
+      final response = await Dio().get(
+        "https://us-central1-eventxpro-66c0b.cloudfunctions.net/generateRtcToken",
+        queryParameters: {
+          "uid": int.parse(AgoraRTMService.i.currentUser?.userId ?? "0"),
+          "channel": channel,
+        },
+      );
+      return AgoraConfig.fromMap(response.data);
+    } catch (e) {
+      throw handleError(e);
+    }
   }
 }

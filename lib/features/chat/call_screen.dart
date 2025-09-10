@@ -1,13 +1,9 @@
-import 'dart:async';
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
-import 'package:permission_handler/permission_handler.dart';
 import '../../exporter.dart';
 import '../../mixins/state_mixin.dart';
-import '../../services/snackbar_utils.dart';
-import '../../widgets/user_avatar.dart';
 import 'local_video.dart';
 import 'remote_video.dart';
 import 'agora_rtc_service.dart';
@@ -34,14 +30,6 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> with StateFullMixin {
-  Future<void> requestPermissions() async {
-    final permission = await Permission.microphone.request();
-    if (permission != PermissionStatus.granted) {
-      logError("need permissions to make calls");
-      showErrorMessage("Accept all permissions to make calls");
-    }
-  }
-
   @override
   void initState() {
     if ([CallState.outgoingCall].contains(AgoraRtcService.i.callState.value)) {
@@ -53,7 +41,7 @@ class _CallScreenState extends State<CallScreen> with StateFullMixin {
 
   bool get _isVideoCallActive =>
       AgoraRtcService.i.callState.value == CallState.connected &&
-      !(AgoraRtcService.i.isVideoMuted.value);
+      !AgoraRtcService.i.isVideoMuted.value;
 
   @override
   Widget build(BuildContext context) {
@@ -84,13 +72,52 @@ class _CallScreenState extends State<CallScreen> with StateFullMixin {
                 },
               ),
             ),
+            AnimatedBuilder(
+              animation: Listenable.merge([
+                AgoraRtcService.i.areControlsVisible,
+                AgoraRtcService.i.isVideoMuted,
+              ]),
+              builder: (context, child) {
+                final visible =
+                    AgoraRtcService.i.areControlsVisible.value &&
+                    _isVideoCallActive;
+                return Visibility(
+                  visible: visible,
+                  child: Positioned(
+                    top: paddingXXL,
+                    left: middlePadding,
+                    child: SizedBox(
+                      height: 50.h,
+                      child: actionButton(
+                        icon: Icons.close_fullscreen,
+                        onTap: () {
+                          AgoraRtcService.i.enterPipMode();
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          }
+                        },
+                      ).animate().fade(duration: Duration(milliseconds: 500)),
+                    ),
+                  ),
+                );
+              },
+            ),
 
             Positioned(
-              right: 16,
+              right: paddingLarge,
               top: kToolbarHeight + 16,
-              child: ValueListenableBuilder<bool>(
-                valueListenable: AgoraRtcService.i.isLocalMainView,
-                builder: (context, isLocal, _) {
+              child: AnimatedBuilder(
+                animation: Listenable.merge([
+                  AgoraRtcService.i.isLocalMainView,
+                  AgoraRtcService.i.isVideoMuted,
+                  AgoraRtcService.i.isRemoteVideoOn,
+                ]),
+                builder: (context, _) {
+                  final isLocal = AgoraRtcService.i.isLocalMainView.value;
+                  if (AgoraRtcService.i.isVideoMuted.value &&
+                      !AgoraRtcService.i.isRemoteVideoOn.value) {
+                    return SizedBox();
+                  }
                   return GestureDetector(
                     onTap: () => AgoraRtcService.i.isLocalMainView.value =
                         !AgoraRtcService.i.isLocalMainView.value,
@@ -98,6 +125,7 @@ class _CallScreenState extends State<CallScreen> with StateFullMixin {
                       width: 120.h,
                       height: 180.h,
                       decoration: BoxDecoration(
+                        color: Colors.black.withAlpha(0.7.alpha),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -134,54 +162,13 @@ class _CallScreenState extends State<CallScreen> with StateFullMixin {
           AgoraRtcService.i.callState,
           AgoraRtcService.i.duration,
           AgoraRtcService.i.isRemoteVideoOn,
-          AgoraRtcService.i.isLocalMainView,
         ]),
         builder: (context, child) {
-          final visible =
-              AgoraRtcService.i.callScreenArgs != null &&
-              (!AgoraRtcService.i.isRemoteVideoOn.value
-                  ? !AgoraRtcService.i.isRemoteVideoOn.value &&
-                        !AgoraRtcService.i.isLocalMainView.value
-                  : false);
           return Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Expanded(
-                child: Visibility(
-                  visible: visible,
-                  child: Builder(
-                    builder: (context) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(),
-                          UserAvatar(
-                            size: 100.h,
-                            imageUrl: AgoraRtcService
-                                .i
-                                .callScreenArgs!
-                                .user
-                                .avatarUrl,
-                            // addMediaUrl: false,
-                          ),
-                          gapLarge,
-                          Text(
-                            AgoraRtcService.i.callScreenArgs!.user.nickName ??
-                                "",
-                            style: TextStyle(
-                              fontSize: 26.sp,
-                              color: Colors.white,
-                            ),
-                          ),
-                          gap,
-                          callstatusText(),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              ),
+              Spacer(),
               Visibility(
                 visible: AgoraRtcService.i.callState.value != CallState.ended,
                 maintainSize: true,
@@ -246,7 +233,8 @@ class _CallScreenState extends State<CallScreen> with StateFullMixin {
                                   actionButton(
                                     icon: isSpeakerOn
                                         ? Icons.volume_up
-                                        : Icons.hearing,
+                                        : Icons.volume_up_outlined,
+
                                     active: isSpeakerOn,
                                     onTap: AgoraRtcService.i.tougleSpeakerMode,
                                   ),
@@ -306,28 +294,35 @@ class _CallScreenState extends State<CallScreen> with StateFullMixin {
         },
       ),
     );
-
-    if (AgoraRtcService.i.callState.value == CallState.connected &&
-        _isVideoCallActive) {
-      controls = ValueListenableBuilder<bool>(
-        valueListenable: AgoraRtcService.i.areControlsVisible,
-        builder: (context, visible, child) {
-          return AnimatedSlide(
-            offset: visible ? Offset(0, 0) : Offset(0, 1),
-            duration: Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            child: AnimatedOpacity(
-              opacity: visible ? 1.0 : 0.0,
-              duration: Duration(milliseconds: 300),
-              child: IgnorePointer(ignoring: !visible, child: child!),
-            ),
+    return AnimatedBuilder(
+      animation: Listenable.merge([
+        AgoraRtcService.i.callState,
+        AgoraRtcService.i.isVideoMuted,
+        AgoraRtcService.i.areControlsVisible,
+      ]),
+      builder: (context, child) {
+        if (AgoraRtcService.i.callState.value == CallState.connected &&
+            _isVideoCallActive) {
+          return ValueListenableBuilder<bool>(
+            valueListenable: AgoraRtcService.i.areControlsVisible,
+            builder: (context, visible, child) {
+              return AnimatedSlide(
+                offset: visible ? Offset(0, 0) : Offset(0, 1),
+                duration: Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                child: AnimatedOpacity(
+                  opacity: visible ? 1.0 : 0.0,
+                  duration: Duration(milliseconds: 300),
+                  child: IgnorePointer(ignoring: !visible, child: child!),
+                ),
+              );
+            },
+            child: controls,
           );
-        },
-        child: controls,
-      );
-    }
-
-    return controls;
+        }
+        return controls;
+      },
+    );
   }
 
   Widget actionButton({
@@ -362,7 +357,7 @@ class _CallScreenState extends State<CallScreen> with StateFullMixin {
   }
 }
 
-Text callstatusText() {
+Text callstatusText({bool small = false}) {
   return Text(
     [
           CallState.outgoingCall,
@@ -372,6 +367,10 @@ Text callstatusText() {
         : AgoraRtcService.i.callState.value == CallState.connected
         ? AgoraRtcService.i.duration.value.toHoursMinutesSeconds
         : "Call Ended",
-    style: const TextStyle(color: Colors.grey),
+    style: TextStyle(
+      color: Colors.grey,
+      fontSize: small ? 13.sp : 22.sp,
+      height: 1.2,
+    ),
   );
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../../exporter.dart';
+import 'package:starter/exporter.dart';
 
 class BottomSheetHandle extends StatelessWidget {
   const BottomSheetHandle({super.key});
@@ -10,8 +9,8 @@ class BottomSheetHandle extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: paddingLarge),
       child: Container(
-        width: 40.h,
-        height: 4.h,
+        width: 40.w,
+        height: 4.w,
         decoration: BoxDecoration(
           color: Colors.grey[400],
           borderRadius: BorderRadius.circular(2.h),

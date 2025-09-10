@@ -1,5 +1,6 @@
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 import '../../../exporter.dart';
 import '../sound_player_service.dart';
@@ -7,11 +8,13 @@ import '../sound_player_service.dart';
 class ChatVoiceMessageWidget extends StatefulWidget {
   final bool isBottomBar;
   final VoidCallback? onClosePressed;
+  final bool isMe;
   const ChatVoiceMessageWidget({
     super.key,
     required this.chat,
     this.onClosePressed,
     this.isBottomBar = false,
+    this.isMe = false,
   });
 
   final ChatMessage chat;
@@ -25,6 +28,38 @@ class ChatVoiceMessageWidget extends StatefulWidget {
 class _ChatVoiceMessageWidgetState extends State<ChatVoiceMessageWidget> {
   ChatVoiceMessageBody get voiceMessage =>
       widget.chat.body as ChatVoiceMessageBody;
+
+  Widget playbackRateButton() {
+    return Visibility(
+      visible: SoundPlayerService.i.isPlaying(voiceMessage),
+      child: GestureDetector(
+        onLongPress: () {},
+        onTap: () {
+          SoundPlayerService.i.resetPlaybackRate();
+        },
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: paddingTiny,
+              vertical: paddingSmall,
+            ),
+            width: 50.h,
+            decoration: BoxDecoration(
+              color: widget.isMe ? Colors.purple.shade50 : Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(paddingLarge),
+            ),
+            child: Center(
+              child: Text(
+                style: context.montserrat40013,
+                '${SoundPlayerService.i.currentPlaybackRate % 1 == 0 ? SoundPlayerService.i.currentPlaybackRate.toInt() : SoundPlayerService.i.currentPlaybackRate}x',
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +122,8 @@ class _ChatVoiceMessageWidgetState extends State<ChatVoiceMessageWidget> {
                       ).toMinuteSeconds,
                 style: TextStyle(fontSize: 10.sp),
               ),
+              gap,
+              playbackRateButton(),
             ],
           );
         },
@@ -98,7 +135,7 @@ class _ChatVoiceMessageWidgetState extends State<ChatVoiceMessageWidget> {
                   () {
                     SoundPlayerService.i.close();
                   },
-              icon: Icon(Icons.close),
+              icon: Icon(Iconsax.close_circle5),
             )
           : SizedBox(),
     );

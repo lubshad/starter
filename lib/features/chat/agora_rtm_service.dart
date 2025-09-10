@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_callkit_incoming/entities/android_params.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_callkit_incoming/entities/ios_params.dart';
 import 'package:flutter_callkit_incoming/entities/notification_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:uuid/uuid.dart';
+import '../../core/repository.dart';
 import '../../exporter.dart';
 import '../../services/fcm_service.dart';
 import '../../services/shared_preferences_services.dart';
@@ -19,6 +21,69 @@ final agoraConfig = AgoraConfig(
   token: "",
   appId: "fba212c248f64309802c8c5f8f5e9172",
 );
+
+class ReplyMessageData {
+  final String messageId;
+  final String content;
+  final String senderName;
+  final MessageType messageType;
+
+  ReplyMessageData({
+    required this.messageId,
+    required this.content,
+    required this.senderName,
+    required this.messageType,
+  });
+
+  static ReplyMessageData fromChatMessage(
+    ChatMessage message,
+    ChatUserInfo senderInfo,
+  ) {
+    String content = '';
+    switch (message.body.type) {
+      case MessageType.TXT:
+        content = (message.body as ChatTextMessageBody).content;
+        break;
+      case MessageType.IMAGE:
+        content = '📷 Photo';
+        break;
+      case MessageType.FILE:
+        final fileName = (message.body as ChatFileMessageBody).displayName;
+        content = '📎 $fileName';
+        break;
+      case MessageType.VOICE:
+        final duration = (message.body as ChatVoiceMessageBody).duration;
+        content = '🎤 Voice message (${duration}s)';
+        break;
+      default:
+        content = 'Message';
+    }
+
+    return ReplyMessageData(
+      messageId: message.msgId,
+      content: content,
+      senderName: senderInfo.nickName ?? senderInfo.userId,
+      messageType: message.body.type,
+    );
+  }
+
+  static ReplyMessageData? fromMessageAttributes(
+    Map<String, dynamic>? attributes,
+  ) {
+    if (attributes == null || !attributes.containsKey('reply_to_msg_id')) {
+      return null;
+    }
+    return ReplyMessageData(
+      messageId: attributes['reply_to_msg_id'],
+      content: attributes['reply_to_content'] ?? '',
+      senderName: attributes['reply_to_sender'] ?? '',
+      messageType: MessageType.values.firstWhere(
+        (type) => type.name == attributes['reply_to_type'],
+        orElse: () => MessageType.TXT,
+      ),
+    );
+  }
+}
 
 class AgoraConfig {
   final String appKey;
@@ -75,41 +140,139 @@ class AgoraRTMService {
   Future<void> initSdk(AgoraConfig config) async {
     ChatOptions options = ChatOptions(
       appKey: config.appKey,
-      requireAck: true,
       requireDeliveryAck: true,
-      autoLogin: true,
-      debugMode: false,
     );
     options.enableFCM(config.senderId);
     options.enableAPNs(config.senderId);
     await ChatClient.getInstance.init(options);
+    if (ChatClient.getInstance.currentUserId != null) {
+      currentUser = await ChatClient.getInstance.userInfoManager.fetchOwnInfo();
+    }
   }
 
   ChatUserInfo? currentUser;
 
+  Future<ChatMessage> sendMessageWithReply({
+    required String id,
+    required String message,
+    String? replyToMessageId,
+    String? replyToContent,
+    String? replyToSender,
+    MessageType? replyToType,
+  }) async {
+    var msg = ChatMessage.createTxtSendMessage(targetId: id, content: message);
+
+    // Add reply information as extensions
+    if (replyToMessageId != null) {
+      msg.attributes = {
+        'reply_to_msg_id': replyToMessageId,
+        'reply_to_content': replyToContent ?? '',
+        'reply_to_sender': replyToSender ?? '',
+        'reply_to_type': replyToType?.name ?? 'TXT',
+      };
+    }
+
+    return await ChatClient.getInstance.chatManager.sendMessage(msg);
+  }
+
+  Future<ChatMessage> sendImageMessageWithReply({
+    required String id,
+    required File file,
+    String? replyToMessageId,
+    String? replyToContent,
+    String? replyToSender,
+    MessageType? replyToType,
+  }) async {
+    var msg = ChatMessage.createImageSendMessage(
+      targetId: id,
+      filePath: file.path,
+      displayName: file.uri.pathSegments.last,
+    );
+
+    if (replyToMessageId != null) {
+      msg.attributes = {
+        'reply_to_msg_id': replyToMessageId,
+        'reply_to_content': replyToContent ?? '',
+        'reply_to_sender': replyToSender ?? '',
+        'reply_to_type': replyToType?.name ?? 'TXT',
+      };
+    }
+
+    return await ChatClient.getInstance.chatManager.sendMessage(msg);
+  }
+
+  Future<ChatMessage> sendFileMessageWithReply({
+    required String id,
+    required File file,
+    String? replyToMessageId,
+    String? replyToContent,
+    String? replyToSender,
+    MessageType? replyToType,
+  }) async {
+    var msg = ChatMessage.createFileSendMessage(
+      targetId: id,
+      filePath: file.path,
+      displayName: file.uri.pathSegments.last,
+    );
+
+    if (replyToMessageId != null) {
+      msg.attributes = {
+        'reply_to_msg_id': replyToMessageId,
+        'reply_to_content': replyToContent ?? '',
+        'reply_to_sender': replyToSender ?? '',
+        'reply_to_type': replyToType?.name ?? 'TXT',
+      };
+    }
+
+    return await ChatClient.getInstance.chatManager.sendMessage(msg);
+  }
+
+  Future<ChatMessage> sendVoiceMessageWithReply({
+    required String id,
+    required File file,
+    required Duration duration,
+    String? replyToMessageId,
+    String? replyToContent,
+    String? replyToSender,
+    MessageType? replyToType,
+  }) async {
+    var msg = ChatMessage.createVoiceSendMessage(
+      targetId: id,
+      filePath: file.path,
+      duration: duration.inSeconds,
+    );
+
+    if (replyToMessageId != null) {
+      msg.attributes = {
+        'reply_to_msg_id': replyToMessageId,
+        'reply_to_content': replyToContent ?? '',
+        'reply_to_sender': replyToSender ?? '',
+        'reply_to_type': replyToType?.name ?? 'TXT',
+      };
+    }
+
+    return await ChatClient.getInstance.chatManager.sendMessage(msg);
+  }
+
   Future<bool> signIn({
     required String userid,
-    required String usertoken,
     required String avatarUrl,
     required String name,
   }) async {
-    try {
-      await ChatClient.getInstance.loginWithToken(userid, usertoken);
-      currentUser = await ChatClient.getInstance.userInfoManager.fetchOwnInfo();
-      FCMService().setupNotification().then((value) async {
-        logInfo(value);
-        await ChatClient.getInstance.pushManager.updateFCMPushToken(value);
-      });
-      logInfo("login succeed, userId: $userid");
-      return true;
-    } on ChatError catch (e) {
-      if (e.code == 200) {
-        currentUser = await ChatClient.getInstance.userInfoManager
-            .fetchOwnInfo();
-      }
-      logInfo("login failed, code: ${e.code}, desc: ${e.description}");
-      return false;
-    }
+    if (isLoggedIn) return false;
+    final config = await DataRepository.i.generateRTMToken(
+      username: userid,
+      avatarUrl: avatarUrl,
+      nickname: name,
+    );
+    await ChatClient.getInstance.loginWithToken(userid, config.token);
+    currentUser = await ChatClient.getInstance.userInfoManager.fetchOwnInfo();
+    FCMService().setupNotification().then((value) async {
+      logInfo(value);
+      await ChatClient.getInstance.pushManager.updateFCMPushToken(value);
+    });
+    logInfo("login succeed, userId: $userid");
+    return true;
   }
 
   Future<bool> signOut([bool unbindDevice = false]) async {
@@ -122,55 +285,6 @@ class AgoraRTMService {
       logInfo("sign out failed, code: ${e.code}, desc: ${e.description}");
       return false;
     }
-  }
-
-  Future<ChatMessage> sendMessage({
-    required String id,
-    required String message,
-  }) async {
-    var msg = ChatMessage.createTxtSendMessage(targetId: id, content: message);
-    final serverMessg = await ChatClient.getInstance.chatManager.sendMessage(
-      msg,
-    );
-    return serverMessg;
-  }
-
-  Future<ChatMessage> sendImageMessage({
-    required String id,
-    required File file,
-  }) async {
-    var msg = ChatMessage.createImageSendMessage(
-      targetId: id,
-      filePath: file.path,
-      displayName: file.uri.pathSegments.last,
-    );
-    return await ChatClient.getInstance.chatManager.sendMessage(msg);
-  }
-
-  Future<ChatMessage> sendFileMessage({
-    required String id,
-    required File file,
-  }) async {
-    var msg = ChatMessage.createFileSendMessage(
-      targetId: id,
-      filePath: file.path,
-      displayName: file.uri.pathSegments.last,
-    );
-
-    return await ChatClient.getInstance.chatManager.sendMessage(msg);
-  }
-
-  Future<ChatMessage> sendVoiceMessage({
-    required String id,
-    required File file,
-    required Duration duration,
-  }) async {
-    var msg = ChatMessage.createVoiceSendMessage(
-      targetId: id,
-      filePath: file.path,
-      duration: duration.inSeconds,
-    );
-    return await ChatClient.getInstance.chatManager.sendMessage(msg);
   }
 
   DateTime lastTypingSend = serverUtcTime;
@@ -304,6 +418,28 @@ class AgoraRTMService {
       logInfo("Reaction removed successfully");
     } on ChatError catch (e) {
       logInfo("Failed to remove reaction: ${e.code} - ${e.description}");
+    }
+  }
+}
+
+extension AgoraRTMExtension on DataRepository {
+  Future<AgoraConfig> generateRTMToken({
+    required String username,
+    required String avatarUrl,
+    required String nickname,
+  }) async {
+    try {
+      final response = await Dio().get(
+        "https://us-central1-eventxpro-66c0b.cloudfunctions.net/generateRtmToken",
+        queryParameters: {
+          "username": username,
+          "avatarurl": avatarUrl,
+          "nickname": nickname,
+        },
+      );
+      return AgoraConfig.fromMap(response.data);
+    } catch (e) {
+      throw handleError(e);
     }
   }
 }

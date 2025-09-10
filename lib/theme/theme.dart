@@ -92,6 +92,23 @@ extension BuildContextExtension on BuildContext {
     fontWeight: FontWeight.w500,
     color: Colors.white,
   );
+  TextStyle get montserrat60016 =>
+      baseStyle.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w600);
+  TextStyle get montserrat40014 =>
+      baseStyle.copyWith(fontSize: 14.sp, fontWeight: FontWeight.w400);
+  // montserrat60015 
+  TextStyle get montserrat60015 =>
+      baseStyle.copyWith(fontSize: 15.sp, fontWeight: FontWeight.w600);
+  // montserrat50013
+  TextStyle get montserrat50013 => baseStyle.copyWith(fontSize: 13.sp, fontWeight: FontWeight.w500);
+  //montserrat40012
+  TextStyle get montserrat40012 => baseStyle.copyWith(fontSize: 12.sp, fontWeight: FontWeight.w400);
+  //montserrat60013
+  TextStyle get montserrat60013 => baseStyle.copyWith(fontSize: 13.sp, fontWeight: FontWeight.w600);
+  //montserrat30013
+  TextStyle get montserrat30013 => baseStyle.copyWith(fontSize: 13.sp, fontWeight: FontWeight.w300);
+  //montserrat70017
+  TextStyle get montserrat70017 => baseStyle.copyWith(fontSize: 17.sp, fontWeight: FontWeight.w700);
 }
 
 ButtonStyle get shrinkedButton => TextButton.styleFrom(

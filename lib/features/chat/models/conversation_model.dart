@@ -13,9 +13,6 @@ class ConversationModel {
     required this.unreadCount,
   }); 
 
-
-  
-
   @override
   bool operator ==(covariant ConversationModel other) {
     if (identical(this, other)) return true;

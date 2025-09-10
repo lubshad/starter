@@ -154,3 +154,5 @@ Color get randomColors {
   newList.shuffle();
   return newList.first;
 }
+
+const leadingWidth = kToolbarHeight * 1.1;

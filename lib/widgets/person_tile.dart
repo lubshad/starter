@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'shimwrapper.dart';
 import 'user_avatar.dart';
 import '../exporter.dart';
 
@@ -65,6 +67,82 @@ class PersonTile extends StatelessWidget {
           child: Divider(color: Color(0xFFF5F5F5), thickness: 2, height: 1),
         ),
       ],
+    );
+  }
+}
+
+
+class PersonListingTileShimmer extends StatelessWidget {
+  const PersonListingTileShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: padding,
+        horizontal: paddingSmall,
+      ),
+      child: Row(
+        children: [
+          Shimwrapper(
+                child: Container(
+                  width: 50.h,
+                  height: 50.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              )
+              .animate(onPlay: (controller) => controller.repeat(reverse: true))
+              .scaleXY(end: 1.05, duration: 500.ms),
+
+          gapLarge,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Shimwrapper(
+                      child: Container(
+                        height: 14.h,
+                        width: double.infinity,
+                        color: Colors.white,
+                      ),
+                    )
+                    .animate(delay: 200.ms)
+                    .fade(duration: 200.ms)
+                    .slideX(begin: 1, duration: 200.ms),
+
+                gap,
+                Shimwrapper(
+                      child: Container(
+                        height: 10.h,
+                        width: ScreenUtil().screenWidth * 0.4,
+                        color: Colors.white,
+                      ),
+                    )
+                    .animate(delay: 200.ms)
+                    .fade(duration: 200.ms)
+                    .slideX(begin: 1, duration: 200.ms),
+              ],
+            ),
+          ),
+          gapLarge,
+          Shimwrapper(
+                child: Container(
+                  width: 20.h,
+                  height: 20.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6.h),
+                  ),
+                ),
+              )
+              .animate(delay: 200.ms)
+              .fade(duration: 200.ms)
+              .slideY(begin: -1, duration: 200.ms),
+        ],
+      ),
     );
   }
 }

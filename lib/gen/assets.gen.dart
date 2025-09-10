@@ -1,5 +1,3 @@
-// dart format width=80
-
 /// GENERATED CODE - DO NOT MODIFY BY HAND
 /// *****************************************************
 ///  FlutterGen
@@ -7,7 +5,7 @@
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
-// ignore_for_file: deprecated_member_use,directives_ordering,implicit_dynamic_list_literal,unnecessary_import
+// ignore_for_file: directives_ordering,unnecessary_import,implicit_dynamic_list_literal,deprecated_member_use
 
 import 'package:flutter/widgets.dart';
 
@@ -76,6 +74,9 @@ class $AssetsPngsGen {
   AssetGenImage get loginBackground =>
       const AssetGenImage('assets/pngs/login_background.png');
 
+  /// File path: assets/pngs/no-chat.png
+  AssetGenImage get noChat => const AssetGenImage('assets/pngs/no-chat.png');
+
   /// File path: assets/pngs/person-placeholder.jpeg
   AssetGenImage get personPlaceholder =>
       const AssetGenImage('assets/pngs/person-placeholder.jpeg');
@@ -85,6 +86,7 @@ class $AssetsPngsGen {
     brokenImage,
     dummyProfile,
     loginBackground,
+    noChat,
     personPlaceholder,
   ];
 }
@@ -199,18 +201,12 @@ class Assets {
 }
 
 class AssetGenImage {
-  const AssetGenImage(
-    this._assetName, {
-    this.size,
-    this.flavors = const {},
-    this.animation,
-  });
+  const AssetGenImage(this._assetName, {this.size, this.flavors = const {}});
 
   final String _assetName;
 
   final Size? size;
   final Set<String> flavors;
-  final AssetGenImageAnimation? animation;
 
   Image image({
     Key? key,
@@ -272,16 +268,4 @@ class AssetGenImage {
   String get path => _assetName;
 
   String get keyName => _assetName;
-}
-
-class AssetGenImageAnimation {
-  const AssetGenImageAnimation({
-    required this.isAnimation,
-    required this.duration,
-    required this.frames,
-  });
-
-  final bool isAnimation;
-  final Duration duration;
-  final int frames;
 }

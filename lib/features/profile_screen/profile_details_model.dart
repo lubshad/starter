@@ -2,12 +2,10 @@ import 'dart:convert';
 
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class ProfileDetailsModel {
-  final int id ;
+  final String id ;
   final String name;
   final String? image;
   final String? phone;
-  final String program;
-  final String semester;
 
   final String email;
   ProfileDetailsModel({
@@ -16,8 +14,6 @@ class ProfileDetailsModel {
     required this.name,
     this.image,
     this.phone,
-    required this.program,
-    required this.semester,
   });
 
   Map<String, dynamic> toMap() {
@@ -26,20 +22,16 @@ class ProfileDetailsModel {
       'name': name,
       'image': image,
       'phone': phone,
-      'program': program,
-      'semester': semester,
     };
   }
 
   factory ProfileDetailsModel.fromMap(Map<String, dynamic> map) {
     return ProfileDetailsModel(
-      id: map['id'] as int,
+      id: map['id'] ,
       email: map["email"] as String,
       name: map['name'] as String,
       image: map['image'],
       phone: map['phone'],
-      program: map['program'] as String,
-      semester: map['semester'] as String,
     );
   }
 
@@ -55,15 +47,13 @@ class ProfileDetailsModel {
     String? program,
     String? semester,
     String? email,
-    int? id,
+    String? id,
   }) {
     return ProfileDetailsModel(
       id: id ?? this.id,
       name: name ?? this.name,
       image: image ?? this.image,
       phone: phone ?? this.phone,
-      program: program ?? this.program,
-      semester: semester ?? this.semester,
       email: email ?? this.email,
     );
   }

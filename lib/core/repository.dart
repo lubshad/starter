@@ -4,7 +4,6 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get/utils.dart';
 import '../features/authentication/phone_auth/phone_auth_mixin.dart';
-import '../features/chat/agora_rtm_service.dart';
 import '../features/notification/models/notification_model.dart';
 import '../features/profile_screen/profile_details_model.dart';
 import '../models/name_id.dart';
@@ -127,28 +126,5 @@ class DataRepository with ErrorExceptionHandler {
       response.data,
       (json) => NotificationModel.fromMap(json),
     );
-  }
-
-  Future<AgoraConfig> generateRTMToken(ProfileDetailsModel profile) async {
-    final response = await Dio().get(
-      "https://us-central1-eventxpro-66c0b.cloudfunctions.net/generateRtmToken",
-      queryParameters: {
-        "username": profile.id,
-        "avatarurl": profile.image,
-        "nickname": profile.name,
-      },
-    );
-    return AgoraConfig.fromMap(response.data);
-  }
-
-  Future<AgoraConfig> generateRTCToken({required String channel}) async {
-    final response = await Dio().get(
-      "https://us-central1-eventxpro-66c0b.cloudfunctions.net/generateRtcToken",
-      queryParameters: {
-        "uid": int.parse(AgoraRTMService.i.currentUser?.userId ?? "0"),
-        "channel": channel,
-      },
-    );
-    return AgoraConfig.fromMap(response.data);
   }
 }

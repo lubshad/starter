@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:starter/features/chat/agora_rtm_service.dart';
 import '../../core/app_route.dart';
 import '../../exporter.dart';
 import '../../models/name_id.dart';
 import '../../widgets/error_widget_with_retry.dart';
-import '../../widgets/list_tile_shimmer.dart';
+import '../../widgets/network_resource.dart';
 import '../../widgets/no_item_found.dart';
+import '../../widgets/person_tile.dart';
 import 'conversation_listing.dart';
+
+List<NameId> usersList = [
+  NameId(id: "lubshad", name: "Lubshad", third: profileImages.first),
+  NameId(id: "18", name: "Eventxpro", third: profileImages[1]),
+  NameId(id: "50", name: "Adarsh", third: profileImages[2]),
+];
 
 class UserListingScreen extends StatefulWidget {
   const UserListingScreen({super.key});
@@ -16,40 +23,18 @@ class UserListingScreen extends StatefulWidget {
 }
 
 class _UserListingScreenState extends State<UserListingScreen> {
-  PagingController<int, NameId> pagingController = PagingController(
-    firstPageKey: 1,
-  );
-  @override
-  void initState() {
-    super.initState();
-    pagingController.addPageRequestListener((pageKey) => getData(pageKey));
+  Future<List<NameId>>? _usersFuture;
+
+  Future<void> fetchUsers() async {
+    // Replace with real network call when available
+    _usersFuture = Future.value(usersList);
+    setState(() {});
   }
 
-  Future<void> getData(int pageKey) async {
-    pagingController.appendLastPage([
-      NameId(
-        id: "lubshad",
-        name: "Lubshad",
-        secondary:
-            "007eJxTYFjMZb/ujGV26q+afe/Eg+TUKlODbt7b80FF7Z32f4uoTb0KDGlJiUaGRslGJhZpZibGBpYWBkbJFsmmaRZppqmWhuZGe18EZAjwMTCkCR5lZGRgZWBkYGQA8dkZckqTijMSUwBkgB92",
-        third: profileImages.first,
-      ),
-
-      NameId(
-        id: "zannan",
-        name: "Zannan",
-        third: profileImages[1],
-        secondary:
-            "007eJxTYNAv1SjZqjRdo6zh+/9IpdQkW36x3zu+dm/il4val/96VbkCQ1pSopGhUbKRiUWamYmxgaWFgVGyRbJpmkWaaaqloblR/Wb/jIZARoZmryZWRgZWBkYgBPFVGCySLNOMTBINdE3MTRJ1DQ3TDHQtzAwMdA3NLRNNLCwt0ozMDAD0RCVJ",
-      ),
-      NameId(
-        id: "adarsh",
-        name: "Adarsh",
-        third: profileImages[2],
-        secondary:
-            "007eJxTYLCxfLVnwyv/eIl9Tbf22i/vbYiqPXPhltP9tQtO298zjxFQYEhLSjQyNEo2MrFIMzMxNrC0MDBKtkg2TbNIM021NDQ34tnrldEQyMjA/3QjEyMDKwMjEIL4KgypBilp5mapBrom5haGuoaGaQa6lonJabqpxskpicYGieaWyYkAKfspIw==",
-      ),
-    ]);
+  @override
+  void initState() {
+    fetchUsers();
+    super.initState();
   }
 
   @override
@@ -61,32 +46,49 @@ class _UserListingScreenState extends State<UserListingScreen> {
   }
 
   Widget buildUserListing() {
-    return RefreshIndicator(
-      onRefresh: () async => pagingController.refresh(),
-      child: PagedListView<int, NameId>.separated(
-        padding: const EdgeInsets.all(padding),
-        pagingController: pagingController,
-        builderDelegate: PagedChildBuilderDelegate(
-          firstPageErrorIndicatorBuilder: (context) => SizedBox(
-            height: 400,
-            child: ErrorWidgetWithRetry(
-              exception: pagingController.error,
-              retry: pagingController.refresh,
-            ),
-          ),
-          noItemsFoundIndicatorBuilder: (context) => const NoItemsFound(),
-          firstPageProgressIndicatorBuilder: (context) => ListTileShimmer(),
-          itemBuilder: (context, item, index) => ListTile(
-            onTap: () => navigate(
-              context,
-              ConversationListingScreen.path,
-              arguments: item,
-            ),
-            title: Text(item.name),
-          ),
-        ),
-        separatorBuilder: (context, index) => gap,
+    return NetworkResource<List<NameId>>(
+      _usersFuture,
+      loading: PersonListingTileShimmer(),
+      error: (e) => SizedBox(
+        height: 400,
+        child: ErrorWidgetWithRetry(exception: e, retry: fetchUsers),
       ),
+      success: (items) {
+        if (items.isEmpty) return const NoItemsFound();
+        return ListView.separated(
+          padding: const EdgeInsets.all(padding),
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            final item = items[index];
+            return ListTile(
+              onTap: () async {
+                AgoraRTMService.i
+                    .signIn(
+                      userid: item.id,
+                      avatarUrl: item.third,
+                      name: item.name,
+                    )
+                    .then((value) {
+                      for (NameId user in usersList) {
+                        AgoraRTMService.i.sendMessageWithReply(
+                          id: user.id,
+                          message: "hi",
+                        );
+                      }
+                      navigate(
+                        // ignore: use_build_context_synchronously
+                        context,
+                        ConversationListingScreen.path,
+                        arguments: item,
+                      );
+                    });
+              },
+              title: Text(item.name),
+            );
+          },
+          separatorBuilder: (context, index) => gap,
+        );
+      },
     );
   }
 }

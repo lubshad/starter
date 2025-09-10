@@ -44,9 +44,7 @@ class TypeAheadMultiSelectionSearchField extends StatelessWidget {
                   minWidth: double.infinity,
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: paddingXL,
-                  ),
+                  padding: const EdgeInsets.only(bottom: paddingXL),
                   child: Wrap(
                     crossAxisAlignment: WrapCrossAlignment.start,
                     alignment: WrapAlignment.start,
@@ -54,10 +52,12 @@ class TypeAheadMultiSelectionSearchField extends StatelessWidget {
                     spacing: padding,
                     runSpacing: padding,
                     children: [
-                      ...selectedItems.map((e) => CustomChip(
-                            onRemove: () => onSuggestionSelected(e),
-                            text: e.name,
-                          )),
+                      ...selectedItems.map(
+                        (e) => CustomChip(
+                          onRemove: () => onSuggestionSelected(e),
+                          text: e.name,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -85,6 +85,10 @@ class TypeAheadMultiSelectionSearchField extends StatelessWidget {
                     hint: hint,
                     onSuggestionSelected: onSuggestionSelected,
                     selectedItems: selectedItems,
+                    itemBuilder:
+                        (BuildContext context, NameId item, bool isSelected) {
+                          return ListTile(title: Text(item.name));
+                        },
                   ),
                 ),
               ),
@@ -152,10 +156,12 @@ class TypeAheadMultiSelectionSearchField extends StatelessWidget {
                 spacing: padding,
                 runSpacing: padding,
                 children: [
-                  ...selectedItems.map((e) => CustomChip(
-                        onRemove: () => onSuggestionSelected(e),
-                        text: e.name,
-                      )),
+                  ...selectedItems.map(
+                    (e) => CustomChip(
+                      onRemove: () => onSuggestionSelected(e),
+                      text: e.name,
+                    ),
+                  ),
                 ],
               ),
             ),

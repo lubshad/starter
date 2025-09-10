@@ -1,18 +1,15 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 // import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import '../core/app_route.dart';
-import '../core/pagination_response.dart';
 import '../exporter.dart';
 import '../mixins/search_mixin.dart';
-import '../models/name_id.dart';
 import 'error_widget_with_retry.dart';
 import 'no_item_found.dart';
 import 'search_field.dart';
 import 'shimwrapper.dart';
 
-class TypeAheadSearchField extends StatelessWidget {
+class TypeAheadSearchField<T> extends StatelessWidget {
   const TypeAheadSearchField({
     super.key,
     required this.selected,
@@ -20,19 +17,24 @@ class TypeAheadSearchField extends StatelessWidget {
     required this.onSuggestionSelected,
     required this.suggestionsCallback,
     required this.clearSelection,
+    required this.displayText,
+    required this.itemBuilder,
     this.horizontalPadding = 0,
     required this.hint,
     this.validator,
   });
 
-  final NameId? selected;
+  final T? selected;
   final String label;
   final String hint;
-  final Function(NameId) onSuggestionSelected;
+  final Function(T) onSuggestionSelected;
   final VoidCallback clearSelection;
   final double horizontalPadding;
-  final String? Function(NameId?)? validator;
-  final Function(int, String, PagingController) suggestionsCallback;
+  final String? Function(T?)? validator;
+  final Function(int, String, PagingController<int, T>) suggestionsCallback;
+  final String Function(T) displayText;
+  final Widget Function(BuildContext context, T item, bool isSelected)
+  itemBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -49,19 +51,22 @@ class TypeAheadSearchField extends StatelessWidget {
               context,
               downToTop(
                 const RouteSettings(name: "Selection"),
-                SelectionScreen(
+                SelectionScreen<T>(
                   suggestionsCallback: suggestionsCallback,
                   label: label,
                   hint: hint,
                   onSuggestionSelected: onSuggestionSelected,
-                  selectedItems: selected == null ? [] : [selected!],
+                  selectedItems: selected == null ? [] : [selected as T],
+                  itemBuilder: itemBuilder,
                 ),
               ),
             ),
             validator: validator == null
                 ? null
                 : (value) => validator!(selected),
-            controller: TextEditingController(text: selected?.name),
+            controller: TextEditingController(
+              text: selected != null ? displayText(selected as T) : '',
+            ),
             decoration: InputDecoration(
               // hintStyle: hintStyle.copyWith(
               //   fontSize: 12.sp,
@@ -101,7 +106,7 @@ class TypeAheadSearchField extends StatelessWidget {
   }
 }
 
-class SelectionScreen extends StatefulWidget {
+class SelectionScreen<T> extends StatefulWidget {
   const SelectionScreen({
     super.key,
     required this.label,
@@ -109,29 +114,32 @@ class SelectionScreen extends StatefulWidget {
     required this.onSuggestionSelected,
     this.selectedItems = const [],
     required this.suggestionsCallback,
+    required this.itemBuilder,
     this.poponSelection = true,
   });
 
   final String label;
   final String hint;
-  final Function(NameId) onSuggestionSelected;
-  final List<NameId> selectedItems;
-  final Function(int, String, PagingController) suggestionsCallback;
+  final Function(T) onSuggestionSelected;
+  final List<T> selectedItems;
+  final Function(int, String, PagingController<int, T>) suggestionsCallback;
+  final Widget Function(BuildContext context, T item, bool isSelected)
+  itemBuilder;
   final bool poponSelection;
 
   @override
-  State<SelectionScreen> createState() => _SelectionScreenState();
+  State<SelectionScreen<T>> createState() => _SelectionScreenState<T>();
 }
 
-class _SelectionScreenState extends State<SelectionScreen> with SearchMixin {
-  PagingController<int, NameId> pagingController = PagingController(
-    firstPageKey: 1,
-  );
+class _SelectionScreenState<T> extends State<SelectionScreen<T>>
+    with SearchMixin {
+  late final PagingController<int, T> pagingController;
   @override
   void initState() {
     super.initState();
-    pagingController.addPageRequestListener(
-      (pageKey) => widget.suggestionsCallback(
+    pagingController = PagingController(
+      getNextPageKey: (state) => state.nextIntPageKey,
+      fetchPage: (pageKey) => widget.suggestionsCallback(
         pageKey,
         searchController.text,
         pagingController,
@@ -178,50 +186,61 @@ class _SelectionScreenState extends State<SelectionScreen> with SearchMixin {
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async => pagingController.refresh(),
-                  child: PagedListView<int, NameId>(
-                    padding: const EdgeInsets.all(padding),
-                    pagingController: pagingController,
-                    builderDelegate: PagedChildBuilderDelegate(
-                      firstPageErrorIndicatorBuilder: (context) => SizedBox(
-                        height: 400,
-                        child: ErrorWidgetWithRetry(
-                          exception: pagingController.error,
-                          retry: pagingController.refresh,
-                        ),
-                      ),
-                      noItemsFoundIndicatorBuilder: (context) =>
-                          const NoItemsFound(),
-                      firstPageProgressIndicatorBuilder: (context) => Column(
-                        children: List.generate(
-                          10,
-                          (index) => const ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            title: Shimwrapper(child: Text("data")),
+                  child: PagingListener(
+                    controller: pagingController,
+                    builder: (context, state, fetchNextPage) =>
+                        PagedListView<int, T>(
+                          fetchNextPage: fetchNextPage,
+                          state: state,
+                          padding: const EdgeInsets.all(padding),
+                          builderDelegate: PagedChildBuilderDelegate(
+                            firstPageErrorIndicatorBuilder: (context) =>
+                                SizedBox(
+                                  height: 400,
+                                  child: ErrorWidgetWithRetry(
+                                    exception: state.error,
+                                    retry: pagingController.refresh,
+                                  ),
+                                ),
+                            noItemsFoundIndicatorBuilder: (context) =>
+                                const NoItemsFound(),
+                            firstPageProgressIndicatorBuilder: (context) =>
+                                Column(
+                                  children: List.generate(
+                                    10,
+                                    (index) => const ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      title: Shimwrapper(child: Text("data")),
+                                    ),
+                                  ),
+                                ),
+                            itemBuilder: (context, item, index) {
+                              final isSelected = widget.selectedItems.contains(
+                                item,
+                              );
+                              return InkWell(
+                                onTap: () {
+                                  widget.onSuggestionSelected(item);
+                                  if (widget.poponSelection) {
+                                    Navigator.maybePop(context, true);
+                                  } else {
+                                    if (widget.selectedItems.contains(item)) {
+                                      widget.selectedItems.remove(item);
+                                    } else {
+                                      widget.selectedItems.add(item);
+                                    }
+                                    setState(() {});
+                                  }
+                                },
+                                child: widget.itemBuilder(
+                                  context,
+                                  item,
+                                  isSelected,
+                                ),
+                              );
+                            },
                           ),
                         ),
-                      ),
-                      itemBuilder: (context, item, index) => ListTile(
-                        leading: widget.selectedItems.contains(item)
-                            ? const Icon(Icons.check)
-                            : null,
-                        contentPadding: EdgeInsets.zero,
-                        dense: true,
-                        onTap: () {
-                          widget.onSuggestionSelected(item);
-                          if (widget.poponSelection) {
-                            Navigator.maybePop(context, true);
-                          } else {
-                            if (widget.selectedItems.contains(item)) {
-                              widget.selectedItems.remove(item);
-                            } else {
-                              widget.selectedItems.add(item);
-                            }
-                            setState(() {});
-                          }
-                        },
-                        title: Text(item.name),
-                      ),
-                    ),
                   ),
                 ),
               ),
@@ -230,21 +249,5 @@ class _SelectionScreenState extends State<SelectionScreen> with SearchMixin {
         ),
       ),
     );
-  }
-}
-
-FutureOr onSuccess(
-  PaginationResponse<NameId> value,
-  PagingController pagingController,
-) {
-  if (!value.hasNext) {
-    pagingController.appendLastPage(value.results);
-  } else {
-    // Extract page number from next URL or use current page + 1
-    final nextPage = value.next != null
-        ? Uri.parse(value.next!).queryParameters['page']
-        : null;
-    final pageNumber = nextPage != null ? int.tryParse(nextPage) : null;
-    pagingController.appendPage(value.results, pageNumber);
   }
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-
 import '../../core/app_route.dart';
+import '../../exporter.dart';
 import '../../main.dart';
-import '../../widgets/user_avatar.dart';
 import 'agora_rtc_service.dart';
 import 'call_screen.dart';
+import 'local_video.dart';
 import 'remote_video.dart';
 
 class CallPipWidget extends StatelessWidget {
@@ -47,36 +47,10 @@ class CallPipWidget extends StatelessWidget {
                           visible: AgoraRtcService.i.callScreenArgs != null,
                           child: Builder(
                             builder: (context) {
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  UserAvatar(
-                                    size: 60,
-                                    imageUrl: AgoraRtcService
-                                        .i
-                                        .callScreenArgs!
-                                        .user
-                                        .avatarUrl,
-                                    // addMediaUrl: false,
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    AgoraRtcService
-                                            .i
-                                            .callScreenArgs!
-                                            .user
-                                            .nickName ??
-                                        "",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  SizedBox(height: 4),
-                                  callstatusText(),
-                                ],
+                              return CallerInfoItem(
+                                userInfo:
+                                    AgoraRtcService.i.callScreenArgs!.user,
+                                small: true,
                               );
                             },
                           ),
@@ -89,6 +63,30 @@ class CallPipWidget extends StatelessWidget {
                 ),
               ),
 
+              Positioned(
+                top: paddingLarge,
+                left: paddingLarge,
+                child: GestureDetector(
+                  onTap: () {
+                    AgoraRtcService.i.exitPipMode();
+                    navigate(navigatorKey.currentContext!, CallScreen.path);
+                  },
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.fullscreen,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+
               // Controls overlay
               Positioned(
                 bottom: 16,
@@ -97,28 +95,6 @@ class CallPipWidget extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    // Expand button
-                    GestureDetector(
-                      onTap: () {
-                        AgoraRtcService.i.exitPipMode();
-                        navigate(navigatorKey.currentContext!, CallScreen.path);
-                      },
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.fullscreen,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-
-                    // Mute button
                     ValueListenableBuilder(
                       valueListenable: AgoraRtcService.i.isAudioMuted,
                       builder: (context, isMuted, child) {

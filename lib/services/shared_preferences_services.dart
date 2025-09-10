@@ -10,7 +10,7 @@ const String serverTimeDifferenceKey = "server_time_diff_key";
 const String notificationDataKey = "notification_data_key";
 const String incomingCallKey = "incoming_call_key";
 
-String serverTimeDifferenceString = DateTime.now().toUtc().toString();
+String serverTimeDifferenceString = "";
 
 class SharedPreferencesService {
   Future<String> get domainUrl => getValue(key: domainKey);

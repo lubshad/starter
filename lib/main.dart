@@ -8,10 +8,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:starter/features/chat/agora_rtm_service.dart';
 import 'core/app_route.dart';
 import 'core/repository.dart';
 import 'features/chat/user_listing.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'firebase_options.dart';
 import 'theme/theme.dart';
 // import 'package:firebase_core/firebase_core.dart';
 // import 'firebase_options.dart';
@@ -48,6 +50,7 @@ mainCommon() async {
     }
   }
   await DataRepository.i.initialize();
+  await AgoraRTMService.i.initSdk(agoraConfig);
 }
 
 class MyApp extends StatefulWidget {

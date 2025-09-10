@@ -4,12 +4,20 @@ import '../../../exporter.dart';
 import '../../../main.dart';
 
 import '../../../widgets/person_tile.dart';
+
 import '../agora_rtm_service.dart';
 import 'bottomsheet_handle.dart';
 
 class ReactionBar extends StatefulWidget {
   final ChatMessage message;
-  const ReactionBar({super.key, required this.message});
+  // final void Function(TapDownDetails) onTapDown;
+  final VoidCallback ontap;
+  const ReactionBar({
+    super.key,
+    required this.message,
+    // required this.onTapDown,
+    required this.ontap,
+  });
 
   @override
   State<ReactionBar> createState() => _ReactionBarState();
@@ -64,9 +72,26 @@ class _ReactionBarState extends State<ReactionBar> {
       offset: Offset(0, -4),
       child: Builder(
         builder: (context) {
+          if (reactions.isEmpty &&
+              widget.message.from != ChatClient.getInstance.currentUserId) {
+            return GestureDetector(
+              // onTapDown: (details) {
+              //   widget.onTapDown(details);
+              // },
+              onTap: () {
+                widget.ontap();
+              },
+              child: Icon(
+                Icons.add_reaction,
+                size: 20.h,
+                color: Colors.grey.shade400,
+              ),
+            );
+          }
           if (reactions.isEmpty) return SizedBox.shrink();
           return InkWell(
             borderRadius: BorderRadius.circular(middlePadding),
+
             onTap: () {
               showReactionUsersSheet();
             },
@@ -128,7 +153,10 @@ class _ReactionBarState extends State<ReactionBar> {
     );
   }
 
-  void showReactionUsersSheet() async {
+  bool loading = false;
+  Future<void> showReactionUsersSheet() async {
+    if (loading) return;
+    loading = true;
     Map<ChatUserInfo, ChatMessageReaction> reactionMap = {};
     final userIds = reactions
         .expand((reaction) => reaction.userList)
@@ -161,14 +189,15 @@ class _ReactionBarState extends State<ReactionBar> {
             Text(
               ''
               '$totalReactions ${totalReactions == 1 ? 'reaction' : 'reactions'}',
-              style: context.bodySmall,
+              style: context.montserrat60015,
             ),
             Divider(),
             ...reactionMap.entries.map((user) {
-              final isMine = user.value.isAddedBySelf;
+              final isMe =
+                  user.key.userId == AgoraRTMService.i.currentUser!.userId;
               return PersonTile(
                 onTap: () {
-                  if (isMine) {
+                  if (isMe) {
                     AgoraRTMService.i.removeReactionFromMessage(
                       widget.message.msgId,
                       user.value.reaction,
@@ -188,11 +217,12 @@ class _ReactionBarState extends State<ReactionBar> {
                 hasSubTitle: true,
                 addMediaUrl: false,
                 imageUrl: user.key.avatarUrl,
-                name: isMine ? 'You' : user.key.nickName ?? '',
-                department: isMine ? 'Tap to remove' : '',
+                name: isMe ? 'You' : user.key.nickName ?? '',
+                department: isMe ? 'Tap to remove' : '',
+
                 trailing: Text(
                   user.value.reaction,
-                  style: context.bodySmall,
+                  style: context.montserrat60016,
                 ),
               );
             }),
@@ -200,6 +230,8 @@ class _ReactionBarState extends State<ReactionBar> {
           ],
         );
       },
-    );
+    ).then((_) {
+      loading = false;
+    });
   }
 }
