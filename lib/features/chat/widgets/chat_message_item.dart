@@ -45,11 +45,25 @@ class ChatMessageItemState extends State<ChatMessageItem>
   initState() {
     if (!widget.item.hasReadAck &&
         widget.item.from != ChatClient.getInstance.currentUserId) {
-      ChatClient.getInstance.chatManager.sendMessageReadAck(widget.item);
+      if (widget.item.chatType == ChatType.GroupChat) {
+        ChatClient.getInstance.chatManager.sendGroupMessageReadAck(
+          widget.item.msgId,
+          widget.item.conversationId!,
+        );
+      } else {
+        ChatClient.getInstance.chatManager.sendMessageReadAck(widget.item);
+      }
     }
     if (!widget.item.hasReadAck &&
         widget.item.from != ChatClient.getInstance.currentUserId) {
-      ChatClient.getInstance.chatManager.sendMessageReadAck(widget.item);
+      if (widget.item.chatType == ChatType.GroupChat) {
+        ChatClient.getInstance.chatManager.sendGroupMessageReadAck(
+          widget.item.msgId,
+          widget.item.conversationId!,
+        );
+      } else {
+        ChatClient.getInstance.chatManager.sendMessageReadAck(widget.item);
+      }
     }
 
     super.initState();
