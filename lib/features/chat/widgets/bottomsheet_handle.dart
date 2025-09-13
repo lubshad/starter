@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:starter/exporter.dart';
+
+import '../../../exporter.dart';
 
 class BottomSheetHandle extends StatelessWidget {
   const BottomSheetHandle({super.key});

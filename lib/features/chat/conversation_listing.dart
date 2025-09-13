@@ -5,7 +5,6 @@ import 'package:agora_chat_uikit/sdk_service/chat_sdk_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
-import 'package:starter/widgets/person_tile.dart';
 
 import '../../core/app_route.dart';
 import '../../exporter.dart';
@@ -16,6 +15,7 @@ import '../../services/shared_preferences_services.dart';
 import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/list_tile_shimmer.dart';
 import '../../widgets/network_resource.dart';
+import '../../widgets/person_tile.dart';
 import '../profile_screen/common_controller.dart';
 import 'agora_rtc_service.dart';
 import 'agora_rtm_service.dart';

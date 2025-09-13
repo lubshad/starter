@@ -11,10 +11,10 @@ import 'package:gap/gap.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:starter/features/chat/chat_screen.dart';
 import '../../../widgets/bottom_button_padding.dart';
 import '../../../services/file_picker_service.dart';
 import '../agora_rtm_service.dart';
+import '../chat_screen.dart';
 import '../sound_player_service.dart';
 import '../../../exporter.dart';
 

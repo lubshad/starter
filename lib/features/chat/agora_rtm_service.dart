@@ -313,6 +313,7 @@ class AgoraRTMService {
   }
 
   void updateFcmToken() {
+    if (!isLoggedIn) return;
     FCMService().setupNotification().then((value) async {
       logInfo(value);
       await ChatClient.getInstance.pushManager.updateFCMPushToken(value);

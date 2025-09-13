@@ -5,7 +5,8 @@ import 'package:agora_chat_uikit/sdk_service/chat_sdk_service.dart';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:starter/exporter.dart';
+
+import '../../core/logger.dart';
 
 class SoundPlayerService extends ChangeNotifier {
   void close() {

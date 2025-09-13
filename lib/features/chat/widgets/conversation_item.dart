@@ -4,10 +4,10 @@ import 'package:agora_chat_uikit/sdk_service/chat_sdk_service.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:starter/widgets/person_tile.dart';
 import 'package:timeago/timeago.dart';
 import '../../../core/app_route.dart';
 import '../../../main.dart';
+import '../../../widgets/person_tile.dart';
 import '../../../widgets/user_avatar.dart';
 import '../chat_screen.dart';
 import '../models/conversation_model.dart';

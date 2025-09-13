@@ -1,7 +1,9 @@
 import 'package:agora_chat_uikit/chat_uikit.dart';
 import 'package:flutter/material.dart';
-import 'package:starter/features/chat/agora_rtm_service.dart';
-import 'package:starter/features/chat/user_provider.dart';
+
+import 'agora_rtm_service.dart';
+import 'user_provider.dart';
+
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});

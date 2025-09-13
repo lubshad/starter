@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:starter/features/chat/agora_rtm_service.dart';
-import 'package:starter/features/chat/chats.dart';
+
 import '../../core/app_route.dart';
 import '../../exporter.dart';
 import '../../models/name_id.dart';
@@ -8,6 +7,8 @@ import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/network_resource.dart';
 import '../../widgets/no_item_found.dart';
 import '../../widgets/person_tile.dart';
+import 'agora_rtm_service.dart';
+import 'chats.dart';
 
 List<NameId> usersList = [
   NameId(id: "58", name: "Zannan", third: profileImages.first),

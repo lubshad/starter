@@ -1,7 +1,8 @@
 import 'package:agora_chat_uikit/provider/chat_uikit_profile.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:starter/core/logger.dart';
+
+import '../../exporter.dart';
 
 /// UserDataStore handles local storage of user profiles and chat data using SQLite
 class UserDataStore {

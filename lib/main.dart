@@ -10,9 +10,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:starter/features/chat/agora_rtm_service.dart';
 import 'core/app_route.dart';
 import 'core/repository.dart';
+import 'features/chat/agora_rtm_service.dart';
 import 'features/chat/user_listing.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'firebase_options.dart';
@@ -83,7 +83,6 @@ class _MyAppState extends State<MyApp> {
     return ScreenUtilInit(
       designSize: const Size(390, 844),
       minTextAdapt: true,
-      splitScreenMode: true,
       builder: (context, child) {
         return ToastificationWrapper(
           child: MaterialApp(

@@ -1,13 +1,13 @@
 
 import 'package:agora_chat_uikit/sdk_service/chat_sdk_service.dart';
 import 'package:flutter/material.dart';
-import 'package:starter/core/app_route.dart';
-import 'package:starter/features/chat/chat_screen.dart';
 
+import '../../core/app_route.dart';
 import '../../exporter.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/person_tile.dart';
 import '../../widgets/network_resource.dart';
+import 'chat_screen.dart';
 
 class GroupMemberListItem extends StatelessWidget {
   final String userId;
