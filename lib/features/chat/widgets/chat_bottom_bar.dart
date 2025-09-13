@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
-import 'package:agora_chat_sdk/agora_chat_sdk.dart';
+import 'package:agora_chat_uikit/sdk_service/chat_sdk_service.dart';
+
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';

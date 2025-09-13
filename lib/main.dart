@@ -1,5 +1,7 @@
 // ignore_for_file: depend_on_referenced_packages
 
+import 'package:agora_chat_uikit/chat_uikit.dart';
+import 'package:agora_chat_uikit/chat_uikit_localizations.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -72,6 +74,8 @@ class _MyAppState extends State<MyApp> {
     super.initState();
   }
 
+  ChatUIKitLocalizations chatLocalizations = ChatUIKitLocalizations();
+
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   late FirebaseAnalyticsObserver observer;
   @override
@@ -83,10 +87,11 @@ class _MyAppState extends State<MyApp> {
       builder: (context, child) {
         return ToastificationWrapper(
           child: MaterialApp(
-            localizationsDelegates: const [
+            localizationsDelegates: [
               CountryLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
+              ...chatLocalizations.localizationsDelegates,
             ],
             navigatorObservers: [observer],
             navigatorKey: navigatorKey,

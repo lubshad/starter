@@ -1,5 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:agora_chat_sdk/agora_chat_sdk.dart';
+import 'package:agora_chat_uikit/sdk_service/chat_sdk_service.dart';
 
 class ConversationModel {
   final ChatConversation conversation;
@@ -9,14 +9,13 @@ class ConversationModel {
     required this.conversation,
     this.latestMessage,
     required this.unreadCount,
-  }); 
+  });
 
   @override
   bool operator ==(covariant ConversationModel other) {
     if (identical(this, other)) return true;
-  
-    return 
-      other.conversation.id == conversation.id ;
+
+    return other.conversation.id == conversation.id;
   }
 
   @override

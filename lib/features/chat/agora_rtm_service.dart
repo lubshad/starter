@@ -1,7 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 import 'dart:io';
-import 'package:agora_chat_sdk/agora_chat_sdk.dart';
+import 'package:agora_chat_uikit/chat_uikit.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -145,13 +145,26 @@ class AgoraRTMService {
       appKey: config.appKey,
       requireDeliveryAck: true,
       debugMode: kDebugMode,
+      autoLogin: !kDebugMode,
     );
     options.enableFCM(config.senderId);
     options.enableAPNs(config.senderId);
     await ChatClient.getInstance.init(options);
+    setupChatUI();
     if (ChatClient.getInstance.currentUserId != null) {
       currentUser = await ChatClient.getInstance.userInfoManager.fetchOwnInfo();
     }
+  }
+
+  void setupChatUI() {
+    ChatUIKitSettings.avatarRadius = CornerRadius.large;
+    ChatUIKitSettings.enableMessageThread = false;
+    ChatUIKitSettings.enablePinMsg = false;
+    ChatUIKitSettings.enableMessageReport = false;
+    ChatUIKitSettings.enableMessageTranslation = false;
+    ChatUIKitTimeFormatter.instance.formatterHandler = (context, type, time) {
+      return DateTime.fromMillisecondsSinceEpoch(time).timeFormat;
+    };
   }
 
   ChatUserInfo? currentUser;
@@ -269,6 +282,15 @@ class AgoraRTMService {
     return await ChatClient.getInstance.chatManager.sendMessage(msg);
   }
 
+  Future<void> joinPublicGroup(String groupId) async {
+    try {
+      await ChatClient.getInstance.groupManager.joinPublicGroup(groupId);
+      logInfo("✅ Joined group: $groupId");
+    } catch (e) {
+      logInfo("❌ Failed to join group: $e");
+    }
+  }
+
   Future<bool> signIn({
     required String userid,
     required String avatarUrl,
@@ -280,14 +302,21 @@ class AgoraRTMService {
       avatarUrl: avatarUrl,
       nickname: name,
     );
-    await ChatClient.getInstance.loginWithToken(userid, config.token);
-    currentUser = await ChatClient.getInstance.userInfoManager.fetchOwnInfo();
+    await ChatUIKit.instance.loginWithToken(
+      userId: userid,
+      token: config.token,
+    );
+    currentUser = await ChatUIKit.instance.fetchOwnInfo();
+    logInfo("login succeed, userId: $userid");
+    updateFcmToken();
+    return true;
+  }
+
+  void updateFcmToken() {
     FCMService().setupNotification().then((value) async {
       logInfo(value);
       await ChatClient.getInstance.pushManager.updateFCMPushToken(value);
     });
-    logInfo("login succeed, userId: $userid");
-    return true;
   }
 
   Future<bool> signOut([bool unbindDevice = false]) async {
@@ -306,7 +335,10 @@ class AgoraRTMService {
 
   bool get isLoggedIn => currentUser != null;
 
-  Future<ChatMessage?> sendTypingIndicator({required String id,  ChatType chatType = ChatType.Chat}) async {
+  Future<ChatMessage?> sendTypingIndicator({
+    required String id,
+    ChatType chatType = ChatType.Chat,
+  }) async {
     if (serverUtcTime.subtract(Duration(seconds: 2)).isBefore(lastTypingSend)) {
       return null;
     }

@@ -54,7 +54,7 @@ Future<bool> sendLocationUpdatesToServer(dynamic identifier) async {
 
 class MyTaskHandler extends TaskHandler {
   @override
-  Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {
+  Future<void> onDestroy(DateTime timestamp) async {
     stopActivityStream();
     geofencing.stop();
   }
@@ -74,8 +74,9 @@ class MyTaskHandler extends TaskHandler {
 
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
-    appConfig = await FlutterForegroundTask.getData<int>(key: "env")
-        .then((value) => ENV.fromValue(value).appConfig);
+    appConfig = await FlutterForegroundTask.getData<int>(
+      key: "env",
+    ).then((value) => ENV.fromValue(value).appConfig);
     await SharedPreferencesService.i.initialize();
     await LocationDatabaseHelper.i.database;
     await LocalDatabaseHelper.i.database;
@@ -125,47 +126,45 @@ class MyTaskHandler extends TaskHandler {
 
   Future<void> startActivityStream() async {
     if (kDebugMode) {
-      await Future.delayed(Duration(
-        minutes: 2,
-      ));
+      await Future.delayed(Duration(minutes: 2));
       latestActivity = Activity(ActivityType.WALKING, ActivityConfidence.HIGH);
       onActivityPositionUpdate();
-      await Future.delayed(Duration(
-        minutes: 2,
-      ));
+      await Future.delayed(Duration(minutes: 2));
       latestActivity = Activity(ActivityType.RUNNING, ActivityConfidence.HIGH);
       onActivityPositionUpdate();
 
-      await Future.delayed(Duration(
-        minutes: 2,
-      ));
-      latestActivity =
-          Activity(ActivityType.ON_BICYCLE, ActivityConfidence.HIGH);
+      await Future.delayed(Duration(minutes: 2));
+      latestActivity = Activity(
+        ActivityType.ON_BICYCLE,
+        ActivityConfidence.HIGH,
+      );
       onActivityPositionUpdate();
 
-      await Future.delayed(Duration(
-        minutes: 2,
-      ));
-      latestActivity =
-          Activity(ActivityType.IN_VEHICLE, ActivityConfidence.HIGH);
+      await Future.delayed(Duration(minutes: 2));
+      latestActivity = Activity(
+        ActivityType.IN_VEHICLE,
+        ActivityConfidence.HIGH,
+      );
       onActivityPositionUpdate();
 
-      await Future.delayed(Duration(
-        minutes: 2,
-      ));
-      latestActivity =
-          Activity(ActivityType.IN_VEHICLE, ActivityConfidence.HIGH);
+      await Future.delayed(Duration(minutes: 2));
+      latestActivity = Activity(
+        ActivityType.IN_VEHICLE,
+        ActivityConfidence.HIGH,
+      );
       onActivityPositionUpdate();
       return;
     } else {
-      activityStreamSubscription =
-          FlutterActivityRecognition.instance.activityStream.listen((event) {
-        log(jsonEncode(event));
-        if (event.confidence != ActivityConfidence.HIGH) return;
-        if (event.type == latestActivity.type) return;
-        latestActivity = event;
-        onActivityPositionUpdate();
-      });
+      activityStreamSubscription = FlutterActivityRecognition
+          .instance
+          .activityStream
+          .listen((event) {
+            log(jsonEncode(event));
+            if (event.confidence != ActivityConfidence.HIGH) return;
+            if (event.type == latestActivity.type) return;
+            latestActivity = event;
+            onActivityPositionUpdate();
+          });
     }
   }
 
@@ -182,10 +181,10 @@ class MyTaskHandler extends TaskHandler {
   StreamSubscription<Activity>? activityStreamSubscription;
 
   LocationWrapper get wrappedLocation => LocationWrapper(
-        position: latestPostition!,
-        activity: latestActivity,
-        battery: batteryLevel,
-      );
+    position: latestPostition!,
+    activity: latestActivity,
+    battery: batteryLevel,
+  );
 
   Position? latestPostition;
   Activity latestActivity = Activity(
@@ -198,8 +197,11 @@ class MyTaskHandler extends TaskHandler {
     onActivityPositionUpdate();
   }
 
-  Future geofenceStatusChangedListener(GeofenceRegion geofenceRegion,
-      GeofenceStatus geofenceStatus, Position location) async {
+  Future geofenceStatusChangedListener(
+    GeofenceRegion geofenceRegion,
+    GeofenceStatus geofenceStatus,
+    Position location,
+  ) async {
     log(geofenceStatus.toString());
     if (geofenceStatus != GeofenceStatus.exit) return;
     // LocalDatabaseHelper.i.logAttendance([

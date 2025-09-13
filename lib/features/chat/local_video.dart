@@ -1,4 +1,5 @@
-import 'package:agora_chat_sdk/agora_chat_sdk.dart';
+
+import 'package:agora_chat_uikit/sdk_service/chat_sdk_service.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/material.dart';
 import 'package:starter/exporter.dart';

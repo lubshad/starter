@@ -1,4 +1,5 @@
-import 'package:agora_chat_sdk/agora_chat_sdk.dart';
+import 'package:agora_chat_uikit/sdk_service/chat_sdk_service.dart';
+
 import 'package:flutter/widgets.dart';
 import '../../../core/app_route.dart';
 import '../../../main.dart';
@@ -7,7 +8,7 @@ import '../chat_screen.dart';
 
 mixin ChatMixin {
   ValueNotifier<bool> buttonLoading = ValueNotifier(false);
-  void messageUser(int id, {BuildContext? context}) {
+  void messageUser(String id, {BuildContext? context}) {
     buttonLoading.value = true;
     ChatClient.getInstance.userInfoManager
         .fetchUserInfoById([id.toString()])

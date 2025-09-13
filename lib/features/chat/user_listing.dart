@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:starter/features/chat/agora_rtm_service.dart';
+import 'package:starter/features/chat/chats.dart';
 import '../../core/app_route.dart';
 import '../../exporter.dart';
 import '../../models/name_id.dart';
@@ -7,12 +8,12 @@ import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/network_resource.dart';
 import '../../widgets/no_item_found.dart';
 import '../../widgets/person_tile.dart';
-import 'conversation_listing.dart';
 
 List<NameId> usersList = [
   NameId(id: "58", name: "Zannan", third: profileImages.first),
   NameId(id: "18", name: "Eventxpro", third: profileImages[1]),
   NameId(id: "50", name: "Adarsh", third: profileImages[2]),
+  NameId(id: "51", name: "Afnan", third: profileImages[3]),
 ];
 
 class UserListingScreen extends StatefulWidget {
@@ -62,6 +63,7 @@ class _UserListingScreenState extends State<UserListingScreen> {
             final item = items[index];
             return ListTile(
               onTap: () async {
+                await AgoraRTMService.i.signOut();
                 AgoraRTMService.i
                     .signIn(
                       userid: item.id,
@@ -69,7 +71,9 @@ class _UserListingScreenState extends State<UserListingScreen> {
                       name: item.name,
                     )
                     .then((value) {
-                      for (NameId user in usersList) {
+                      for (NameId user in usersList.where(
+                        (element) => element.id != item.id,
+                      )) {
                         AgoraRTMService.i.sendMessageWithReply(
                           id: user.id,
                           message: "hi",
@@ -78,7 +82,7 @@ class _UserListingScreenState extends State<UserListingScreen> {
                       navigate(
                         // ignore: use_build_context_synchronously
                         context,
-                        ConversationListingScreen.path,
+                        ChatPage.path,
                         arguments: item,
                       );
                     });
