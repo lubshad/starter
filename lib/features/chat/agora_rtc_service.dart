@@ -19,6 +19,10 @@ import 'agora_rtm_service.dart';
 import 'call_pip_widget.dart';
 import 'call_screen.dart';
 
+
+String rtcTokenUrl ="https://generatertmtoken-3aykugpx2a-uc.a.run.app";
+
+
 enum CallState { outgoingCall, connected, ended, incomingCall }
 
 class AgoraRtcService {
@@ -342,7 +346,7 @@ extension AgoraRTMExtension on DataRepository {
   Future<AgoraConfig> generateRTCToken({required String channel}) async {
     try {
       final response = await Dio().get(
-        "https://us-central1-eventxpro-66c0b.cloudfunctions.net/generateRtcToken",
+        rtcTokenUrl,
         queryParameters: {
           "uid": int.parse(AgoraRTMService.i.currentUser?.userId ?? "0"),
           "channel": channel,

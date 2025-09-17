@@ -28,6 +28,10 @@ final agoraConfig = AgoraConfig(
 
 String publicGroupId = "291667469991937";
 
+
+String rtmTokenUrl ="https://generatertmtoken-3aykugpx2a-uc.a.run.app";
+
+
 class ReplyMessageData {
   final String messageId;
   final String content;
@@ -640,7 +644,7 @@ extension AgoraRTMExtension on DataRepository {
   }) async {
     try {
       final response = await Dio().get(
-        "https://generatertmtoken-w5cvqcbpna-uc.a.run.app",
+        rtmTokenUrl,
         queryParameters: {
           "username": username,
           "avatarurl": avatarUrl,
