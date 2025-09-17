@@ -3,6 +3,7 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get/utils.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../features/authentication/phone_auth/phone_auth_mixin.dart';
 import '../features/notification/models/notification_model.dart';
 import '../features/profile_screen/profile_details_model.dart';
@@ -10,7 +11,6 @@ import '../models/name_id.dart';
 import '../services/shared_preferences_services.dart';
 import 'api_constants.dart';
 import 'app_config.dart';
-import 'error_exception_handler.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'pagination_response.dart';
@@ -36,7 +36,14 @@ class DataRepository {
     _client.interceptors.add(CookieManager(cookieJar));
     _client.interceptors.add(TokenAuthInterceptor());
     _client.interceptors.add(
-      LogInterceptor(requestBody: true, responseBody: true),
+      PrettyDioLogger(
+        requestBody: true,
+        responseBody: true,
+        requestHeader: true,
+        responseHeader: true,
+        error: true,
+        compact: true,
+      ),
     );
     initialized = true;
   }
