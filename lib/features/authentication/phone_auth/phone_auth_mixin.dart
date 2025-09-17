@@ -58,7 +58,7 @@ class TokenAuthInterceptor extends Interceptor {
   }
 }
 
-class PhoneAuthRepository with ErrorExceptionHandler {
+class PhoneAuthRepository {
   final Dio _client = Dio(
     BaseOptions(
       receiveDataWhenStatusError: true,

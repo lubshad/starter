@@ -19,9 +19,7 @@ import 'agora_rtm_service.dart';
 import 'call_pip_widget.dart';
 import 'call_screen.dart';
 
-
-String rtcTokenUrl ="https://generatertmtoken-3aykugpx2a-uc.a.run.app";
-
+String rtcTokenUrl = "https://generatertmtoken-3aykugpx2a-uc.a.run.app";
 
 enum CallState { outgoingCall, connected, ended, incomingCall }
 
@@ -340,21 +338,15 @@ class AgoraRtcService {
   }
 }
 
-
 extension AgoraRTMExtension on DataRepository {
-
   Future<AgoraConfig> generateRTCToken({required String channel}) async {
-    try {
-      final response = await Dio().get(
-        rtcTokenUrl,
-        queryParameters: {
-          "uid": int.parse(AgoraRTMService.i.currentUser?.userId ?? "0"),
-          "channel": channel,
-        },
-      );
-      return AgoraConfig.fromMap(response.data);
-    } catch (e) {
-      throw handleError(e);
-    }
+    final response = await Dio().get(
+      rtcTokenUrl,
+      queryParameters: {
+        "uid": int.parse(AgoraRTMService.i.currentUser?.userId ?? "0"),
+        "channel": channel,
+      },
+    );
+    return AgoraConfig.fromMap(response.data);
   }
 }

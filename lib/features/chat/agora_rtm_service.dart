@@ -28,9 +28,7 @@ final agoraConfig = AgoraConfig(
 
 String publicGroupId = "291667469991937";
 
-
-String rtmTokenUrl ="https://generatertmtoken-3aykugpx2a-uc.a.run.app";
-
+String rtmTokenUrl = "https://generatertmtoken-3aykugpx2a-uc.a.run.app";
 
 class ReplyMessageData {
   final String messageId;
@@ -299,7 +297,6 @@ class AgoraRTMService {
     }
   }
 
-
   ChatUserInfo? currentUser;
 
   Future<bool> signIn({
@@ -320,7 +317,7 @@ class AgoraRTMService {
         userId: userid,
         token: config.token,
       );
-      currentUser = await  ChatClient.getInstance.userInfoManager.fetchOwnInfo();
+      currentUser = await ChatClient.getInstance.userInfoManager.fetchOwnInfo();
       logInfo("login succeed, userId: $userid");
       return true;
     } catch (e) {
@@ -522,57 +519,56 @@ class AgoraRTMService {
 
           appBar: CustomAppBar(
             title: profile.showName ?? "",
-            actions: [Builder(
-              builder: (context) {
-                final isGroup = profile.type == ChatUIKitProfileType.group;
-                if (!isGroup) return SizedBox();
-                return InkWell(
-                  onTap: () {
-                    ChatUIKitRoute.pushOrPushNamed(
-                      context,
-                      ChatUIKitRouteNames.groupMembersView,
-                      GroupMembersViewArguments(profile: profile),
-                    );
-                  },
-                  child: Icon(Icons.group),
-                );
-              },
-            )],
+            actions: [
+              Builder(
+                builder: (context) {
+                  final isGroup = profile.type == ChatUIKitProfileType.group;
+                  if (!isGroup) return SizedBox();
+                  return InkWell(
+                    onTap: () {
+                      ChatUIKitRoute.pushOrPushNamed(
+                        context,
+                        ChatUIKitRouteNames.groupMembersView,
+                        GroupMembersViewArguments(profile: profile),
+                      );
+                    },
+                    child: Icon(Icons.group),
+                  );
+                },
+              ),
+            ],
           ),
           body: MessagesView(enableAppBar: false, profile: profile),
         );
         return pageRoute(settings, screen);
       case ChatUIKitRouteNames.contactDetailsView:
       case ChatUIKitRouteNames.newRequestDetailsView:
-        final profile =
-            settings.arguments is ContactDetailsViewArguments
-                ? (settings.arguments as ContactDetailsViewArguments).profile
-                : (settings.arguments as NewRequestDetailsViewArguments)
-                    .profile;
+        final profile = settings.arguments is ContactDetailsViewArguments
+            ? (settings.arguments as ContactDetailsViewArguments).profile
+            : (settings.arguments as NewRequestDetailsViewArguments).profile;
         screen = Scaffold(
           resizeToAvoidBottomInset: false,
 
           appBar: CustomAppBar(title: ("Contact Details")),
           body: ContactDetailsView(
             enableAppBar: false,
-            actionsBuilder:
-                (context, defaultList) => [
-                  ChatUIKitDetailContentAction(
-                    title: ChatUIKitLocal.contactDetailViewSend.localString(
-                      context,
-                    ),
-                    icon: 'assets/images/chat.png',
-                    iconSize: const Size(32, 32),
-                    packageName: ChatUIKitImageLoader.packageName,
-                    onTap: (context) {
-                      ChatUIKitRoute.pushOrPushNamed(
-                        context,
-                        ChatUIKitRouteNames.messagesView,
-                        MessagesViewArguments(profile: profile),
-                      );
-                    },
-                  ),
-                ],
+            actionsBuilder: (context, defaultList) => [
+              ChatUIKitDetailContentAction(
+                title: ChatUIKitLocal.contactDetailViewSend.localString(
+                  context,
+                ),
+                icon: 'assets/images/chat.png',
+                iconSize: const Size(32, 32),
+                packageName: ChatUIKitImageLoader.packageName,
+                onTap: (context) {
+                  ChatUIKitRoute.pushOrPushNamed(
+                    context,
+                    ChatUIKitRouteNames.messagesView,
+                    MessagesViewArguments(profile: profile),
+                  );
+                },
+              ),
+            ],
             profile: profile,
           ),
         );
@@ -584,12 +580,11 @@ class AgoraRTMService {
           appBar: CustomAppBar(title: ("Group Members")),
           body: GroupMemberListView(
             enableSearchBar: false,
-            onTap:
-                (context, model) => ChatUIKitRoute.pushOrPushNamed(
-                  context,
-                  ChatUIKitRouteNames.contactDetailsView,
-                  ContactDetailsViewArguments(profile: model.profile),
-                ),
+            onTap: (context, model) => ChatUIKitRoute.pushOrPushNamed(
+              context,
+              ChatUIKitRouteNames.contactDetailsView,
+              ContactDetailsViewArguments(profile: model.profile),
+            ),
             groupId:
                 (settings.arguments as GroupMembersViewArguments).profile.id,
           ),
@@ -603,28 +598,24 @@ class AgoraRTMService {
           body: GroupDetailsView(
             enableAppBar: false,
             profile: (settings.arguments as GroupDetailsViewArguments).profile,
-            actionsBuilder:
-                (context, defaultList) => [
-                  ChatUIKitDetailContentAction(
-                    title: ChatUIKitLocal.groupDetailViewSend.localString(
-                      context,
+            actionsBuilder: (context, defaultList) => [
+              ChatUIKitDetailContentAction(
+                title: ChatUIKitLocal.groupDetailViewSend.localString(context),
+                icon: 'assets/images/chat.png',
+                iconSize: const Size(32, 32),
+                packageName: ChatUIKitImageLoader.packageName,
+                onTap: (context) {
+                  ChatUIKitRoute.pushOrPushNamed(
+                    context,
+                    ChatUIKitRouteNames.messagesView,
+                    MessagesViewArguments(
+                      profile: (settings.arguments as GroupDetailsViewArguments)
+                          .profile,
                     ),
-                    icon: 'assets/images/chat.png',
-                    iconSize: const Size(32, 32),
-                    packageName: ChatUIKitImageLoader.packageName,
-                    onTap: (context) {
-                      ChatUIKitRoute.pushOrPushNamed(
-                        context,
-                        ChatUIKitRouteNames.messagesView,
-                        MessagesViewArguments(
-                          profile:
-                              (settings.arguments as GroupDetailsViewArguments)
-                                  .profile,
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                  );
+                },
+              ),
+            ],
           ),
         );
         return pageRoute(settings, screen);
@@ -642,18 +633,14 @@ extension AgoraRTMExtension on DataRepository {
     required String avatarUrl,
     required String nickname,
   }) async {
-    try {
-      final response = await Dio().get(
-        rtmTokenUrl,
-        queryParameters: {
-          "username": username,
-          "avatarurl": avatarUrl,
-          "nickname": nickname,
-        },
-      );
-      return AgoraConfig.fromMap(response.data);
-    } catch (e) {
-      throw handleError(e);
-    }
+    final response = await Dio().get(
+      rtmTokenUrl,
+      queryParameters: {
+        "username": username,
+        "avatarurl": avatarUrl,
+        "nickname": nickname,
+      },
+    );
+    return AgoraConfig.fromMap(response.data);
   }
 }

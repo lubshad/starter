@@ -15,7 +15,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'pagination_response.dart';
 
-class DataRepository with ErrorExceptionHandler {
+class DataRepository {
   DataRepository._private();
   late final Dio _client;
 

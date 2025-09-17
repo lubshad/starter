@@ -53,69 +53,67 @@ enum CustomExceptionType {
 class CustomException implements Exception {
   final dynamic message;
   final int? statusCode;
-  CustomException(
-    this.message, {
-    this.statusCode,
-  });
+  CustomException(this.message, {this.statusCode});
   @override
   String toString() {
     return message.toString();
   }
 }
 
-mixin ErrorExceptionHandler {
-  dynamic handleError(dynamic exception) {
-    switch (exception.runtimeType) {
-      case const (DioException):
-        dynamic message = CustomExceptionType.somethingWentWrong;
-        final dioException = exception as DioException;
-        switch (dioException.type) {
-          case DioExceptionType.connectionError:
-            if (dioException.error is SocketException) {
-              if ([61, 64, 8].contains(
-                  (dioException.error as SocketException).osError?.errorCode)) {
-                message = CustomExceptionType.cannotReachServer;
-              } else if ([101].contains(
-                  (dioException.error as SocketException).osError?.errorCode)) {
-                message = CustomExceptionType.noNetwork;
-              }
+dynamic handleError(dynamic exception) {
+  switch (exception.runtimeType) {
+    case const (DioException):
+      dynamic message = CustomExceptionType.somethingWentWrong;
+      final dioException = exception as DioException;
+      switch (dioException.type) {
+        case DioExceptionType.connectionError:
+          if (dioException.error is SocketException) {
+            if ([61, 64, 8].contains(
+              (dioException.error as SocketException).osError?.errorCode,
+            )) {
+              message = CustomExceptionType.cannotReachServer;
+            } else if ([101].contains(
+              (dioException.error as SocketException).osError?.errorCode,
+            )) {
+              message = CustomExceptionType.noNetwork;
             }
+          }
 
-            exception = CustomException(message);
-            break;
-          case DioExceptionType.connectionTimeout:
-            message = CustomExceptionType.somethingWentWrong;
-            exception = CustomException(message);
-            break;
-          case DioExceptionType.sendTimeout:
-          case DioExceptionType.receiveTimeout:
-          case DioExceptionType.cancel:
-          case DioExceptionType.unknown:
-            if (dioException.error is HandshakeException) {
-              exception = CustomException(
-                  (dioException.error as HandshakeException).message);
-            }
-            break;
-          case DioExceptionType.badCertificate:
-            break;
-          case DioExceptionType.badResponse:
-            var data = dioException.response?.data;
-            if (dioException.response?.statusCode == 500) {
-              message = CustomExceptionType.invalidUrl;
-            } else if (data is Map) {
-              message = data["message"] ?? data["error"]["message"] ?? "";
-            } else {
-              message = CustomExceptionType.internalServerError;
-            }
+          exception = CustomException(message);
+          break;
+        case DioExceptionType.connectionTimeout:
+          message = CustomExceptionType.somethingWentWrong;
+          exception = CustomException(message);
+          break;
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+        case DioExceptionType.cancel:
+        case DioExceptionType.unknown:
+          if (dioException.error is HandshakeException) {
             exception = CustomException(
-              statusCode: dioException.response?.statusCode,
-              message,
+              (dioException.error as HandshakeException).message,
             );
-            break;
-        }
-      default:
-        exception = CustomException(exception.toString());
-    }
-    return exception;
+          }
+          break;
+        case DioExceptionType.badCertificate:
+          break;
+        case DioExceptionType.badResponse:
+          var data = dioException.response?.data;
+          if (dioException.response?.statusCode == 500) {
+            message = CustomExceptionType.invalidUrl;
+          } else if (data is Map) {
+            message = data["message"] ?? data["error"]["message"] ?? "";
+          } else {
+            message = CustomExceptionType.internalServerError;
+          }
+          exception = CustomException(
+            statusCode: dioException.response?.statusCode,
+            message,
+          );
+          break;
+      }
+    default:
+      exception = CustomException(exception.toString());
   }
+  return exception;
 }
