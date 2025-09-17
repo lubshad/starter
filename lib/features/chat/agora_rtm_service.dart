@@ -5,25 +5,28 @@ import 'package:agora_chat_uikit/chat_uikit.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_callkit_incoming/entities/android_params.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
 import 'package:flutter_callkit_incoming/entities/ios_params.dart';
 import 'package:flutter_callkit_incoming/entities/notification_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:uuid/uuid.dart';
+import '../../core/app_route.dart';
 import '../../core/repository.dart';
 import '../../exporter.dart';
 import '../../services/fcm_service.dart';
 import '../../services/shared_preferences_services.dart';
+import '../../widgets/custom_appbar.dart';
 
 final agoraConfig = AgoraConfig(
-  appKey: "411355671#1562187",
-  senderId: "774863640399",
+  appKey: "41997883#1599773",
+  senderId: "119925723085",
   token: "",
-  appId: "fba212c248f64309802c8c5f8f5e9172",
+  appId: "a3e45d7efac445b8a8f5bf8d1c45e8f9",
 );
 
-String publicGroupId = "291610357202945";
+String publicGroupId = "291667469991937";
 
 class ReplyMessageData {
   final String messageId;
@@ -145,15 +148,12 @@ class AgoraRTMService {
       appKey: config.appKey,
       requireDeliveryAck: true,
       debugMode: kDebugMode,
-      autoLogin: !kDebugMode,
+      autoLogin: false,
     );
     options.enableFCM(config.senderId);
     options.enableAPNs(config.senderId);
     await ChatClient.getInstance.init(options);
     setupChatUI();
-    if (ChatClient.getInstance.currentUserId != null) {
-      currentUser = await ChatClient.getInstance.userInfoManager.fetchOwnInfo();
-    }
   }
 
   void setupChatUI() {
@@ -162,12 +162,16 @@ class AgoraRTMService {
     ChatUIKitSettings.enablePinMsg = false;
     ChatUIKitSettings.enableMessageReport = false;
     ChatUIKitSettings.enableMessageTranslation = false;
+    ChatUIKitSettings.enableMessageForward = false;
+    ChatUIKitSettings.enableMessageReply = false;
+    ChatUIKitSettings.enableMessageEdit = false;
+    ChatUIKitSettings.enableMessageMultiSelect = false;
     ChatUIKitTimeFormatter.instance.formatterHandler = (context, type, time) {
       return DateTime.fromMillisecondsSinceEpoch(time).timeFormat;
     };
   }
 
-  ChatUserInfo? currentUser;
+  // ChatUserInfo? currentUser;
 
   Future<ChatMessage> sendMessageWithReply({
     required String id,
@@ -291,26 +295,40 @@ class AgoraRTMService {
     }
   }
 
+
+  ChatUserInfo? currentUser;
+
   Future<bool> signIn({
     required String userid,
     required String avatarUrl,
     required String name,
   }) async {
-    if (isLoggedIn) return false;
-    final config = await DataRepository.i.generateRTMToken(
-      username: userid,
-      avatarUrl: avatarUrl,
-      nickname: name,
-    );
-    await ChatUIKit.instance.loginWithToken(
-      userId: userid,
-      token: config.token,
-    );
-    currentUser = await ChatUIKit.instance.fetchOwnInfo();
-    logInfo("login succeed, userId: $userid");
-    updateFcmToken();
-    return true;
+    try {
+      if (ChatClient.getInstance.currentUserId != userid) {
+        await signOut();
+      }
+      final config = await DataRepository.i.generateRTMToken(
+        username: userid,
+        avatarUrl: avatarUrl,
+        nickname: name,
+      );
+      await ChatUIKit.instance.loginWithToken(
+        userId: userid,
+        token: config.token,
+      );
+      currentUser = await  ChatClient.getInstance.userInfoManager.fetchOwnInfo();
+      logInfo("login succeed, userId: $userid");
+      return true;
+    } catch (e) {
+      if (e is ChatError && e.code == 200) {
+        logInfo("login succeed, userId: $userid");
+        return true;
+      }
+      return false;
+    }
   }
+
+  bool get isLoggedIn => ChatClient.getInstance.currentUserId != null;
 
   void updateFcmToken() {
     if (!isLoggedIn) return;
@@ -323,7 +341,6 @@ class AgoraRTMService {
   Future<bool> signOut([bool unbindDevice = false]) async {
     try {
       await ChatClient.getInstance.logout(unbindDevice);
-      currentUser = null;
       logInfo("sign out succeed");
       return true;
     } on ChatError catch (e) {
@@ -333,8 +350,6 @@ class AgoraRTMService {
   }
 
   DateTime lastTypingSend = serverUtcTime;
-
-  bool get isLoggedIn => currentUser != null;
 
   Future<ChatMessage?> sendTypingIndicator({
     required String id,
@@ -468,6 +483,153 @@ class AgoraRTMService {
       logInfo("Failed to remove reaction: ${e.code} - ${e.description}");
     }
   }
+
+  Route<dynamic>? handleAgoraRoutes(RouteSettings settings) {
+    final Widget screen;
+    switch (settings.name) {
+      case ChatUIKitRouteNames.contactsView:
+        screen = Scaffold(
+          resizeToAvoidBottomInset: false,
+
+          appBar: CustomAppBar(title: ("Contacts")),
+          body: ContactsView(enableAppBar: false, enableSearchBar: false),
+        );
+        return pageRoute(settings, screen);
+      case ChatUIKitRouteNames.newRequestsView:
+        screen = Scaffold(
+          resizeToAvoidBottomInset: false,
+
+          appBar: CustomAppBar(title: ("New Requests")),
+          body: NewRequestsView(enableAppBar: false),
+        );
+        return pageRoute(settings, screen);
+      case ChatUIKitRouteNames.groupsView:
+        screen = Scaffold(
+          resizeToAvoidBottomInset: false,
+
+          appBar: CustomAppBar(title: ("Groups")),
+          body: GroupsView(enableAppBar: false),
+        );
+        return pageRoute(settings, screen);
+      case ChatUIKitRouteNames.messagesView:
+        final profile = (settings.arguments as MessagesViewArguments).profile;
+        screen = Scaffold(
+          resizeToAvoidBottomInset: false,
+
+          appBar: CustomAppBar(
+            title: profile.showName ?? "",
+            actions: [Builder(
+              builder: (context) {
+                final isGroup = profile.type == ChatUIKitProfileType.group;
+                if (!isGroup) return SizedBox();
+                return InkWell(
+                  onTap: () {
+                    ChatUIKitRoute.pushOrPushNamed(
+                      context,
+                      ChatUIKitRouteNames.groupMembersView,
+                      GroupMembersViewArguments(profile: profile),
+                    );
+                  },
+                  child: Icon(Icons.group),
+                );
+              },
+            )],
+          ),
+          body: MessagesView(enableAppBar: false, profile: profile),
+        );
+        return pageRoute(settings, screen);
+      case ChatUIKitRouteNames.contactDetailsView:
+      case ChatUIKitRouteNames.newRequestDetailsView:
+        final profile =
+            settings.arguments is ContactDetailsViewArguments
+                ? (settings.arguments as ContactDetailsViewArguments).profile
+                : (settings.arguments as NewRequestDetailsViewArguments)
+                    .profile;
+        screen = Scaffold(
+          resizeToAvoidBottomInset: false,
+
+          appBar: CustomAppBar(title: ("Contact Details")),
+          body: ContactDetailsView(
+            enableAppBar: false,
+            actionsBuilder:
+                (context, defaultList) => [
+                  ChatUIKitDetailContentAction(
+                    title: ChatUIKitLocal.contactDetailViewSend.localString(
+                      context,
+                    ),
+                    icon: 'assets/images/chat.png',
+                    iconSize: const Size(32, 32),
+                    packageName: ChatUIKitImageLoader.packageName,
+                    onTap: (context) {
+                      ChatUIKitRoute.pushOrPushNamed(
+                        context,
+                        ChatUIKitRouteNames.messagesView,
+                        MessagesViewArguments(profile: profile),
+                      );
+                    },
+                  ),
+                ],
+            profile: profile,
+          ),
+        );
+        return pageRoute(settings, screen);
+      case ChatUIKitRouteNames.groupMembersView:
+        screen = Scaffold(
+          resizeToAvoidBottomInset: false,
+
+          appBar: CustomAppBar(title: ("Group Members")),
+          body: GroupMemberListView(
+            enableSearchBar: false,
+            onTap:
+                (context, model) => ChatUIKitRoute.pushOrPushNamed(
+                  context,
+                  ChatUIKitRouteNames.contactDetailsView,
+                  ContactDetailsViewArguments(profile: model.profile),
+                ),
+            groupId:
+                (settings.arguments as GroupMembersViewArguments).profile.id,
+          ),
+        );
+        return pageRoute(settings, screen);
+      case ChatUIKitRouteNames.groupDetailsView:
+        screen = Scaffold(
+          resizeToAvoidBottomInset: false,
+
+          appBar: CustomAppBar(title: ("Group Details")),
+          body: GroupDetailsView(
+            enableAppBar: false,
+            profile: (settings.arguments as GroupDetailsViewArguments).profile,
+            actionsBuilder:
+                (context, defaultList) => [
+                  ChatUIKitDetailContentAction(
+                    title: ChatUIKitLocal.groupDetailViewSend.localString(
+                      context,
+                    ),
+                    icon: 'assets/images/chat.png',
+                    iconSize: const Size(32, 32),
+                    packageName: ChatUIKitImageLoader.packageName,
+                    onTap: (context) {
+                      ChatUIKitRoute.pushOrPushNamed(
+                        context,
+                        ChatUIKitRouteNames.messagesView,
+                        MessagesViewArguments(
+                          profile:
+                              (settings.arguments as GroupDetailsViewArguments)
+                                  .profile,
+                        ),
+                      );
+                    },
+                  ),
+                ],
+          ),
+        );
+        return pageRoute(settings, screen);
+    }
+    final chatRoute = ChatUIKitRoute.instance.generateRoute(settings);
+
+    if (chatRoute != null) return chatRoute;
+    return null;
+  }
 }
 
 extension AgoraRTMExtension on DataRepository {
@@ -478,7 +640,7 @@ extension AgoraRTMExtension on DataRepository {
   }) async {
     try {
       final response = await Dio().get(
-        "https://us-central1-eventxpro-66c0b.cloudfunctions.net/generateRtmToken",
+        "https://generatertmtoken-w5cvqcbpna-uc.a.run.app",
         queryParameters: {
           "username": username,
           "avatarurl": avatarUrl,

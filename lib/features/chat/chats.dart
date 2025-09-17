@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:agora_chat_uikit/chat_uikit.dart';
 import 'package:flutter/material.dart';
 
+import '../../widgets/custom_appbar.dart';
+import '../../widgets/default_loading_widget.dart';
+import '../profile_screen/common_controller.dart';
 import 'agora_rtm_service.dart';
 import 'user_provider.dart';
-
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -14,91 +18,117 @@ class ChatPage extends StatefulWidget {
   State<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<ChatPage> with ChatSDKEventsObserver {
   List<ChatUIKitProfile> joinedGroups = [];
   @override
   void initState() {
     super.initState();
-    ChatUIKit.instance.fetchPublicGroups().then((groups) async {
-      if (groups.data.isEmpty) {
-        ChatUIKit.instance.joinPublicGroup(groupId: publicGroupId);
+    ChatUIKit.instance.addObserver(this);
+    initiateChat();
+  }
+
+  // @override
+  // void onChatUIKitEventsReceived(ChatUIKitEvent event) {
+  //   super.onChatUIKitEventsReceived(event);
+  //   debugPrint(event.toString());
+  // }
+
+  ValueNotifier<bool> loading = ValueNotifier(true);
+
+  @override
+  void onChatSDKEventEnd(ChatSDKEvent event, ChatError? error) {
+    super.onChatSDKEventEnd(event, error);
+    if (event == ChatSDKEvent.loginWithToken) {
+      loading.value = false;
+      AgoraRTMService.i.updateFcmToken();
+      initiatePublicGroup();
+    }
+  }
+
+  @override
+  void dispose() {
+    ChatUIKit.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  void initiateChat() async {
+    while (CommonController.i.profileDetails == null) {
+      await Future.delayed(const Duration(seconds: 1));
+    }
+    await AgoraRTMService.i.signIn(
+      userid: CommonController.i.profileDetails!.id,
+      avatarUrl: CommonController.i.profileDetails!.image ?? "",
+      name: CommonController.i.profileDetails?.name ?? "",
+    );
+  }
+
+  void initiatePublicGroup() async {
+    joinedGroups.clear();
+    ChatUIKit.instance.fetchJoinedGroups().then((groups) async {
+      if (groups.isEmpty) {
+        await ChatUIKit.instance.joinPublicGroup(groupId: publicGroupId);
+        initiatePublicGroup();
       } else {
         final conversations = (await ChatUIKit.instance.getAllConversations())
             .map((e) => e.id);
-        for (var groupInfo in groups.data) {
+        for (var groupInfo in groups) {
           if (conversations.contains(groupInfo.groupId)) continue;
-          final group = await ChatUIKit.instance.fetchGroupInfo(
-            groupId: groupInfo.groupId,
-          );
+
           joinedGroups.add(
             ChatUIKitProvider.instance.getProfileById(groupInfo.groupId) ??
                 ChatUIKitProfile.group(
                   id: groupInfo.groupId,
                   groupName: groupInfo.name,
-                  avatarUrl: group.extension,
+                  avatarUrl:
+                      jsonDecode(groupInfo.extension ?? "{}")["groupIcon"] ??
+                      "",
                 ),
           );
         }
         if (joinedGroups.isNotEmpty) setState(() {});
       }
     });
-    AgoraRTMService.i.updateFcmToken();
   }
 
   @override
   Widget build(BuildContext context) {
-    return UserProviderWidget(
-      child: ConversationsView(
-        afterWidgets: joinedGroups
-            .map(
-              (e) => InkWell(
-                onTap: () {
-                  ChatUIKitRoute.pushOrPushNamed(
-                    context,
-                    ChatUIKitRouteNames.messagesView,
-                    MessagesViewArguments(profile: e),
-                  );
-                },
-                child: ChatUIKitGroupListViewItem(GroupItemModel(profile: e)),
-              ),
-            )
-            .toList(),
-        enableSearchBar: false,
-        appBarModel: ChatUIKitAppBarModel(
-          leadingActions: [],
-          showBackButton: false,
-          trailingActions: [
-            ChatUIKitAppBarAction(
-              actionType: ChatUIKitActionType.contactCard,
-              onTap: (context) {
-                ChatUIKitRoute.pushOrPushNamed(
-                  context,
-                  ChatUIKitRouteNames.contactsView,
-                  ContactsViewArguments(
-                    appBarModel: ChatUIKitAppBarModel(
-                      leadingActions: [],
-                      trailingActions: [],
-                    ),
-                  ),
-                );
-              },
-              child: Stack(
-                children: [
-                  Icon(Icons.group),
-                  if (ChatUIKit.instance.contactRequestCount() > 0)
-                    Positioned(
-                      right: 0,
-                      child: Container(
-                        width: 10,
-                        height: 10,
-                        color: Colors.red,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      appBar: CustomAppBar(title: "Chats"),
+      body: Builder(
+        builder: (context) {
+          return ValueListenableBuilder(
+            valueListenable: loading,
+            builder: (context, value, child) {
+              if (value) {
+                return LoadingWidget();
+              }
+              return UserProviderWidget(
+                child: ConversationsView(
+                  beforeWidgets:
+                      joinedGroups
+                          .map(
+                            (e) => InkWell(
+                              onTap: () {
+                                ChatUIKitRoute.pushOrPushNamed(
+                                  context,
+                                  ChatUIKitRouteNames.groupDetailsView,
+                                  GroupDetailsViewArguments(profile: e),
+                                );
+                              },
+                              child: ChatUIKitGroupListViewItem(
+                                GroupItemModel(profile: e),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                  enableSearchBar: false,
+                  enableAppBar: false,
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
