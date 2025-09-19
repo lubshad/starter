@@ -109,6 +109,8 @@ extension BuildContextExtension on BuildContext {
   TextStyle get montserrat30013 => baseStyle.copyWith(fontSize: 13.sp, fontWeight: FontWeight.w300);
   //montserrat70017
   TextStyle get montserrat70017 => baseStyle.copyWith(fontSize: 17.sp, fontWeight: FontWeight.w700);
+
+  TextStyle get kanit50023 => baseStyle.copyWith(fontSize: 23.sp, fontWeight: FontWeight.w500);
 }
 
 ButtonStyle get shrinkedButton => TextButton.styleFrom(

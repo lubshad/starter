@@ -13,7 +13,6 @@ import '../../core/app_route.dart';
 import '../../exporter.dart';
 import '../../main.dart';
 import '../../mixins/event_listener.dart';
-import '../../widgets/custom_appbar.dart';
 import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/person_tile.dart';
 import '../../widgets/user_avatar.dart';
@@ -346,7 +345,6 @@ class _ChatScreenState extends State<ChatScreen> with EventListenerMixin {
         appBar: AppBar(
           title: Text("Loading..."),
           surfaceTintColor: Colors.transparent,
-          leading: backButtonWithSafety(context),
         ),
         body: Center(child: CircularProgressIndicator()),
       );
@@ -357,7 +355,6 @@ class _ChatScreenState extends State<ChatScreen> with EventListenerMixin {
         appBar: AppBar(
           title: Text("Error"),
           surfaceTintColor: Colors.transparent,
-          leading: backButtonWithSafety(context),
         ),
         body: Center(
           child: Column(
@@ -426,7 +423,6 @@ class _ChatScreenState extends State<ChatScreen> with EventListenerMixin {
           ],
         ),
         surfaceTintColor: Colors.transparent,
-        leading: backButtonWithSafety(context),
         actions: [
           if (widget.arguments.type == ChatConversationType.Chat)
             IconButton(

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../../core/app_route.dart';
 import '../../exporter.dart';
-import '../../widgets/custom_appbar.dart';
 import '../../widgets/person_tile.dart';
 import '../../widgets/network_resource.dart';
 import 'chat_screen.dart';
@@ -147,7 +146,6 @@ class _GroupMembersScreenState extends State<GroupMembersScreen> {
       appBar: AppBar(
         title: const Text("Group members"),
         surfaceTintColor: Colors.transparent,
-        leading: backButtonWithSafety(context),
       ),
       body: _error != null
           ? Center(

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../core/app_route.dart';
 import '../../core/repository.dart';
 import '../../exporter.dart';
 import '../../mixins/user_image_mixin.dart';
+import '../../widgets/custom_appbar.dart';
+import '../../widgets/loading_button.dart';
 import '../../widgets/user_avatar.dart';
+import '../update_profile/update_profile_screen.dart';
 import 'common_controller.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -43,6 +47,10 @@ class _ProfileScreenState extends State<ProfileScreen> with UserImageMixin {
                     Expanded(
                       child: TabBarView(
                         children: [
+                          Placeholder(),
+                          Placeholder(),
+                          Placeholder(),
+                          Placeholder(),
                           Placeholder(),
                         ],
                       ),
@@ -135,24 +143,24 @@ class _ProfileScreenState extends State<ProfileScreen> with UserImageMixin {
               left: 0,
               right: 0,
               top: 0,
-              child: AppBar(),
-              // child: CustomAppBar(
-              //   title: "Profile",
-              //   borderColor: Colors.transparent,
-              //   textStyle: context.kanit50023.copyWith(color: Colors.white),
-              //   actions: SizedBox(
-              //     width: 104.h,
-              //     child: LoadingButton(
-              //       textColor: Colors.white,
-              //       buttonType: ButtonType.outlined,
-              //       aspectRatio: 104 / 31,
-              //       buttonLoading: false,
-              //       text: "Edit Profile",
-              //       onPressed:
-              //           () => navigate(context, UpdateProfileScreen.path),
-              //     ),
-              //   ),
-              // ),
+              // child: AppBar(),
+              child: CustomAppBar(
+                title: "Profile",
+                borderColor: Colors.transparent,
+                textStyle: context.kanit50023.copyWith(color: Colors.white),
+                actions: SizedBox(
+                  width: 104.h,
+                  child: LoadingButton(
+                    textColor: Colors.white,
+                    buttonType: ButtonType.outlined,
+                    aspectRatio: 104 / 31,
+                    buttonLoading: false,
+                    text: "Edit Profile",
+                    onPressed: () =>
+                        navigate(context, UpdateProfileScreen.path),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

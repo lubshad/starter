@@ -519,24 +519,22 @@ class AgoraRTMService {
 
           appBar: CustomAppBar(
             title: profile.showName ?? "",
-            actions: [
-              Builder(
-                builder: (context) {
-                  final isGroup = profile.type == ChatUIKitProfileType.group;
-                  if (!isGroup) return SizedBox();
-                  return InkWell(
-                    onTap: () {
-                      ChatUIKitRoute.pushOrPushNamed(
-                        context,
-                        ChatUIKitRouteNames.groupMembersView,
-                        GroupMembersViewArguments(profile: profile),
-                      );
-                    },
-                    child: Icon(Icons.group),
-                  );
-                },
-              ),
-            ],
+            actions: Builder(
+              builder: (context) {
+                final isGroup = profile.type == ChatUIKitProfileType.group;
+                if (!isGroup) return SizedBox();
+                return InkWell(
+                  onTap: () {
+                    ChatUIKitRoute.pushOrPushNamed(
+                      context,
+                      ChatUIKitRouteNames.groupMembersView,
+                      GroupMembersViewArguments(profile: profile),
+                    );
+                  },
+                  child: Icon(Icons.group),
+                );
+              },
+            ),
           ),
           body: MessagesView(enableAppBar: false, profile: profile),
         );
