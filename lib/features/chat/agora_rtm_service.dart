@@ -24,7 +24,6 @@ final agoraConfig = AgoraConfig(
   senderId: "119925723085",
   token: "",
   appId: "a3e45d7efac445b8a8f5bf8d1c45e8f9",
-  certName: "eventxpro",
 );
 
 String publicGroupId = "291667469991937";
@@ -99,13 +98,11 @@ class AgoraConfig {
   final String senderId;
   final String token;
   final String appId;
-  final String certName;
   AgoraConfig({
     required this.appKey,
     required this.senderId,
     required this.token,
     required this.appId,
-    required this.certName,
   });
 
   Map<String, dynamic> toMap() {
@@ -114,7 +111,6 @@ class AgoraConfig {
       'senderId': senderId,
       'token': token,
       'appId': appId,
-      'certName': certName,
     };
   }
 
@@ -124,7 +120,6 @@ class AgoraConfig {
       appKey: map['appKey'] as String,
       senderId: map['senderId'] as String,
       token: map['token'] as String,
-      certName: map['certName'] as String,
     );
   }
 
@@ -158,7 +153,6 @@ class AgoraRTMService {
       autoLogin: false,
     );
     options.enableFCM(config.senderId);
-    options.enableAPNs(config.certName);
     await ChatClient.getInstance.init(options);
     setupChatUI();
   }
