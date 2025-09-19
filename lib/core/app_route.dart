@@ -41,7 +41,7 @@ class AppRoute {
     switch (uri.path) {
       case LandingPage.path:
         screen = LandingPage();
-        break;
+        return pageRoute(settings, screen, animate: false);
       case ChatPage.path:
         screen = ChatPage();
         break;
