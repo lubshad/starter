@@ -153,6 +153,7 @@ class AgoraRTMService {
       autoLogin: false,
     );
     options.enableFCM(config.senderId);
+    options.enableAPNs(config.senderId);
     await ChatClient.getInstance.init(options);
     setupChatUI();
   }
