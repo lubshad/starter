@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../widgets/loading_button.dart';
+import '../../../core/app_route.dart';
 import '../phone_auth/phone_auth_screen.dart';
 import '../../../exporter.dart';
 import 'widgets/landing_screen_item.dart';
@@ -7,9 +7,7 @@ import 'widgets/landing_screen_item.dart';
 class LandingPage extends StatefulWidget {
   static const String path = "/landing-page";
 
-  const LandingPage({
-    super.key,
-  });
+  const LandingPage({super.key});
 
   @override
   State<LandingPage> createState() => _LandingPageState();
@@ -41,82 +39,99 @@ class _LandingPageState extends State<LandingPage> {
     }
   }
 
+  List<Color> get colors => _currentPage == 0
+      ? [Color(0xff1A507C), Color(0xff92BEE3), Color(0xff1A507C)]
+      : [Color(0xff0D2227), Color(0xff406E7C), Color(0xff0E2F38)];
+
+  List<Widget> children = <Widget>[
+    LandingScreenItem(
+      description:
+          "Skip the wait.\nBook dental appointments, consult top dentists online, and track your treatment — all from your mobile.",
+      title: "Your Smile. Our Mission. Anytime, Anywhere.",
+      image: Assets.pngs.landing1.keyName,
+    ),
+    LandingScreenItem(
+      description:
+          "Bringing expert dental care to your fingertips — trusted by thousands across Saudi Arabia.",
+      title: "Tap. Talk. Treat. The Future of Dentistry Is Here.",
+      image: Assets.pngs.landing2.keyName,
+    ),
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-            child: Column(
-      children: [
-        const Spacer(),
-        AspectRatio(
-          aspectRatio: 0.9,
-          child: PageView(
-            controller: _pageController,
-            children: <Widget>[
-              LandingScreenItem(
-                description:
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt dolore magna aliqua",
-                title: "Welcome to App",
-                image: Assets.svgs.landingOne,
+      body: AnimatedContainer(
+        duration: animationDuration,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: colors,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  children: children,
+                ),
               ),
-              LandingScreenItem(
-                description:
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt dolore magna aliqua",
-                title: "Welcome to App",
-                image: Assets.svgs.landingTwo,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: paddingXL),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: List.generate(children.length, (index) {
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: paddingSmall,
+                      ),
+                      height: 3.h,
+                      width: _currentPage == index ? 28.h : 16.h,
+                      decoration: BoxDecoration(
+                        color: _currentPage == index
+                            ? Colors.white
+                            : Colors.white.withAlpha(.4.alpha),
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    );
+                  }),
+                ),
               ),
-              LandingScreenItem(
-                description:
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt dolore magna aliqua",
-                title: "Welcome to App",
-                image: Assets.svgs.landingThree,
+              Container(
+                height: 170.h,
+                width: ScreenUtil().screenWidth,
+                padding: EdgeInsets.symmetric(horizontal: paddingXL),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: SizedBox(
+                    height: 57.h,
+                    width: 57.h,
+                    child: IconButton.filled(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(Colors.white),
+                      ),
+                      onPressed: () {
+                        if (_currentPage == children.length - 1) {
+                          navigate(context, PhoneVerification.path);
+                        } else {
+                          _goToNextPage();
+                        }
+                      },
+                      icon: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: primaryColor,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(3, (index) {
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: paddingSmall),
-              height: padding,
-              width: _currentPage == index ? 24.0 : 8.0,
-              decoration: BoxDecoration(
-                color: _currentPage == index
-                    ? const Color(0xff2ECC71)
-                    : const Color(0xffD9D9D9),
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-            );
-          }),
-        ),
-        const Spacer(
-          flex: 3,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: paddingXXL),
-          child: LoadingButton(
-            // padding: const EdgeInsets.symmetric(horizontal: paddingLarge),
-            onPressed: () {
-              Navigator.pushNamed(context, PhoneVerification.path);
-            },
-            text: ('Get Started'),
-            buttonLoading: false,
-          ),
-        ),
-        gap,
-        Opacity(
-          opacity: _currentPage < 2 ? 1 : 0,
-          child: TextButton(
-            onPressed: _goToNextPage,
-            child: const Text(
-              'Next',
-            ),
-          ),
-        ),
-        gapXL
-      ],
-    )));
+      ),
+    );
   }
 }

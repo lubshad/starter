@@ -1,36 +1,60 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_svg/svg.dart';
-
-import '../../../../constants.dart';
+import '../../../../exporter.dart';
 
 class LandingScreenItem extends StatelessWidget {
-  const LandingScreenItem(
-      {super.key, this.image, this.title, this.description});
+  const LandingScreenItem({
+    super.key,
+    this.image,
+    this.title,
+    this.description,
+  });
   final String? image;
   final String? title;
   final String? description;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
+      alignment: Alignment.center,
       children: [
-        SvgPicture.asset(image.toString()),
-        gapLarge,
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: paddingXL),
+          padding: const EdgeInsets.symmetric(
+            horizontal: paddingXL,
+            vertical: paddingXL,
+          ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Text(
                 title.toString(),
-                textAlign: TextAlign.center,
+
+                style: context.kanit40036.copyWith(
+                  color: Colors.white,
+                  height: 41 / 36,
+                ),
               ),
-              gap,
+              gapLarge,
               Text(
                 description.toString(),
-                textAlign: TextAlign.center,
-              )
+
+                style: context.kanit30016.copyWith(
+                  color: Colors.white,
+                  height: 1.2,
+                ),
+              ),
             ],
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          top: 0,
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 160.h),
+            child: Image.asset(image.toString()),
           ),
         ),
       ],

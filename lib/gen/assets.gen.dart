@@ -70,6 +70,14 @@ class $AssetsPngsGen {
   AssetGenImage get dummyProfile =>
       const AssetGenImage('assets/pngs/dummy_profile.jpeg');
 
+  /// File path: assets/pngs/landing_1.png
+  AssetGenImage get landing1 =>
+      const AssetGenImage('assets/pngs/landing_1.png');
+
+  /// File path: assets/pngs/landing_2.png
+  AssetGenImage get landing2 =>
+      const AssetGenImage('assets/pngs/landing_2.png');
+
   /// File path: assets/pngs/login_background.png
   AssetGenImage get loginBackground =>
       const AssetGenImage('assets/pngs/login_background.png');
@@ -85,10 +93,25 @@ class $AssetsPngsGen {
   List<AssetGenImage> get values => [
     brokenImage,
     dummyProfile,
+    landing1,
+    landing2,
     loginBackground,
     noChat,
     personPlaceholder,
   ];
+}
+
+class $AssetsSoundsGen {
+  const $AssetsSoundsGen();
+
+  /// File path: assets/sounds/message-recieved.mp3
+  String get messageRecieved => 'assets/sounds/message-recieved.mp3';
+
+  /// File path: assets/sounds/message-send.mp3
+  String get messageSend => 'assets/sounds/message-send.mp3';
+
+  /// List of all assets
+  List<String> get values => [messageRecieved, messageSend];
 }
 
 class $AssetsSvgsGen {
@@ -197,6 +220,7 @@ class Assets {
   static const $AssetsHtmlGen html = $AssetsHtmlGen();
   static const $AssetsLottiesGen lotties = $AssetsLottiesGen();
   static const $AssetsPngsGen pngs = $AssetsPngsGen();
+  static const $AssetsSoundsGen sounds = $AssetsSoundsGen();
   static const $AssetsSvgsGen svgs = $AssetsSvgsGen();
 }
 
