@@ -27,7 +27,12 @@ echo "✅ Starter repository cloned"
 echo "📋 Step 4: Copying starter files..."
 cp -r starter/lib .
 cp -r starter/assets .
-echo "✅ Starter files copied (lib and assets)"
+cp -r starter/version_increment.sh version_increment.sh
+cp -r starter/playstorerelease.sh playstorerelease.sh
+cp -r starter/appstorerelease.sh appstorerelease.sh
+cp -r starter/playstore_and_appstore_release.sh playstore_and_appstore_release.sh
+
+echo "✅ Starter files copied (lib and assets scripts)"
 
 # Remove the starter repository
 echo "🧹 Step 5: Cleaning up..."
