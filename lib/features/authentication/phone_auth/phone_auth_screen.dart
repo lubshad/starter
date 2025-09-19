@@ -98,18 +98,18 @@ class _PhoneVerificationState extends State<PhoneVerification>
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("OTP Verification", style: context.bodySmall),
+            Text("OTP Verification", style: context.kanit50022),
             gapLarge,
             AutoSizeText(
               "We have sent a verification code to your phone number",
-              style: context.bodySmall.copyWith(color: Color(0xff959595)),
+              style: context.kanit30013.copyWith(color: Color(0xff959595)),
               maxLines: 1,
             ),
             gapLarge,
             Pinput(
               defaultPinTheme: PinTheme(
                 margin: EdgeInsets.all(paddingSmall),
-                textStyle: context.bodySmall.copyWith(
+                textStyle: context.kanit50027.copyWith(
                   color: Color(0xff1C1F1D),
                 ),
                 height: 55.sp,
@@ -120,11 +120,8 @@ class _PhoneVerificationState extends State<PhoneVerification>
                 ),
               ),
               autofocus: true,
-              forceErrorState: otpErrorText != null,
-              errorText: otpErrorText,
               controller: pincodeController,
               length: otpLenth,
-              validator: pinValidation,
             ),
             gapLarge,
 
@@ -175,82 +172,86 @@ class _PhoneVerificationState extends State<PhoneVerification>
         key: formKey,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Unlock Your Experience, Log In and Get Started!",
-              style: context.bodySmall,
-            ),
+            Text("Log In and Get Started!", style: context.kanit50022),
             gapLarge,
             FormHeader(
               label: "Mobile No",
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CountryCodePicker(
-                    alignLeft: false,
-                    textStyle: context.bodySmall.copyWith(
-                      color: Color(0xff3F4255),
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: paddingSmall),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(padding),
+                  color: Color(0xffD9D9DF).withValues(alpha: .6),
+                  border: Border.all(color: Color(0xffE7E7E7)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CountryCodePicker(
+                      alignLeft: false,
+                      textStyle: context.kanit50022,
+                      showFlag: false,
+                      padding: EdgeInsets.zero,
+                      onChanged: onCountryChanged,
+                      initialSelection: selectedCountry.name,
+                      favorite: ["+91", "+966"],
                     ),
-                    showFlag: false,
-                    padding: EdgeInsets.zero,
-                    onChanged: onCountryChanged,
-                    initialSelection: selectedCountry.name,
-                    favorite: ["+91", "+966"],
-                  ),
-                  Expanded(
-                    child: TextFormField(
-                      textAlignVertical: TextAlignVertical.top,
-                      style: context.bodySmall,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(10),
-                      ],
-                      keyboardType: TextInputType.number,
-                      autofillHints: const [AutofillHints.telephoneNumber],
-                      validator: validatePhone,
-                      controller: phoneController,
-                      decoration: InputDecoration(
-                        hintStyle: context.bodySmall.copyWith(
-                          color: Color(0xffD2D2D2),
-                        ),
-                        contentPadding: EdgeInsets.zero,
-                        hintText: "00000 00000",
-                        errorText: phoneErrorText,
-                        border: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xffDCDBDB)),
-                        ),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xffDCDBDB)),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xffDCDBDB)),
-                        ),
-                        errorBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
+                    Expanded(
+                      child: TextFormField(
+                        textAlignVertical: TextAlignVertical.top,
+                        style: context.kanit50022,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(10),
+                        ],
+                        keyboardType: TextInputType.number,
+                        autofillHints: const [AutofillHints.telephoneNumber],
+                        controller: phoneController,
+                        decoration: InputDecoration(
+                          hintStyle: context.kanit50022.copyWith(
+                            color: Color(0xffD2D2D2),
+                          ),
+                          contentPadding: EdgeInsets.zero,
+                          hintText: "00000 00000",
+                          border: InputBorder.none,
 
-                        // prefixIcon: SizedBox(
-                        //   width: 0,
-                        //   child: Align(
-                        //     alignment: Alignment.center,
-                        //     child: AnimatedBuilder(
-                        //       animation: LocationService.i,
-                        //       builder: (context, child) {
-                        //         return AutoSizeText(
-                        //           selectedCountry.dialCode ?? "+966",
-                        //           style: context.bodySmall.copyWith(
-                        //             color: Color(0xff3F4255),
-                        //           ),
-                        //           maxLines: 1,
-                        //         );
-                        //       },
-                        //     ),
-                        //   ),
-                        // ),
+                          // border: UnderlineInputBorder(
+                          //   borderSide: BorderSide(color: Color(0xffDCDBDB)),
+                          // ),
+                          // enabledBorder: UnderlineInputBorder(
+                          //   borderSide: BorderSide(color: Color(0xffDCDBDB)),
+                          // ),
+                          // focusedBorder: UnderlineInputBorder(
+                          //   borderSide: BorderSide(color: Color(0xffDCDBDB)),
+                          // ),
+                          // errorBorder: UnderlineInputBorder(
+                          //   borderSide: BorderSide(color: Colors.red),
+                          // ),
+
+                          // prefixIcon: SizedBox(
+                          //   width: 0,
+                          //   child: Align(
+                          //     alignment: Alignment.center,
+                          //     child: AnimatedBuilder(
+                          //       animation: LocationService.i,
+                          //       builder: (context, child) {
+                          //         return AutoSizeText(
+                          //           selectedCountry.dialCode ?? "+966",
+                          //           style: context.bodySmall.copyWith(
+                          //             color: Color(0xff3F4255),
+                          //           ),
+                          //           maxLines: 1,
+                          //         );
+                          //       },
+                          //     ),
+                          //   ),
+                          // ),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             gapLarge,
