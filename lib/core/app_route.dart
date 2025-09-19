@@ -3,6 +3,7 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
+import '../features/authentication/landing_screen/landing_screen.dart';
 import '../features/authentication/phone_auth/phone_auth_screen.dart';
 import '../features/authentication/social_authentication/otp_validation_screen.dart';
 import '../features/authentication/social_authentication/social_authentication_screen.dart';
@@ -10,6 +11,7 @@ import '../features/chat/agora_rtm_service.dart';
 import '../features/chat/chats.dart';
 import '../features/home_screen/home_screen.dart';
 import '../features/navigation/navigation_screen.dart';
+import '../features/profile_screen/profile_screen.dart';
 import '../features/splash_screen/splash_screen.dart';
 import '../mixins/force_update.dart';
 import 'logger.dart';
@@ -31,15 +33,20 @@ class AppRoute {
     Uri uri = Uri.parse(settings.name ?? "");
     final Widget screen;
 
-
     final agoraRoute = AgoraRTMService.i.handleAgoraRoutes(settings);
     if (agoraRoute != null) {
       return agoraRoute;
     }
 
     switch (uri.path) {
+      case LandingPage.path:
+        screen = LandingPage();
+        break;
       case ChatPage.path:
         screen = ChatPage();
+        break;
+      case ProfileScreen.path:
+        screen = ProfileScreen();
         break;
       case SplashScreen.path:
         screen = const SplashScreen();
@@ -52,10 +59,10 @@ class AppRoute {
         break;
       case PhoneVerification.path:
         screen = const PhoneVerification();
-        break;
+        return pageRoute(settings, screen, animate: false);
       case NavigationScreen.path:
         screen = const NavigationScreen();
-        break;
+        return pageRoute(settings, screen, animate: false);
       case UnavailabilityScreen.path:
         screen = const UnavailabilityScreen();
         break;
