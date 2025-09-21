@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 // import 'package:printer_utils/models/printer_model.dart';
 
@@ -43,28 +42,7 @@ class CommonBottomSheet extends StatelessWidget {
           children: [
             Stack(
               children: [
-                headerWidget ??
-                    SizedBox(
-                      width: double.infinity,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: paddingSmall,
-                          horizontal: paddingXXL,
-                        ),
-                        child: AutoSizeText(
-                          maxLines: 1,
-                          textAlign: TextAlign.center,
-                          (title ?? ""),
-                          style: context.labelLarge.copyWith(
-                            fontSize:
-                                ScreenUtil().deviceType(context) ==
-                                    DeviceType.mobile
-                                ? 20.sp
-                                : 40.sp,
-                          ),
-                        ),
-                      ),
-                    ),
+                headerWidget ?? BottomSheetHandle(),
 
                 Positioned(
                   left: 0,
@@ -73,25 +51,7 @@ class CommonBottomSheet extends StatelessWidget {
                   bottom: 0,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Spacer(),
-                      popButton ??
-                          InkWell(
-                            borderRadius: BorderRadius.circular(paddingXL),
-                            onTap: () => Navigator.pop(context),
-                            child: Container(
-                              // padding: const EdgeInsets.all(paddingSmall),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFFF7CAC),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                    ],
+                    children: [const Spacer(), popButton ?? SizedBox()],
                   ),
                 ),
               ],
