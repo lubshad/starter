@@ -12,14 +12,15 @@ import '../widgets/user_avatar.dart';
 mixin UserImageMixin<T extends StatefulWidget> on State<T> {
   File? selectedProfileImage;
   File? selectedCoverImage;
+  File? selectedCommercialLicenceImage;
 
   String? profileImageNetwork;
   String? coverImageNetwork;
-
+  String? commercialLicenceImageNetwork;
   void showImagePicker({required String image, VoidCallback? onChanged}) async {
     final result = await FilePickerService.pickFileOrImage(
-      aspectRatio: image == "cover"
-          ? [CropAspectRatioPreset.ratio4x3]
+      aspectRatio: image == "cover" || image == "commercialLicence"
+          ? [CropAspectRatioPreset.ratio16x9]
           : [CropAspectRatioPreset.square],
     );
     if (result == null) return;
@@ -28,6 +29,8 @@ mixin UserImageMixin<T extends StatefulWidget> on State<T> {
         selectedProfileImage = result;
       } else if (image == "cover") {
         selectedCoverImage = result;
+      } else if (image == "commercialLicence") {
+        selectedCommercialLicenceImage = result;
       }
     });
     if (onChanged != null) {
@@ -35,57 +38,74 @@ mixin UserImageMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  Widget uploadImageWidget({VoidCallback? onChanged}) => UploadImageWidget(
-        aspectRatio: 2,
-        onTap: () => showImagePicker(
-          image: "cover",
-          onChanged: onChanged,
-        ),
-        removeImage: () => setState(() {
-          selectedCoverImage = null;
-          coverImageNetwork = null;
-        }),
-        image: selectedCoverImage,
-        networkImage: coverImageNetwork,
-      );
+  Widget coverImage({VoidCallback? onChanged}) => UploadImageWidget(
+    title: "Add Cover Photo",
+    subtitle: "Select jpg, png, or jpeg",
+    buttonText: "Browse",
+
+    aspectRatio: 2,
+    onTap: () => showImagePicker(image: "cover", onChanged: onChanged),
+    removeImage: () => setState(() {
+      selectedCoverImage = null;
+      coverImageNetwork = null;
+    }),
+    image: selectedCoverImage,
+    networkImage: coverImageNetwork,
+  );
+
+  Widget commercialLicenceImage({VoidCallback? onChanged}) => UploadImageWidget(
+    title: "Upload Commercial Licence",
+    subtitle: "Select jpg, png, or jpeg",
+    buttonText: "Browse",
+
+    aspectRatio: 2,
+    onTap: () =>
+        showImagePicker(image: "commercialLicence", onChanged: onChanged),
+    removeImage: () => setState(() {
+      selectedCommercialLicenceImage = null;
+      commercialLicenceImageNetwork = null;
+    }),
+    image: selectedCommercialLicenceImage,
+    networkImage: commercialLicenceImageNetwork,
+  );
 
   Widget userImage({String? networkImage, VoidCallback? onChanged}) => Stack(
-        children: [
-          UserAvatar(
-            size: 1.sw * .5,
-            imageFile: selectedProfileImage,
-            imageUrl: networkImage,
-          ),
-          Positioned(
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(1.sw * .5),
-                onTap: () =>
-                    showImagePicker(image: "profile", onChanged: onChanged),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: .3),
-                      ),
-                      padding: const EdgeInsets.all(paddingLarge),
-                      child: const Icon(
-                        Icons.edit,
-                      ),
-                    ),
-                  ],
+    children: [
+      UserAvatar(
+        size: 1.sw * .5,
+        imageFile: selectedProfileImage,
+        imageUrl: selectedProfileImage == null && selectedProfileImage == null
+            ? ""
+            : networkImage,
+      ),
+      Positioned(
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(1.sw * .5),
+            onTap: () =>
+                showImagePicker(image: "profile", onChanged: onChanged),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: .3),
+                  ),
+                  padding: const EdgeInsets.all(paddingLarge),
+                  child: const Icon(Icons.edit),
                 ),
-              ),
+              ],
             ),
-          )
-        ],
-      );
+          ),
+        ),
+      ),
+    ],
+  );
 }

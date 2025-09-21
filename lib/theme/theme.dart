@@ -117,6 +117,8 @@ extension BuildContextExtension on BuildContext {
   TextStyle get kanit40027 => baseStyle.copyWith(fontSize: 27.sp, fontWeight: FontWeight.w400);
   TextStyle get kanit40036 => baseStyle.copyWith(fontSize: 36.sp, fontWeight: FontWeight.w400);
   TextStyle get kanit30016 => baseStyle.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w300);
+  TextStyle get kanit40014 => baseStyle.copyWith(fontSize: 14.sp, fontWeight: FontWeight.w400);
+  TextStyle get kanit40008 => baseStyle.copyWith(fontSize: 8.sp, fontWeight: FontWeight.w400);
 }
 
 ButtonStyle get shrinkedButton => TextButton.styleFrom(

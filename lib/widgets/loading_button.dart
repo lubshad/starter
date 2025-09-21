@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../exporter.dart';
+import 'bottom_button_padding.dart';
 
 enum ButtonType {
   outlined,
@@ -9,10 +10,7 @@ enum ButtonType {
   BoxBorder? get border {
     switch (this) {
       case ButtonType.outlined:
-        return Border.all(
-          color: const Color(0xffC9C9C9),
-          width: 1,
-        );
+        return Border.all(color: const Color(0xffC9C9C9), width: 1);
       case ButtonType.filled:
         return null;
     }
@@ -60,8 +58,11 @@ class LoadingButton extends StatelessWidget {
     this.backgroundColor,
     this.buttonType = ButtonType.filled,
     this.padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+    this.fontSize,
+    this.isForm = false,
   });
 
+  final bool isForm;
   final bool buttonLoading;
   final Color textColor;
   final String text;
@@ -73,62 +74,73 @@ class LoadingButton extends StatelessWidget {
   final Widget? icon;
   final ButtonType buttonType;
   final double aspectRatio;
-
+  final double? fontSize;
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.circular(
-      paddingXL,
-    );
-    Widget button = AspectRatio(
-      aspectRatio: aspectRatio,
-      child: Container(
-        decoration: BoxDecoration(
-          border: buttonType.border,
-          gradient: buttonType.gradient,
-          borderRadius: borderRadius,
-          color: buttonType.color,
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: borderRadius,
-            onTap: buttonLoading
-                ? null
-                : () {
-                    FocusScope.of(context).unfocus();
-                    HapticFeedback.lightImpact();
-                    onPressed();
-                  },
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              alignment: Alignment.center,
-              child: Builder(builder: (context) {
-                if (buttonLoading) return const CircularProgressIndicator();
-                final textWidget = Text(
-                  text,
-                  style: context.labelLarge.copyWith(
-                    fontSize: 15.r,
-                    color: buttonType.textColor,
+    final borderRadius = BorderRadius.circular(paddingXL);
+    Widget button = Builder(
+      builder: (context) {
+        final buttonChild = AspectRatio(
+          aspectRatio: aspectRatio,
+          child: Container(
+            decoration: BoxDecoration(
+              border: buttonType.border,
+              gradient: buttonType.gradient,
+              borderRadius: borderRadius,
+              color: buttonType.color,
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: borderRadius,
+                onTap: buttonLoading
+                    ? null
+                    : () {
+                        FocusScope.of(context).unfocus();
+                        HapticFeedback.lightImpact();
+                        onPressed();
+                      },
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  alignment: Alignment.center,
+                  child: Builder(
+                    builder: (context) {
+                      if (buttonLoading) {
+                        return const CircularProgressIndicator(
+                          color: Colors.white,
+                        );
+                      }
+                      final textWidget = Text(
+                        text,
+                        style: context.labelLarge.copyWith(
+                          fontSize: fontSize ?? 15.r,
+                          color: buttonType.textColor,
+                        ),
+                      );
+                      if (icon != null) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [icon!, gap, textWidget],
+                        );
+                      }
+                      return textWidget;
+                    },
                   ),
-                );
-                if (icon != null) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [icon!, gap, textWidget],
-                  );
-                }
-                return textWidget;
-              }),
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+        if (isForm) {
+          return BottomButtonPadding(child: buttonChild);
+        }
+        return buttonChild;
+      },
     );
+
     if (expanded) {
-      return Row(
-        children: [Expanded(child: button)],
-      );
+      return Row(children: [Expanded(child: button)]);
     } else {
       return button;
     }
