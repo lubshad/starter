@@ -165,7 +165,7 @@ class AgoraRTMService {
     ChatUIKitSettings.enableMessageReport = false;
     ChatUIKitSettings.enableMessageTranslation = false;
     ChatUIKitSettings.enableMessageForward = false;
-    ChatUIKitSettings.enableMessageReply = false;
+    // ChatUIKitSettings.enableMessageReply = false;
     ChatUIKitSettings.enableMessageEdit = false;
     ChatUIKitSettings.enableMessageMultiSelect = false;
     ChatUIKitTimeFormatter.instance.formatterHandler = (context, type, time) {
@@ -536,7 +536,17 @@ class AgoraRTMService {
               },
             ),
           ),
-          body: MessagesView(enableAppBar: false, profile: profile),
+          body: MessagesView(
+            enableAppBar: false,
+            profile: profile,
+            onMoreActionsItemsHandler: (context, items) {
+              items.removeWhere(
+                (element) =>
+                    element.actionType == ChatUIKitActionType.contactCard,
+              );
+              return items;
+            },
+          ),
         );
         return pageRoute(settings, screen);
       case ChatUIKitRouteNames.contactDetailsView:
