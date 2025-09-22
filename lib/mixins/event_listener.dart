@@ -19,7 +19,7 @@ enum EventType {
   converstaionUpdate,
   paused,
   inactive,
-  chatDeleted, 
+  chatDeleted,
 }
 
 class EventListener {
@@ -52,6 +52,7 @@ mixin EventListenerMixin<T extends StatefulWidget> on State<T> {
 
   void listenForEvents(Function(Event) callback) {
     subscription = EventListener.i.eventStream.listen((event) {
+      if (!allowedEvents.contains(event.eventType)) return;
       callback(event);
     });
   }
