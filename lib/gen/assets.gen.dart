@@ -117,6 +117,9 @@ class $AssetsSoundsGen {
 class $AssetsSvgsGen {
   const $AssetsSvgsGen();
 
+  /// File path: assets/svgs/arrow-right-circle.svg
+  String get arrowRightCircle => 'assets/svgs/arrow-right-circle.svg';
+
   /// File path: assets/svgs/arrow_right.svg
   String get arrowRight => 'assets/svgs/arrow_right.svg';
 
@@ -188,6 +191,7 @@ class $AssetsSvgsGen {
 
   /// List of all assets
   List<String> get values => [
+    arrowRightCircle,
     arrowRight,
     domainGlobe,
     excelIcon,
