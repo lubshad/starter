@@ -20,8 +20,8 @@ mixin UserImageMixin<T extends StatefulWidget> on State<T> {
   void showImagePicker({required String image, VoidCallback? onChanged}) async {
     final result = await FilePickerService.pickFileOrImage(
       aspectRatio: image == "cover" || image == "commercialLicence"
-          ? [CropAspectRatioPreset.ratio16x9]
-          : [CropAspectRatioPreset.square],
+          ? CropAspectRatio(ratioX: 16.0, ratioY: 9.0)
+          : CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
     );
     if (result == null) return;
     setState(() {
@@ -72,11 +72,12 @@ mixin UserImageMixin<T extends StatefulWidget> on State<T> {
   Widget userImage({String? networkImage, VoidCallback? onChanged}) => Stack(
     children: [
       UserAvatar(
-        size: 1.sw * .5,
+        size: 1.sw * .4,
         imageFile: selectedProfileImage,
-        imageUrl: selectedProfileImage == null && selectedProfileImage == null
-            ? ""
-            : networkImage,
+        imageUrl:
+            networkImage ??
+            (selectedProfileImage == null ? profileImageNetwork : null) ??
+            "",
       ),
       Positioned(
         top: 0,

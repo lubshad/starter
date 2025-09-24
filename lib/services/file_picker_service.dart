@@ -30,12 +30,15 @@ enum ImageSource {
 }
 
 class FilePickerService {
-  static Future<File?> pickFile(
-      {FileType fileType = FileType.image,
-      List<String> allowedExtensions = const []}) async {
+  static Future<File?> pickFile({
+    FileType fileType = FileType.image,
+    List<String> allowedExtensions = const [],
+  }) async {
     try {
-      final result = (await FilePicker.platform
-          .pickFiles(type: fileType, allowedExtensions: allowedExtensions));
+      final result = (await FilePicker.platform.pickFiles(
+        type: fileType,
+        allowedExtensions: allowedExtensions,
+      ));
       if (result == null) return null;
       return File(result.files.first.path!);
     } on PlatformException catch (e) {
@@ -48,8 +51,9 @@ class FilePickerService {
 
   static Future<File?> pickFromCamera() async {
     try {
-      final result =
-          await cameraPicker.pickImage(source: picker.ImageSource.camera);
+      final result = await cameraPicker.pickImage(
+        source: picker.ImageSource.camera,
+      );
       if (result == null) return null;
       return File(result.path);
     } on PlatformException catch (e) {
@@ -65,7 +69,7 @@ class FilePickerService {
   static Future<File?> pickFileOrImage({
     double? width,
     double? height,
-    List<CropAspectRatioPreset>? aspectRatio,
+    CropAspectRatio? aspectRatio,
     ImageSource imageSource = ImageSource.gallery,
     bool crop = true,
     FileType fileType = FileType.image,
@@ -83,30 +87,37 @@ class FilePickerService {
     if (imageFile == null) return null;
     logInfo("Picked file ${imageFile.lengthSync()}");
     if (crop) {
-      final croppedImagePath = await cropImage(imageFile,
-          maxWidth: width, maxHeight: height, aspectRatio: aspectRatio);
+      final croppedImagePath = await cropImage(
+        imageFile,
+        maxWidth: width,
+        maxHeight: height,
+        aspectRatio: aspectRatio,
+      );
       return croppedImagePath;
     } else {
       return imageFile;
     }
   }
 
-  static Future<File?> cropImage(File imageFile,
-      {double? maxWidth,
-      double? maxHeight,
-      List<CropAspectRatioPreset>? aspectRatio}) async {
+  static Future<File?> cropImage(
+    File imageFile, {
+    double? maxWidth,
+    double? maxHeight,
+    CropAspectRatio? aspectRatio,
+  }) async {
     CroppedFile? croppedFile = await ImageCropper().cropImage(
       maxWidth: maxWidth?.toInt() ?? 720,
       maxHeight: maxHeight?.toInt() ?? 720,
       sourcePath: imageFile.path,
-      // aspectRatioPresets: aspectRatio ?? [CropAspectRatioPreset.square],
+      aspectRatio: aspectRatio,
       uiSettings: [
         AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Colors.black,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
+          toolbarTitle: 'Cropper',
+          toolbarColor: Colors.black,
+          toolbarWidgetColor: Colors.white,
+          lockAspectRatio: true,
+        ),
+        IOSUiSettings(aspectRatioLockEnabled: true),
       ],
     );
     if (croppedFile == null) return null;
@@ -126,9 +137,7 @@ class FilePickerService {
 }
 
 class ImageSourceBottomSheet extends StatelessWidget {
-  const ImageSourceBottomSheet({
-    super.key,
-  });
+  const ImageSourceBottomSheet({super.key});
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -136,7 +145,9 @@ class ImageSourceBottomSheet extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(padding), bottom: Radius.circular(padding)),
+          top: Radius.circular(padding),
+          bottom: Radius.circular(padding),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -146,105 +157,105 @@ class ImageSourceBottomSheet extends StatelessWidget {
                 vertical: paddingLarge,
               ),
               child: IntrinsicHeight(
-                  child: Column(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.0),
-                      color: Colors.white.withAlpha(200),
-                    ),
-                    // height: 230,
-                    child: Column(
-                      children: [
-                        InkWell(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: paddingLarge),
-                            child: Center(
-                              child: Text(
-                                "Take Picture",
-                                style: context.bodyLarge
-                                    .copyWith(color: const Color(0xff007AFF)),
-                              ),
-                            ),
-                          ),
-                          onTap: () {
-                            Navigator.pop(context, ImageSource.camera);
-                          },
-                        ),
-                        const Divider(
-                          height: 0,
-                          color: Color(0xffD8D8D8),
-                        ),
-                        InkWell(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: paddingLarge),
-                            child: Center(
-                              child: Text(
-                                "Choose from Gallery",
-                                style: context.bodyLarge
-                                    .copyWith(color: const Color(0xff007AFF)),
-                              ),
-                            ),
-                          ),
-                          onTap: () {
-                            Navigator.pop(context, ImageSource.gallery);
-                          },
-                        ),
-                        const Divider(
-                          height: 0,
-                          color: Color(0xffD8D8D8),
-                        ),
-                        InkWell(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: paddingLarge),
-                            child: Center(
-                              child: Text(
-                                "Choose from Files",
-                                style: context.bodyLarge
-                                    .copyWith(color: const Color(0xff007AFF)),
-                              ),
-                            ),
-                          ),
-                          onTap: () {
-                            Navigator.pop(
-                              context,
-                              ImageSource.files,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  gap,
-                  Container(
-                    //height: 50,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.0),
-                      color: Colors.white.withAlpha(220),
-                    ),
-                    child: InkWell(
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.symmetric(vertical: paddingLarge),
-                        child: Center(
-                          child: Text(
-                            textAlign: TextAlign.center,
-                            "Cancel",
-                            style: context.bodyLarge
-                                .copyWith(color: const Color(0xff007AFF)),
-                          ),
-                        ),
+                child: Column(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        color: Colors.white.withAlpha(200),
                       ),
-                      onTap: () {
-                        Navigator.maybePop(context);
-                      },
+                      // height: 230,
+                      child: Column(
+                        children: [
+                          InkWell(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: paddingLarge,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Take Picture",
+                                  style: context.bodyLarge.copyWith(
+                                    color: const Color(0xff007AFF),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            onTap: () {
+                              Navigator.pop(context, ImageSource.camera);
+                            },
+                          ),
+                          const Divider(height: 0, color: Color(0xffD8D8D8)),
+                          InkWell(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: paddingLarge,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Choose from Gallery",
+                                  style: context.bodyLarge.copyWith(
+                                    color: const Color(0xff007AFF),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            onTap: () {
+                              Navigator.pop(context, ImageSource.gallery);
+                            },
+                          ),
+                          const Divider(height: 0, color: Color(0xffD8D8D8)),
+                          InkWell(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: paddingLarge,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Choose from Files",
+                                  style: context.bodyLarge.copyWith(
+                                    color: const Color(0xff007AFF),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            onTap: () {
+                              Navigator.pop(context, ImageSource.files);
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                  )
-                ],
-              )),
+                    gap,
+                    Container(
+                      //height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        color: Colors.white.withAlpha(220),
+                      ),
+                      child: InkWell(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: paddingLarge,
+                          ),
+                          child: Center(
+                            child: Text(
+                              textAlign: TextAlign.center,
+                              "Cancel",
+                              style: context.bodyLarge.copyWith(
+                                color: const Color(0xff007AFF),
+                              ),
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.maybePop(context);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
