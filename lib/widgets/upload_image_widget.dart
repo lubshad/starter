@@ -13,7 +13,7 @@ class UploadImageWidget extends StatelessWidget {
   const UploadImageWidget({
     super.key,
     required this.onTap,
-    required this.removeImage,
+    this.removeImage,
     this.aspectRatio = 317 / 124,
     this.image,
     this.networkImage,
@@ -23,7 +23,7 @@ class UploadImageWidget extends StatelessWidget {
   });
 
   final VoidCallback onTap;
-  final VoidCallback removeImage;
+  final VoidCallback? removeImage;
   final double aspectRatio;
   final File? image;
   final String? networkImage;
@@ -115,9 +115,12 @@ class UploadImageWidget extends StatelessWidget {
                   Positioned(
                     top: paddingLarge,
                     right: paddingLarge,
-                    child: IconButton(
-                      onPressed: removeImage,
-                      icon: const Icon(Icons.remove, color: Colors.white),
+                    child: Visibility(
+                      visible: removeImage != null,
+                      child: IconButton(
+                        onPressed: removeImage,
+                        icon: const Icon(Icons.remove, color: Colors.white),
+                      ),
                     ),
                   ),
                 ],
