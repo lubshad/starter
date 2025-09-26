@@ -12,6 +12,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.textStyle,
     this.borderColor,
     this.actions,
+    this.showBorder = true,
+    this.subtitle,
   });
 
   final String title;
@@ -19,6 +21,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final TextStyle? textStyle;
   final Color? borderColor;
   final Widget? actions;
+  final bool showBorder;
+  final String? subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +35,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         bottom: paddingLarge,
       ),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: borderColor ?? Color(0XffEBEBEB)),
-        ),
+        border: showBorder
+            ? Border(
+                bottom: BorderSide(color: borderColor ?? Color(0XffEBEBEB)),
+              )
+            : null,
       ),
       child: Row(
         children: [
@@ -42,7 +48,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onPop ??
                 () {
                   if (Navigator.canPop(context)) {
-                    Navigator.pop(context);
+                    Navigator.maybePop(context);
                   } else {
                     navigationController.value = Screens.home;
                   }
@@ -56,10 +62,34 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           gapLarge,
           Expanded(
-            child: AutoSizeText(
-              title,
-              style: textStyle ?? context.kanit50023,
-              maxLines: 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: AutoSizeText(
+                        title,
+                        style:
+                            textStyle ??
+                            context.kanit50023.copyWith(
+                              color: Color(0xff1C1F1D),
+                            ),
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
+                ),
+                if (subtitle != null)
+                  Text(
+                    subtitle!,
+                    style: context.kanit30014.copyWith(
+                      color: Color(0xff666666),
+                    ),
+                    maxLines: 1,
+                  ),
+              ],
             ),
           ),
           gap,
