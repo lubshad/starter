@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:omor/widgets/search_field.dart';
 
 import '../exporter.dart';
-import 'custom_appbar.dart';
-import 'default_loading_widget.dart';
-import 'error_widget_with_retry.dart';
-import 'loading_button.dart';
-import 'no_item_found.dart';
+import '../mixins/search_mixin.dart';
 
 /// Generic search selection widget that works with any model type
 /// Supports search, pagination, single/multi-selection, and initial selection
@@ -95,8 +92,8 @@ class GenericSearchSelectionWidget<T> extends StatefulWidget {
 }
 
 class _GenericSearchSelectionWidgetState<T>
-    extends State<GenericSearchSelectionWidget<T>> {
-  final TextEditingController _searchController = TextEditingController();
+    extends State<GenericSearchSelectionWidget<T>>
+    with SearchMixin {
   final ScrollController _scrollController = ScrollController();
 
   List<T> _items = [];
@@ -108,7 +105,6 @@ class _GenericSearchSelectionWidgetState<T>
   String _errorMessage = '';
   bool _hasMoreData = true;
   int _currentPage = 1;
-  String _currentSearchQuery = '';
 
   Timer? _searchDebounceTimer;
 
@@ -119,11 +115,14 @@ class _GenericSearchSelectionWidgetState<T>
     _loadData();
 
     _scrollController.addListener(_onScroll);
+
+    addSearchListener(() {
+      _loadData(refresh: true);
+    });
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
     _scrollController.dispose();
     _searchDebounceTimer?.cancel();
     super.dispose();
@@ -155,7 +154,7 @@ class _GenericSearchSelectionWidgetState<T>
 
     try {
       final newItems = await widget.onSearch(
-        _currentSearchQuery,
+        searchController.text,
         _currentPage,
         widget.pageSize,
       );
@@ -188,19 +187,6 @@ class _GenericSearchSelectionWidgetState<T>
     });
 
     await _loadData();
-  }
-
-  void _onSearchChanged(String query) {
-    _searchDebounceTimer?.cancel();
-    _searchDebounceTimer = Timer(
-      Duration(milliseconds: widget.searchDebounceMs),
-      () {
-        setState(() {
-          _currentSearchQuery = query;
-        });
-        _loadData(refresh: true);
-      },
-    );
   }
 
   void _onItemTap(T item) {
@@ -255,6 +241,7 @@ class _GenericSearchSelectionWidgetState<T>
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: CustomAppBar(
+        showBorder: false,
         title: widget.title,
         actions: TextButton(
           onPressed: _clearSelection,
@@ -269,7 +256,14 @@ class _GenericSearchSelectionWidgetState<T>
       ),
       body: Column(
         children: [
-          if (widget.showSearch) _buildSearchField(),
+          if (widget.showSearch)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: paddingLarge),
+              child: SearchField(
+                hint: widget.searchPlaceholder,
+                controller: searchController,
+              ),
+            ),
           if (widget.allowMultiSelection && _selectedItems.isNotEmpty)
             _buildSelectionSummary(),
           Expanded(child: _buildContent()),
@@ -278,63 +272,6 @@ class _GenericSearchSelectionWidgetState<T>
       bottomNavigationBar: widget.allowMultiSelection
           ? _buildBottomBar()
           : null,
-    );
-  }
-
-  Widget _buildSearchField() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    // Reduce divider opacity in light mode
-    final dividerColor = theme.brightness == Brightness.light
-        ? colorScheme.outline.withValues(alpha: 0.3)
-        : colorScheme.outline;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        border: Border(bottom: BorderSide(color: dividerColor, width: 1)),
-      ),
-      child: TextField(
-        controller: _searchController,
-        onChanged: _onSearchChanged,
-        style: theme.textTheme.bodyLarge?.copyWith(
-          color: colorScheme.onSurface,
-          fontFamily: theme.textTheme.bodyLarge?.fontFamily,
-        ),
-        decoration: InputDecoration(
-          hintText: widget.searchPlaceholder,
-          hintStyle: theme.textTheme.bodyLarge?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-            fontFamily: theme.textTheme.bodyLarge?.fontFamily,
-          ),
-          prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
-          suffixIcon: _searchController.text.isNotEmpty
-              ? IconButton(
-                  icon: Icon(Icons.clear, color: colorScheme.onSurfaceVariant),
-                  onPressed: () {
-                    _searchController.clear();
-                    _onSearchChanged('');
-                  },
-                )
-              : null,
-          filled: true,
-          fillColor: colorScheme.surfaceContainerHighest,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.outline),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.outline),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.primary, width: 2),
-          ),
-        ),
-      ),
     );
   }
 
