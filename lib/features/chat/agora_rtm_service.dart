@@ -305,7 +305,8 @@ class AgoraRTMService {
     required String name,
   }) async {
     try {
-      if (ChatClient.getInstance.currentUserId != userid) {
+      if (ChatClient.getInstance.currentUserId != null &&
+          ChatClient.getInstance.currentUserId != userid) {
         await signOut();
       }
       final config = await DataRepository.i.generateRTMToken(
