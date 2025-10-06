@@ -27,6 +27,8 @@ echo "✅ Starter repository cloned"
 echo "📋 Step 4: Copying starter files..."
 cp -r starter/lib .
 cp -r starter/assets .
+cp -r starter/android/fastlane android/fastlane
+cp -r starter/ios/fastlane ios/fastlane
 cp -r starter/version_increment.sh version_increment.sh
 cp -r starter/playstorerelease.sh playstorerelease.sh
 cp -r starter/appstorerelease.sh appstorerelease.sh

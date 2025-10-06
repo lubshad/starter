@@ -1,0 +1,48 @@
+
+
+ENV["FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD"] = "gbsq-iaxx-vwna-kdfa"
+
+default_platform(:ios)
+
+platform :ios do
+  # ----------------------------
+  # Lane 1: Upload IPA to TestFlight
+  # ----------------------------
+  desc "Upload existing IPA to TestFlight"
+  lane :upload_testflight do
+    upload_to_testflight(
+      ipa: "../build/ios/ipa/OMOR.ipa",
+      skip_waiting_for_build_processing: false,  # wait until Apple finishes processing
+      distribute_external: false,
+      changelog: "Bug Fixing And Improvements"
+    )
+    UI.success("✅ IPA uploaded to TestFlight!")
+  end
+
+  # ----------------------------
+  # Lane 2: Submit latest processed build for App Store review
+  # ----------------------------
+  desc "Submit latest processed build to App Store"
+  lane :submit_appstore do
+    # Optional: increment version automatically (if you want)
+    latest_version = app_store_version(app_identifier: "com.omor.omor") # fetch latest version
+    increment_version_number(version_number: (latest_version.to_f + 0.1).to_s)
+
+    submit_for_review(
+      skip_waiting_for_build_processing: true, # uses latest processed build
+      automatic_release: true,  # set true to release immediately after approval
+      force: true
+    )
+    UI.success("✅ Build submitted for App Store review!")
+  end
+
+  # ----------------------------
+  # Lane 3: Combined lane
+  # ----------------------------
+  desc "Upload IPA to TestFlight and submit to App Store review"
+  lane :release_app do
+    upload_testflight
+    submit_appstore
+    UI.success("✅ Build uploaded to TestFlight and submitted for App Store review!")
+  end
+end
