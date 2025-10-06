@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import '../../exporter.dart';
 import '../../mixins/state_mixin.dart';
+import 'agora_rtm_service.dart';
 import 'local_video.dart';
 import 'remote_video.dart';
 import 'agora_rtc_service.dart';
@@ -242,7 +243,8 @@ class _CallScreenState extends State<CallScreen> with StateFullMixin {
                               },
                             ),
                           if (AgoraRtcService.i.callState.value ==
-                              CallState.connected)
+                                  CallState.connected &&
+                              videocallEnabled)
                             ValueListenableBuilder(
                               valueListenable: AgoraRtcService.i.isVideoMuted,
                               builder: (context, isVideoMuted, child) {

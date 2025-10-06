@@ -116,6 +116,8 @@ class AgoraRTMService {
     ChatUIKitSettings.enableMessageForward = false;
     ChatUIKitSettings.enableMessageEdit = false;
     ChatUIKitSettings.enableMessageMultiSelect = false;
+    voicecallEnabled = false;
+    videocallEnabled = false;
     ChatUIKitTimeFormatter.instance.formatterHandler = (context, type, time) {
       return DateTime.fromMillisecondsSinceEpoch(time).timeFormat;
     };
@@ -473,6 +475,9 @@ extension ChatProfileExtension on ChatUIKitProfile {
     );
   }
 }
+
+bool voicecallEnabled = false;
+bool videocallEnabled = false;
 
 extension AgoraRTMExtension on DataRepository {
   Future<AgoraConfig> generateRTMToken({

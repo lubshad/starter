@@ -145,9 +145,12 @@ class _MessagesViewWrappedState extends State<MessagesViewWrapped>
           builder: (context) {
             final isGroup = widget.profile.type == ChatUIKitProfileType.group;
             if (!isGroup) {
-              return InkWell(
-                onTap: () => AgoraRTMService.i.startCall(widget.profile),
-                child: Icon(Icons.call),
+              return Visibility(
+                visible: voicecallEnabled,
+                child: InkWell(
+                  onTap: () => AgoraRTMService.i.startCall(widget.profile),
+                  child: Icon(Icons.call),
+                ),
               );
             }
             return InkWell(
