@@ -90,10 +90,13 @@ class _ChatPageState extends State<ChatPage>
       messages.first.from!,
     ])).values.first;
 
-    if (simpleRouteObserver.currentRouteName != ChatUIKitRouteNames.messagesView) {
+    if (simpleRouteObserver.currentRouteName !=
+        ChatUIKitRouteNames.messagesView) {
       await FCMService().showNotification(
         title: userinfo.nickName,
         body: (messages.first.body as ChatTextMessageBody).content,
+        payload:
+            "${ChatUIKitRouteNames.messagesView}?id=${messages.first.from!}",
       );
     }
   }

@@ -1,14 +1,19 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:agora_chat_uikit/chat_uikit.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../core/app_route.dart';
 import '../core/repository.dart';
 import '../exporter.dart';
+import '../features/navigation/models/screens.dart';
+import '../features/navigation/navigation_screen.dart';
+import '../main.dart';
 import '../mixins/event_listener.dart';
 import 'shared_preferences_services.dart';
 
@@ -207,8 +212,8 @@ class FCMService {
   static Future<void> onMessageOpenedApp(RemoteMessage event) async {
     // ignore: avoid_print
     print(event.toMap());
-    if (event.data["url"] == null) return;
-    handleHrefLink(event.data["url"]);
+    if (event.data.isEmpty) return;
+    handleData(event.data);
   }
 
   static void handleNotificationData() async {
@@ -221,7 +226,7 @@ class FCMService {
       data = initialMessage?.data["url"];
     }
     if (data == null || data.isEmpty) return;
-    handleHrefLink(data);
+    handleData(data);
     SharedPreferencesService.i.setValue(key: notificationDataKey, value: "");
   }
 
@@ -292,54 +297,41 @@ class FCMService {
 
   void onDidReceiveNotificationOpen(NotificationResponse event) {
     if (event.payload == null) return;
-    handleHrefLink(event.payload);
+    handleData(event.payload);
   }
 
-  static void handleHrefLink(dynamic link) {
-    logInfo(link);
-    Uri? uri = Uri.tryParse(link);
+  static void handleData(dynamic data) async {
+    logInfo(data);
+    if (data is Map && data["EPush"] != null) {
+      navigationController.value = Screens.profile;
+      return;
+    }
+    Uri? uri = Uri.tryParse(data is Map ? data["url"] ?? "" : data ?? "");
     if (uri == null) return;
     logInfo(uri.path);
     logInfo(uri.queryParameters);
     logInfo(uri);
-    // if (uri.queryParameters.containsKey("model")) {
-    //   final id = uri.queryParameters["id"] as int;
-    //   switch (AppModule.fromValue(uri.queryParameters["model"])) {
-    //     case AppModule.employee:
-    //       navigate(navigatorKey.currentContext!, EmployeeListingScreen.path);
-    //     case AppModule.timesheet:
-    //       navigate(navigatorKey.currentContext!, TimesheetListingScreen.path);
-    //     case AppModule.timeoff:
-    //       navigate(navigatorKey.currentContext!, TimeoffDetailsScreen.path,
-    //           arguments: id);
-
-    //     case AppModule.salaryAdvance:
-    //       navigate(navigatorKey.currentContext!, SalaryAdvanceDetails.path,
-    //           arguments: id);
-
-    //     case AppModule.expense:
-    //       navigate(
-    //           navigatorKey.currentContext!, ExpenseReportDetailsScreen.path,
-    //           arguments: id);
-
-    //     case AppModule.pettycashAdvance:
-    //       navigate(navigatorKey.currentContext!, PettyCashAdvanceDetail.path,
-    //           arguments: id);
-
-    //     case AppModule.project:
-    //     case AppModule.task:
-    //     case AppModule.lognote:
-    //     case AppModule.delivery:
-    //       throw UnimplementedError();
-    //   }
-    // }
+    switch (uri.path) {
+      case ChatUIKitRouteNames.messagesView:
+        final profile = ChatUIKitProvider.instance.getProfileById(
+          uri.queryParameters["id"] ?? "",
+        );
+        navigate(
+          navigatorKey.currentContext!,
+          ChatUIKitRouteNames.messagesView,
+          arguments: MessagesViewArguments(profile: profile!),
+        );
+        return;
+    }
     launchUrl(uri);
   }
 
   void initialize() async {
     await setupNotification().then((value) async {
+      if (value.isEmpty) return;
       await DataRepository.i.updateToken(token: value);
       FirebaseMessaging.instance.onTokenRefresh.listen((event) async {
+        if (event.isEmpty) return;
         await DataRepository.i.updateToken(token: event);
       });
       handleNotificationData();

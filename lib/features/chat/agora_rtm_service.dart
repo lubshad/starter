@@ -451,7 +451,7 @@ extension ChatProfileExtension on ChatUIKitProfile {
   Map<String, dynamic> toMap() {
     final data = {
       "id": this.id.toString(),
-      "nickname": showName,
+      "nickname": nickname,
       "avatarUrl": avatarUrl,
       "type": type.name,
       "extension": extension,
@@ -460,13 +460,11 @@ extension ChatProfileExtension on ChatUIKitProfile {
   }
 
   static ChatUIKitProfile fromJson(Map<String, dynamic> json) {
-    return ChatUIKitProfile(
+    return ChatUIKitProfile.contact(
       id: json["id"].toString(),
-      showName: json["nickname"],
+      nickname: json["nickname"],
       avatarUrl: json["avatarUrl"],
-      type: ChatUIKitProfileType.values.firstWhere(
-        (element) => element.name == json["type"],
-      ),
+      extension: json["extension"],
     );
   }
 }
