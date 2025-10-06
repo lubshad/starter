@@ -1,11 +1,11 @@
 import 'package:agora_chat_uikit/chat_uikit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
-import 'package:starter/core/app_route.dart';
-import 'package:starter/features/chat/agora_rtm_service.dart';
 
+import '../../core/app_route.dart';
 import '../../exporter.dart';
 import '../../widgets/custom_appbar.dart';
+import 'agora_rtm_service.dart';
 
 class MessagesViewWrapped extends StatefulWidget {
   const MessagesViewWrapped({super.key, required this.profile});

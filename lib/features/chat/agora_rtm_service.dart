@@ -12,11 +12,6 @@ import 'package:flutter_callkit_incoming/entities/notification_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
-// import 'package:flutter_callkit_incoming/entities/android_params.dart';
-// import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
-// import 'package:flutter_callkit_incoming/entities/ios_params.dart';
-// import 'package:flutter_callkit_incoming/entities/notification_params.dart';
-// import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import '../../core/app_route.dart';
 import '../../core/repository.dart';
 import '../../exporter.dart';
@@ -152,7 +147,7 @@ class AgoraRTMService {
       );
       logInfo("login succeed, userId: $userid");
       final extension = jsonEncode({
-        "user": CommonController.i.profileDetails?.toMap(),
+        "user": CommonController.i.profileDetails!.toMap(),
       });
       await ChatUIKit.instance.updateUserInfo(ext: extension);
       currentUser = ChatUIKitProvider.instance.getProfileById(userid);
@@ -161,7 +156,7 @@ class AgoraRTMService {
       if (e is ChatError && e.code == 200) {
         logInfo("login succeed, userId: $userid");
         final extension = jsonEncode({
-          "user": CommonController.i.profileDetails?.toJson(),
+          "user": CommonController.i.profileDetails!.toJson(),
         });
         await ChatUIKit.instance.updateUserInfo(ext: extension);
         currentUser = ChatUIKitProvider.instance.getProfileById(userid);

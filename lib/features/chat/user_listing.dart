@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:starter/core/app_route.dart';
-import 'package:starter/features/chat/chats.dart';
-import 'package:starter/features/chat/mixins/chat_mixin.dart';
-import 'package:starter/features/profile_screen/common_controller.dart';
-import 'package:starter/features/profile_screen/profile_details_model.dart';
-import 'package:starter/mixins/event_listener.dart';
+import '../../core/app_route.dart';
 import '../../exporter.dart';
+import '../../mixins/event_listener.dart';
 import '../../models/name_id.dart';
 import '../../widgets/error_widget_with_retry.dart';
 import '../../widgets/network_resource.dart';
 import '../../widgets/no_item_found.dart';
 import '../../widgets/person_tile.dart';
+import '../profile_screen/common_controller.dart';
+import '../profile_screen/profile_details_model.dart';
 import 'agora_rtm_service.dart';
+import 'chats.dart';
+import 'mixins/chat_mixin.dart';
 
 List<NameId> usersList = [
   NameId(

@@ -1,12 +1,13 @@
 import 'package:agora_chat_uikit/provider/chat_uikit_profile.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/material.dart';
-import 'package:starter/exporter.dart';
-import 'package:starter/features/chat/call_screen.dart';
 
 import '../../widgets/user_avatar.dart';
 import 'agora_rtc_service.dart';
 import 'agora_rtm_service.dart';
+
+import '../../exporter.dart';
+import 'call_screen.dart';
 
 class LocalVideo extends StatelessWidget {
   const LocalVideo({super.key});

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:starter/features/chat/remote_video.dart';
+
 import '../../constants.dart';
 import '../../core/app_route.dart';
 import '../../main.dart';
 import 'agora_rtc_service.dart';
 import 'call_screen.dart';
 import 'local_video.dart';
+import 'remote_video.dart';
 
 class CallPipWidget extends StatelessWidget {
   const CallPipWidget({super.key});
