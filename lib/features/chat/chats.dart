@@ -1,8 +1,13 @@
 import 'dart:convert';
 
 import 'package:agora_chat_uikit/chat_uikit.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
+import 'package:starter/mixins/event_listener.dart';
+import '../../core/logger.dart';
 import '../../main.dart';
+import '../../services/fcm_service.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/default_loading_widget.dart';
 import '../profile_screen/common_controller.dart';
@@ -18,13 +23,87 @@ class ChatPage extends StatefulWidget {
   State<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> with ChatSDKEventsObserver {
+class _ChatPageState extends State<ChatPage>
+    with ChatSDKEventsObserver, EventListenerMixin {
   List<ChatUIKitProfile> joinedGroups = [];
+
+  AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
   @override
   void initState() {
     super.initState();
     ChatUIKit.instance.addObserver(this);
     initiateChat();
+
+    allowedEvents = [EventType.inactive, EventType.resumed];
+
+    listenForEvents((event) {
+      if (event.eventType == EventType.inactive) {
+        appLifecycleState = AppLifecycleState.inactive;
+      } else if (event.eventType == EventType.resumed) {
+        appLifecycleState = AppLifecycleState.resumed;
+      }
+    });
+  }
+
+  void onCmdMessagesRecieved(List<ChatMessage> messages) {
+    if (messages.first.body.type != MessageType.CMD) return;
+    final messageBody = messages.first.body as ChatCmdMessageBody;
+    final action = jsonDecode(messageBody.action) as Map<String, dynamic>;
+    CmdActionType actionType = CmdActionType.fromValue(action["type"]);
+
+    switch (actionType) {
+      case CmdActionType.startCalling:
+        final fromUser = ChatProfileExtension.fromJson(action["from"]);
+        final channel = action["channel"];
+        if (appLifecycleState == AppLifecycleState.inactive) {
+          AgoraRTMService.i.initiateIncommingCall(
+            RemoteMessage(
+              data: {
+                "e": jsonEncode({
+                  "from": fromUser.toMap(),
+                  "channel": channel,
+                  "type": CmdActionType.startCalling.name,
+                }),
+              },
+            ),
+          );
+        } else {
+          AgoraRTMService.i.showCallSheet(fromUser, channel);
+        }
+        break;
+      case CmdActionType.endCalling:
+        FlutterCallkitIncoming.endAllCalls();
+        break;
+      default:
+    }
+  }
+
+  void addChatEventHandler() {
+    ChatClient.getInstance.chatManager.addEventHandler(
+      'convo_chat_event_handler',
+      ChatEventHandler(
+        onMessagesReceived: (messages) async {
+          if (messages.first.body.type == MessageType.CMD) return;
+          final userinfo =
+              (await ChatClient.getInstance.userInfoManager.fetchUserInfoById([
+                messages.first.from!,
+              ])).values.first;
+          final currentRoute = ModalRoute.of(
+            navigatorKey.currentContext!,
+          )?.settings.name;
+
+          if (currentRoute != ChatUIKitRouteNames.messagesView) {
+            await FCMService().showNotification(
+              title: userinfo.nickName,
+              body: (messages.first.body as ChatTextMessageBody).content,
+            );
+          }
+        },
+        onCmdMessagesReceived: onCmdMessagesRecieved,
+      ),
+    );
+    ChatClient.getInstance.presenceManager.publishPresence('Online');
+    logInfo("convo_chat_event_handler added");
   }
 
   // @override
@@ -41,13 +120,23 @@ class _ChatPageState extends State<ChatPage> with ChatSDKEventsObserver {
     if (event == ChatSDKEvent.loginWithToken) {
       loading.value = false;
       AgoraRTMService.i.updateFcmToken();
+      addChatEventHandler();
       // initiatePublicGroup();
     }
+  }
+
+  void removeChatEventHandler() {
+    ChatClient.getInstance.chatManager.removeEventHandler(
+      'convo_chat_event_handler',
+    );
+    ChatClient.getInstance.presenceManager.publishPresence('Offline');
   }
 
   @override
   void dispose() {
     ChatUIKit.instance.removeObserver(this);
+    disposeEventListener();
+    removeChatEventHandler();
     super.dispose();
   }
 

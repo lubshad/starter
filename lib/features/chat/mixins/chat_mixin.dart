@@ -1,26 +1,31 @@
-import 'package:agora_chat_uikit/sdk_service/chat_sdk_service.dart';
+import 'package:agora_chat_uikit/chat_uikit.dart';
 
 import 'package:flutter/widgets.dart';
-import '../../../services/snackbar_utils.dart';
+import '../../../main.dart';
 
 mixin ChatMixin {
   ValueNotifier<bool> buttonLoading = ValueNotifier(false);
-  void messageUser(String id, {BuildContext? context}) {
+  void messageUser(String id, {BuildContext? context}) async {
     buttonLoading.value = true;
-    ChatClient.getInstance.userInfoManager
-        .fetchUserInfoById([id.toString()])
-        .then((value) {
-          buttonLoading.value = false;
-          // navigate(
-          //   // ignore: use_build_context_synchronously
-          //   context ?? navigatorKey.currentContext!,
-          //   ChatScreen.path,
-          //   arguments: ChatScreenArg(id: id.toString()),
-          // );
-        })
-        .onError((error, stackTrace) {
-          buttonLoading.value = false;
-          showErrorMessage(error);
-        });
+    ChatUIKitProfile? chatProfile = ChatUIKitProvider.instance.getProfileById(
+      id,
+    );
+    if (chatProfile == null) {
+      final chatUserInfo =
+          (await ChatClient.getInstance.userInfoManager.fetchUserInfoById([
+            id,
+          ])).values.firstOrNull;
+      if (chatUserInfo == null) return;
+      chatProfile = ChatUIKitProfile.contact(
+        id: id,
+        nickname: chatUserInfo.nickName,
+        avatarUrl: chatUserInfo.avatarUrl,
+      );
+    }
+    ChatUIKitRoute.pushOrPushNamed(
+      context ?? navigatorKey.currentContext!,
+      ChatUIKitRouteNames.messagesView,
+      MessagesViewArguments(profile: chatProfile),
+    );
   }
 }

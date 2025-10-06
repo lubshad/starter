@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../core/app_route.dart';
+import 'package:starter/core/app_route.dart';
+import 'package:starter/features/chat/chats.dart';
+import 'package:starter/features/chat/mixins/chat_mixin.dart';
+import 'package:starter/features/profile_screen/common_controller.dart';
+import 'package:starter/features/profile_screen/profile_details_model.dart';
 import '../../exporter.dart';
 import '../../models/name_id.dart';
 import '../../widgets/error_widget_with_retry.dart';
@@ -7,13 +11,32 @@ import '../../widgets/network_resource.dart';
 import '../../widgets/no_item_found.dart';
 import '../../widgets/person_tile.dart';
 import 'agora_rtm_service.dart';
-import 'chats.dart';
 
 List<NameId> usersList = [
-  NameId(id: "58", name: "Zannan", third: profileImages.first),
-  NameId(id: "18", name: "Eventxpro", third: profileImages[1]),
-  NameId(id: "50", name: "Adarsh", third: profileImages[2]),
-  NameId(id: "51", name: "Afnan", third: profileImages[3]),
+  NameId(
+    id: "58",
+    name: "Zannan",
+    third: profileImages.first,
+    secondary: "zannan@gmail.com",
+  ),
+  NameId(
+    id: "18",
+    name: "Eventxpro",
+    third: profileImages[1],
+    secondary: "eventxpro@gmail.com",
+  ),
+  NameId(
+    id: "50",
+    name: "Adarsh",
+    third: profileImages[2],
+    secondary: "adarsh@gmail.com",
+  ),
+  NameId(
+    id: "51",
+    name: "Afnan",
+    third: profileImages[3],
+    secondary: "afnan@gmail.com",
+  ),
 ];
 
 class UserListingScreen extends StatefulWidget {
@@ -23,7 +46,7 @@ class UserListingScreen extends StatefulWidget {
   State<UserListingScreen> createState() => _UserListingScreenState();
 }
 
-class _UserListingScreenState extends State<UserListingScreen> {
+class _UserListingScreenState extends State<UserListingScreen> with ChatMixin {
   Future<List<NameId>>? _usersFuture;
 
   Future<void> fetchUsers() async {
@@ -64,28 +87,16 @@ class _UserListingScreenState extends State<UserListingScreen> {
             return ListTile(
               onTap: () async {
                 await AgoraRTMService.i.signOut();
-                AgoraRTMService.i
-                    .signIn(
-                      userid: item.id,
-                      avatarUrl: item.third,
-                      name: item.name,
-                    )
-                    .then((value) {
-                      for (NameId user in usersList.where(
-                        (element) => element.id != item.id,
-                      )) {
-                        AgoraRTMService.i.sendMessageWithReply(
-                          id: user.id,
-                          message: "hi",
-                        );
-                      }
-                      navigate(
-                        // ignore: use_build_context_synchronously
-                        context,
-                        ChatPage.path,
-                        arguments: item,
-                      );
-                    });
+                CommonController.i.profileDetails = ProfileDetailsModel(
+                  id: item.id,
+                  email: item.secondary,
+                  name: item.name,
+                  image: item.third,
+                );
+                CommonController.i.initialized = true;
+
+                // ignore: use_build_context_synchronously
+                navigate(context, ChatPage.path);
               },
               title: Text(item.name),
             );

@@ -9,6 +9,9 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_in_app_pip/pip_material_app.dart';
+import 'package:flutter_in_app_pip/pip_params.dart';
+import 'package:flutter_in_app_pip/pip_view_corner.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/app_route.dart';
 import 'core/repository.dart';
@@ -85,7 +88,12 @@ class _MyAppState extends State<MyApp> {
       minTextAdapt: true,
       builder: (context, child) {
         return ToastificationWrapper(
-          child: MaterialApp(
+          child: PiPMaterialApp(
+            pipParams: PiPParams(
+              pipWindowHeight: (150 / (120 / 180)).h,
+              pipWindowWidth: 150.h,
+              initialCorner: PIPViewCorner.topRight,
+            ),
             localizationsDelegates: [
               CountryLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,

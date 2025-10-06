@@ -3,8 +3,16 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:agora_chat_uikit/chat_uikit.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_callkit_incoming/entities/android_params.dart';
+import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
+import 'package:flutter_callkit_incoming/entities/ios_params.dart';
+import 'package:flutter_callkit_incoming/entities/notification_params.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:uuid/uuid.dart';
 // import 'package:flutter_callkit_incoming/entities/android_params.dart';
 // import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
 // import 'package:flutter_callkit_incoming/entities/ios_params.dart';
@@ -13,9 +21,13 @@ import 'package:flutter/material.dart';
 import '../../core/app_route.dart';
 import '../../core/repository.dart';
 import '../../exporter.dart';
+import '../../main.dart';
 import '../../services/fcm_service.dart';
+import '../../services/shared_preferences_services.dart';
 import '../../widgets/custom_appbar.dart';
 import '../profile_screen/common_controller.dart';
+import 'agora_rtc_service.dart';
+import 'call_screen.dart';
 
 final agoraConfig = AgoraConfig(
   appKey: "411355671#1562187",
@@ -108,8 +120,6 @@ class AgoraRTMService {
       return DateTime.fromMillisecondsSinceEpoch(time).timeFormat;
     };
   }
-
-  // ChatUserInfo? currentUser;
 
   Future<ChatMessage> sendMessageWithReply({
     required String id,
@@ -256,6 +266,7 @@ class AgoraRTMService {
         "user": CommonController.i.profileDetails?.toMap(),
       });
       await ChatUIKit.instance.updateUserInfo(ext: extension);
+      currentUser = ChatUIKitProvider.instance.getProfileById(userid);
       return true;
     } catch (e) {
       if (e is ChatError && e.code == 200) {
@@ -264,6 +275,7 @@ class AgoraRTMService {
           "user": CommonController.i.profileDetails?.toJson(),
         });
         await ChatUIKit.instance.updateUserInfo(ext: extension);
+        currentUser = ChatUIKitProvider.instance.getProfileById(userid);
         return true;
       }
       logInfo("login failed, userId: $userid, error: $e");
@@ -293,36 +305,17 @@ class AgoraRTMService {
     }
   }
 
-  DateTime lastTypingSend = serverUtcTime;
-
-  Future<ChatMessage?> sendTypingIndicator({
-    required String id,
-    ChatType chatType = ChatType.Chat,
-  }) async {
-    if (serverUtcTime.subtract(Duration(seconds: 2)).isBefore(lastTypingSend)) {
-      return null;
-    }
-    var msg = ChatMessage.createCmdSendMessage(
-      targetId: id,
-      action: jsonEncode({"type": CmdActionType.startTyping.name}),
-      deliverOnlineOnly: true,
-      chatType: chatType,
-    );
-
-    lastTypingSend = serverUtcTime;
-
-    return await ChatClient.getInstance.chatManager.sendMessage(msg);
-  }
+  ChatUIKitProfile? currentUser;
 
   Future<ChatMessage?> sendCallStatusCMD({
     required String id,
-    required ChatUserInfo user,
+    required ChatUIKitProfile user,
     required String channel,
     required CmdActionType type,
   }) async {
     final action = jsonEncode({
       "type": type.name,
-      "from": user.toJson(),
+      "from": user.toMap(),
       "channel": channel,
     });
     var msg = ChatMessage.createCmdSendMessage(
@@ -334,72 +327,72 @@ class AgoraRTMService {
     return await ChatClient.getInstance.chatManager.sendMessage(msg);
   }
 
-  // Future initiateIncommingCall(RemoteMessage message) async {
-  //   var extraParams = message.data["e"];
-  //   if (extraParams == null) return;
-  //   extraParams = jsonDecode(extraParams);
-  //   if (CmdActionType.fromValue(extraParams["type"]) !=
-  //       CmdActionType.startCalling) {
-  //     return;
-  //   }
-  //   final fromUser = ChatUserInfo.fromJson(extraParams["from"]);
-  //   final channel = extraParams["channel"];
+  Future initiateIncommingCall(RemoteMessage message) async {
+    var extraParams = message.data["e"];
+    if (extraParams == null) return;
+    extraParams = jsonDecode(extraParams);
+    if (CmdActionType.fromValue(extraParams["type"]) !=
+        CmdActionType.startCalling) {
+      return;
+    }
+    final fromUser = ChatUserInfo.fromJson(extraParams["from"]);
+    final channel = extraParams["channel"];
 
-  //   await SharedPreferencesService.i.setValue(
-  //     key: incomingCallKey,
-  //     value: jsonEncode({"from": fromUser.toJson(), "channel": channel}),
-  //   );
+    await SharedPreferencesService.i.setValue(
+      key: incomingCallKey,
+      value: jsonEncode({"from": fromUser.toJson(), "channel": channel}),
+    );
 
-  //   CallKitParams callKitParams = CallKitParams(
-  //     id: Uuid().v4(),
-  //     nameCaller: fromUser.nickName,
-  //     appName: 'Eventxpro Attendees',
-  //     avatar: fromUser.avatarUrl,
-  //     type: 0,
-  //     textAccept: 'Accept',
-  //     textDecline: 'Decline',
-  //     missedCallNotification: NotificationParams(
-  //       showNotification: true,
-  //       isShowCallback: false,
-  //       subtitle: 'Missed call',
-  //       callbackText: 'Call back',
-  //     ),
-  //     callingNotification: const NotificationParams(
-  //       showNotification: true,
-  //       isShowCallback: false,
-  //       subtitle: 'Calling...',
-  //       callbackText: 'Hang Up',
-  //     ),
-  //     duration: 30000,
-  //     android: const AndroidParams(
-  //       isCustomNotification: true,
-  //       isShowLogo: true,
-  //       ringtonePath: 'system_ringtone_default',
-  //       backgroundColor: '#0955fa',
-  //       actionColor: '#4CAF50',
-  //       textColor: '#ffffff',
-  //       incomingCallNotificationChannelName: "Incoming Call",
-  //       missedCallNotificationChannelName: "Missed Call",
-  //       isShowCallID: true,
-  //     ),
-  //     ios: IOSParams(
-  //       handleType: 'generic',
-  //       supportsVideo: false,
-  //       maximumCallGroups: 1,
-  //       maximumCallsPerCallGroup: 1,
-  //       audioSessionMode: 'default',
-  //       audioSessionActive: false,
-  //       audioSessionPreferredSampleRate: 44100.0,
-  //       audioSessionPreferredIOBufferDuration: 0.005,
-  //       supportsDTMF: true,
-  //       supportsHolding: false,
-  //       supportsGrouping: false,
-  //       supportsUngrouping: false,
-  //       ringtonePath: 'system_ringtone_default',
-  //     ),
-  //   );
-  //   await FlutterCallkitIncoming.showCallkitIncoming(callKitParams);
-  // }
+    CallKitParams callKitParams = CallKitParams(
+      id: Uuid().v4(),
+      nameCaller: fromUser.nickName,
+      appName: 'Eventxpro Attendees',
+      avatar: fromUser.avatarUrl,
+      type: 0,
+      textAccept: 'Accept',
+      textDecline: 'Decline',
+      missedCallNotification: NotificationParams(
+        showNotification: true,
+        isShowCallback: false,
+        subtitle: 'Missed call',
+        callbackText: 'Call back',
+      ),
+      callingNotification: const NotificationParams(
+        showNotification: true,
+        isShowCallback: false,
+        subtitle: 'Calling...',
+        callbackText: 'Hang Up',
+      ),
+      duration: 30000,
+      android: const AndroidParams(
+        isCustomNotification: true,
+        isShowLogo: true,
+        ringtonePath: 'system_ringtone_default',
+        backgroundColor: '#0955fa',
+        actionColor: '#4CAF50',
+        textColor: '#ffffff',
+        incomingCallNotificationChannelName: "Incoming Call",
+        missedCallNotificationChannelName: "Missed Call",
+        isShowCallID: true,
+      ),
+      ios: IOSParams(
+        handleType: 'generic',
+        supportsVideo: false,
+        maximumCallGroups: 1,
+        maximumCallsPerCallGroup: 1,
+        audioSessionMode: 'default',
+        audioSessionActive: false,
+        audioSessionPreferredSampleRate: 44100.0,
+        audioSessionPreferredIOBufferDuration: 0.005,
+        supportsDTMF: true,
+        supportsHolding: false,
+        supportsGrouping: false,
+        supportsUngrouping: false,
+        ringtonePath: 'system_ringtone_default',
+      ),
+    );
+    await FlutterCallkitIncoming.showCallkitIncoming(callKitParams);
+  }
 
   Future<void> addReactionToMessage(String msgId, String reaction) async {
     try {
@@ -426,6 +419,58 @@ class AgoraRTMService {
     } on ChatError catch (e) {
       logInfo("Failed to remove reaction: ${e.code} - ${e.description}");
     }
+  }
+
+  Future<void> showCallSheet(
+    ChatUIKitProfile user,
+    String channel, {
+    CallState initialState = CallState.incomingCall,
+  }) async {
+    AgoraRtcService.i.setArguments(user, channel, initialState);
+    navigate(navigatorKey.currentContext!, CallScreen.path, duplicate: false);
+  }
+
+  void startCall(ChatUIKitProfile profile) async {
+    final channel = "${ChatUIKit.instance.currentUserId ?? ""}-${profile.id}";
+    final permission = await Permission.microphone.request();
+    if (permission != PermissionStatus.granted) return;
+    showCallSheet(profile, channel, initialState: CallState.outgoingCall);
+    if (permission == PermissionStatus.permanentlyDenied) {
+      showDialog(
+        // ignore: use_build_context_synchronously
+        context: navigatorKey.currentContext!,
+        builder: (context) => AlertDialog(
+          title: Text(
+            'Microphone Acces Required',
+            style: context.montserrat60016,
+          ),
+          content: Text(
+            'Please enable microphone permission in settings in order to make calls',
+            style: context.montserrat40014,
+          ),
+
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                openAppSettings();
+                Navigator.pop(context);
+              },
+              child: Text(
+                'Open Setttigs',
+                style: TextStyle(color: Colors.blue),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    if (permission != PermissionStatus.granted) return;
+
+    showCallSheet(profile, channel, initialState: CallState.outgoingCall);
   }
 
   Route<dynamic>? handleAgoraRoutes(RouteSettings settings) {
@@ -465,7 +510,12 @@ class AgoraRTMService {
             actions: Builder(
               builder: (context) {
                 final isGroup = profile.type == ChatUIKitProfileType.group;
-                if (!isGroup) return SizedBox();
+                if (!isGroup) {
+                  return InkWell(
+                    onTap: () => startCall(profile),
+                    child: Icon(Icons.call),
+                  );
+                }
                 return InkWell(
                   onTap: () {
                     ChatUIKitRoute.pushOrPushNamed(
@@ -577,6 +627,30 @@ class AgoraRTMService {
 
     if (chatRoute != null) return chatRoute;
     return null;
+  }
+}
+
+extension ChatProfileExtension on ChatUIKitProfile {
+  Map<String, dynamic> toMap() {
+    final data = {
+      "id": this.id.toString(),
+      "nickname": showName,
+      "avatarUrl": avatarUrl,
+      "type": type.name,
+      "extension": extension,
+    };
+    return data;
+  }
+
+  static ChatUIKitProfile fromJson(Map<String, dynamic> json) {
+    return ChatUIKitProfile(
+      id: json["id"].toString(),
+      showName: json["nickname"],
+      avatarUrl: json["avatarUrl"],
+      type: ChatUIKitProfileType.values.firstWhere(
+        (element) => element.name == json["type"],
+      ),
+    );
   }
 }
 

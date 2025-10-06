@@ -1,6 +1,7 @@
 import 'package:animations/animations.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:starter/features/chat/call_screen.dart';
 
 import '../constants.dart';
 import '../features/authentication/landing_screen/landing_screen.dart';
@@ -39,6 +40,9 @@ class AppRoute {
     }
 
     switch (uri.path) {
+      case CallScreen.path:
+        screen = CallScreen();
+        return pageRoute(settings, screen, animate: false);
       case LandingPage.path:
         screen = LandingPage();
         return pageRoute(settings, screen, animate: false);
