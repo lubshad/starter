@@ -100,7 +100,7 @@ class _MyAppState extends State<MyApp> {
               GlobalWidgetsLocalizations.delegate,
               ...chatLocalizations.localizationsDelegates,
             ],
-            navigatorObservers: [observer],
+            navigatorObservers: [observer, simpleRouteObserver],
             navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             onGenerateRoute: AppRoute.onGenerateRoute,

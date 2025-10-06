@@ -1,6 +1,7 @@
 import 'package:agora_chat_uikit/chat_uikit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
+import 'package:starter/core/app_route.dart';
 import 'package:starter/features/chat/agora_rtm_service.dart';
 
 import '../../exporter.dart';
@@ -31,6 +32,17 @@ class _MessagesViewWrappedState extends State<MessagesViewWrapped>
   }
 
   @override
+  void onTyping(List<String> messages) {
+    super.onTyping(messages);
+    if (messages.isEmpty) return;
+    final currentMessage = messages.firstWhereOrNull(
+      (element) => element == widget.profile.id,
+    );
+    if (currentMessage == null) return;
+    soloud.play(typingAudio!);
+  }
+
+  @override
   void onMessagesReceived(List<ChatMessage> messages) {
     super.onMessagesReceived(messages);
     if (messages.isEmpty) return;
@@ -45,11 +57,12 @@ class _MessagesViewWrappedState extends State<MessagesViewWrapped>
   @override
   void onMessageSendSuccess(String msgId, ChatMessage message) {
     super.onMessageSendSuccess(msgId, message);
+    if (message.body.type == MessageType.CMD) return;
     soloud.play(messageSend!);
   }
 
   void initilizeAudio() async {
-    soloud.init();
+    await soloud.init();
     onlineAudio = await soloud.loadAsset(Assets.sounds.online);
     typingAudio = await soloud.loadAsset(Assets.sounds.typing);
     messageSend = await soloud.loadAsset(Assets.sounds.messageSend);
@@ -139,10 +152,10 @@ class _MessagesViewWrappedState extends State<MessagesViewWrapped>
             }
             return InkWell(
               onTap: () {
-                ChatUIKitRoute.pushOrPushNamed(
+                navigate(
                   context,
                   ChatUIKitRouteNames.groupMembersView,
-                  GroupMembersViewArguments(profile: widget.profile),
+                  arguments: GroupMembersViewArguments(profile: widget.profile),
                 );
               },
               child: Icon(Icons.group),

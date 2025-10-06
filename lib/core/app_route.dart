@@ -17,6 +17,28 @@ import '../features/splash_screen/splash_screen.dart';
 import '../mixins/force_update.dart';
 import 'logger.dart';
 
+// Simple Route Observer for tracking current route
+class SimpleRouteObserver extends RouteObserver<PageRoute<dynamic>> {
+  String? currentRouteName;
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    currentRouteName = route.settings.name;
+    logInfo('Route pushed: $currentRouteName');
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPop(route, previousRoute);
+    currentRouteName = previousRoute?.settings.name;
+    logInfo('Route popped: ${route.settings.name}');
+  }
+}
+
+// Global instance
+final simpleRouteObserver = SimpleRouteObserver();
+
 class AppRoute {
   static List<Route<dynamic>> onGenerateInitialRoute(String path) {
     Uri uri = Uri.parse(path);
@@ -133,9 +155,16 @@ Future<T?> navigate<T extends Object?>(
   Object? arguments,
   bool duplicate = false,
   bool replace = false,
+  bool mainRoute = false,
 }) async {
-  final currentRoute = ModalRoute.of(context)?.settings.name;
+  // Use simple route observer
+  final currentRoute = mainRoute
+      ? simpleRouteObserver.currentRouteName
+      : ModalRoute.of(context)?.settings.name;
+  logInfo('Current route: $currentRoute, Navigating to: $routeName');
+
   if (routeName == currentRoute && !duplicate) return null;
+
   if (replace) {
     return await Navigator.of(context).pushNamedAndRemoveUntil<T>(
       routeName,

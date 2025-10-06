@@ -160,9 +160,9 @@ class FCMService {
 
     final NotificationAppLaunchDetails? notificationAppLaunchDetails =
         !kIsWeb && Platform.isLinux
-            ? null
-            : await flutterLocalNotificationsPlugin
-                .getNotificationAppLaunchDetails();
+        ? null
+        : await flutterLocalNotificationsPlugin
+              .getNotificationAppLaunchDetails();
     if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
       logInfo(notificationAppLaunchDetails!.notificationResponse?.payload);
     }
@@ -216,8 +216,8 @@ class FCMService {
       key: notificationDataKey,
     );
     if (data.isEmpty) {
-      RemoteMessage? initialMessage =
-          await FirebaseMessaging.instance.getInitialMessage();
+      RemoteMessage? initialMessage = await FirebaseMessaging.instance
+          .getInitialMessage();
       data = initialMessage?.data["url"];
     }
     if (data == null || data.isEmpty) return;
@@ -258,8 +258,8 @@ class FCMService {
                 AndroidFlutterLocalNotificationsPlugin
               >();
 
-      final bool? grantedNotificationPermission =
-          await androidImplementation?.requestNotificationsPermission();
+      final bool? grantedNotificationPermission = await androidImplementation
+          ?.requestNotificationsPermission();
       logInfo(grantedNotificationPermission);
     }
   }

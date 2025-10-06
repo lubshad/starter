@@ -4,6 +4,7 @@ import 'package:agora_chat_uikit/chat_uikit.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
+import 'package:starter/core/app_route.dart';
 import 'package:starter/mixins/event_listener.dart';
 import '../../main.dart';
 import '../../services/fcm_service.dart';
@@ -88,11 +89,8 @@ class _ChatPageState extends State<ChatPage>
     final userinfo = (await ChatUIKit.instance.fetchUserInfoByIds([
       messages.first.from!,
     ])).values.first;
-    final currentRoute = ModalRoute.of(
-      navigatorKey.currentContext!,
-    )?.settings.name;
 
-    if (currentRoute != ChatUIKitRouteNames.messagesView) {
+    if (simpleRouteObserver.currentRouteName != ChatUIKitRouteNames.messagesView) {
       await FCMService().showNotification(
         title: userinfo.nickName,
         body: (messages.first.body as ChatTextMessageBody).content,
@@ -186,10 +184,10 @@ class _ChatPageState extends State<ChatPage>
                       .map(
                         (e) => InkWell(
                           onTap: () {
-                            ChatUIKitRoute.pushOrPushNamed(
+                            navigate(
                               navigatorKey.currentContext!,
                               ChatUIKitRouteNames.groupDetailsView,
-                              GroupDetailsViewArguments(profile: e),
+                              arguments: GroupDetailsViewArguments(profile: e),
                             );
                           },
                           child: ChatUIKitGroupListViewItem(
@@ -200,10 +198,10 @@ class _ChatPageState extends State<ChatPage>
                       .toList(),
                   enableSearchBar: false,
                   onItemTap: (context, model) {
-                    ChatUIKitRoute.pushOrPushNamed(
+                    navigate(
                       navigatorKey.currentContext!,
                       ChatUIKitRouteNames.messagesView,
-                      MessagesViewArguments(profile: model.profile),
+                      arguments: MessagesViewArguments(profile: model.profile),
                     );
                   },
                   enableAppBar: false,

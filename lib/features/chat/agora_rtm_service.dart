@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
-import 'dart:io';
 import 'package:agora_chat_uikit/chat_uikit.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -385,10 +384,10 @@ class AgoraRTMService {
                 iconSize: const Size(32, 32),
                 packageName: ChatUIKitImageLoader.packageName,
                 onTap: (context) {
-                  ChatUIKitRoute.pushOrPushNamed(
+                  navigate(
                     context,
                     ChatUIKitRouteNames.messagesView,
-                    MessagesViewArguments(profile: profile),
+                    arguments: MessagesViewArguments(profile: profile),
                   );
                 },
               ),
@@ -404,10 +403,10 @@ class AgoraRTMService {
           appBar: CustomAppBar(title: ("Group Members")),
           body: GroupMemberListView(
             enableSearchBar: false,
-            onTap: (context, model) => ChatUIKitRoute.pushOrPushNamed(
+            onTap: (context, model) => navigate(
               context,
               ChatUIKitRouteNames.contactDetailsView,
-              ContactDetailsViewArguments(profile: model.profile),
+              arguments: ContactDetailsViewArguments(profile: model.profile),
             ),
             groupId:
                 (settings.arguments as GroupMembersViewArguments).profile.id,
@@ -429,10 +428,10 @@ class AgoraRTMService {
                 iconSize: const Size(32, 32),
                 packageName: ChatUIKitImageLoader.packageName,
                 onTap: (context) {
-                  ChatUIKitRoute.pushOrPushNamed(
+                  navigate(
                     context,
                     ChatUIKitRouteNames.messagesView,
-                    MessagesViewArguments(
+                    arguments: MessagesViewArguments(
                       profile: (settings.arguments as GroupDetailsViewArguments)
                           .profile,
                     ),
