@@ -31,6 +31,8 @@ cp -r starter/version_increment.sh version_increment.sh
 cp -r starter/playstorerelease.sh playstorerelease.sh
 cp -r starter/appstorerelease.sh appstorerelease.sh
 cp -r starter/playstore_and_appstore_release.sh playstore_and_appstore_release.sh
+cp -r starter/flutter_launcher_icons.yaml flutter_launcher_icons.yaml
+cp -r starter/flutter_native_splash.yaml flutter_native_splash.yaml
 
 echo "✅ Starter files copied (lib and assets scripts)"
 
@@ -41,7 +43,7 @@ echo "✅ Starter repository removed"
 
 # Add Flutter packages
 echo "📦 Step 6: Adding Flutter packages..."
-flutter pub add carousel_slider pretty_dio_logger sqflite agora_chat_uikit iconsax flutter_secure_storage timeago audio_waveforms audioplayers flutter_callkit_incoming agora_rtc_engine flutter_screenutil pretty_dio_logger open_file flutter_in_app_pip mime google_mlkit_barcode_scanning camera dio dartz flutter_spinkit pinput google_sign_in country_code_picker firebase_auth firebase_core firebase_analytics flutter_svg animations jwt_decoder get hive path_provider flutter_animate firebase_messaging battery_plus webview_flutter firebase_crashlytics gap lottie device_info_plus package_info_plus file_picker image_picker image_cropper url_launcher cloud_firestore intl geolocator geocoding dotted_border cached_network_image flutter_foreground_task infinite_scroll_pagination toastification dio_cookie_manager auto_size_text connectivity_plus flutter_local_notifications permission_handler google_maps_flutter screen_protector flutter_activity_recognition agora_chat_sdk
+flutter pub add flutter_launcher_icons flutter_native_splash flutter_soloud carousel_slider pretty_dio_logger sqflite agora_chat_uikit iconsax flutter_secure_storage timeago audio_waveforms audioplayers flutter_callkit_incoming agora_rtc_engine flutter_screenutil pretty_dio_logger open_file flutter_in_app_pip mime google_mlkit_barcode_scanning camera dio dartz flutter_spinkit pinput google_sign_in country_code_picker firebase_auth firebase_core firebase_analytics flutter_svg animations jwt_decoder get hive path_provider flutter_animate firebase_messaging battery_plus webview_flutter firebase_crashlytics gap lottie device_info_plus package_info_plus file_picker image_picker image_cropper url_launcher cloud_firestore intl geolocator geocoding dotted_border cached_network_image flutter_foreground_task infinite_scroll_pagination toastification dio_cookie_manager auto_size_text connectivity_plus flutter_local_notifications permission_handler google_maps_flutter screen_protector flutter_activity_recognition agora_chat_sdk
 echo "✅ Flutter packages added successfully"
 
 # Open in editors
