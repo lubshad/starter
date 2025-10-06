@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:774863640399:android:18c0c400fd59baf03a973a",
+        "android_client_info": {
+          "package_name": "com.gitex.veuzvisitor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaSAVQaC8U7mkKOWEkcAv--r_-yHgGdVM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:774863640399:android:da7af711509909903a973a",
         "android_client_info": {
           "package_name": "com.veuz.agorachat"
@@ -83,9 +102,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:774863640399:android:56b1b4fd3a37e6f73a973a",
+        "mobilesdk_app_id": "1:774863640399:android:fff9b0dd355146963a973a",
         "android_client_info": {
-          "package_name": "com.veuz.kiosk"
+          "package_name": "com.veuz.organizer"
         }
       },
       "oauth_client": [],
@@ -159,9 +178,47 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:774863640399:android:fbe6c9f6d7b950493a973a",
+        "android_client_info": {
+          "package_name": "com.vzevent.visitor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaSAVQaC8U7mkKOWEkcAv--r_-yHgGdVM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:774863640399:android:321ca4d3cd19cc193a973a",
         "android_client_info": {
           "package_name": "com.vzvisitors.veuz"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaSAVQaC8U7mkKOWEkcAv--r_-yHgGdVM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:774863640399:android:6fda3a2e81412f853a973a",
+        "android_client_info": {
+          "package_name": "veuz.gitex.organizer"
         }
       },
       "oauth_client": [],

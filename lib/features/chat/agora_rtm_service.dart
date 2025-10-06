@@ -18,15 +18,16 @@ import '../../widgets/custom_appbar.dart';
 import '../profile_screen/common_controller.dart';
 
 final agoraConfig = AgoraConfig(
-  appKey: "41997883#1598640",
-  senderId: "361182296433",
+  appKey: "411355671#1562187",
+  senderId: "774863640399",
   token: "",
-  appId: "c8c3a8dd47ba4d6e9e11e2bb83735994",
+  appId: "fba212c248f64309802c8c5f8f5e9172",
 );
 
 String publicGroupId = "292656738533378";
 
-String rtmTokenUrl = "https://generatertmtoken-3aykugpx2a-uc.a.run.app";
+String rtmTokenUrl =
+    "https://us-central1-eventxpro-66c0b.cloudfunctions.net/generateRtmToken";
 
 class AgoraConfig {
   final String appKey;
