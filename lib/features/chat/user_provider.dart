@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:agora_chat_uikit/chat_uikit_service/chat_uikit_service.dart';
 import 'package:agora_chat_uikit/provider/chat_uikit_profile.dart';
 import 'package:agora_chat_uikit/provider/chat_uikit_provider.dart';
@@ -59,6 +61,9 @@ class _UserProviderWidgetState extends State<UserProviderWidget>
         id: map.values.first.userId,
         nickname: map.values.first.nickName,
         avatarUrl: map.values.first.avatarUrl,
+        extension:
+            (jsonDecode(map.values.first.ext ?? "{}") as Map<String, dynamic>)
+                .map((key, value) => MapEntry(key, value.toString())),
       );
       UserDataStore().saveUserData(profile);
       ChatUIKitProvider.instance.addProfiles([profile]);
@@ -191,6 +196,10 @@ class _UserProviderWidgetState extends State<UserProviderWidget>
               id: e.userId,
               nickname: e.nickName,
               avatarUrl: e.avatarUrl,
+              extension:
+                  (jsonDecode(e.ext?.isEmpty ?? true ? "{}" : e.ext!)
+                          as Map<String, dynamic>)
+                      .map((key, value) => MapEntry(key, value.toString())),
             ),
           )
           .toList();

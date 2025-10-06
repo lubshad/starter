@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:agora_chat_uikit/chat_uikit.dart';
 import 'package:flutter/material.dart';
-
+import '../../main.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/default_loading_widget.dart';
 import '../profile_screen/common_controller.dart';
@@ -41,7 +41,7 @@ class _ChatPageState extends State<ChatPage> with ChatSDKEventsObserver {
     if (event == ChatSDKEvent.loginWithToken) {
       loading.value = false;
       AgoraRTMService.i.updateFcmToken();
-      initiatePublicGroup();
+      // initiatePublicGroup();
     }
   }
 
@@ -52,12 +52,13 @@ class _ChatPageState extends State<ChatPage> with ChatSDKEventsObserver {
   }
 
   void initiateChat() async {
-    while (CommonController.i.profileDetails == null) {
+    while (!CommonController.i.initialized) {
       await Future.delayed(const Duration(seconds: 1));
     }
+
     await AgoraRTMService.i.signIn(
-      userid: CommonController.i.profileDetails!.id,
-      avatarUrl: CommonController.i.profileDetails!.image ?? "",
+      userid: CommonController.i.profileDetails?.id ?? "",
+      avatarUrl: CommonController.i.profileDetails?.image ?? "",
       name: CommonController.i.profileDetails?.name ?? "",
     );
   }
@@ -105,24 +106,30 @@ class _ChatPageState extends State<ChatPage> with ChatSDKEventsObserver {
               }
               return UserProviderWidget(
                 child: ConversationsView(
-                  beforeWidgets:
-                      joinedGroups
-                          .map(
-                            (e) => InkWell(
-                              onTap: () {
-                                ChatUIKitRoute.pushOrPushNamed(
-                                  context,
-                                  ChatUIKitRouteNames.groupDetailsView,
-                                  GroupDetailsViewArguments(profile: e),
-                                );
-                              },
-                              child: ChatUIKitGroupListViewItem(
-                                GroupItemModel(profile: e),
-                              ),
-                            ),
-                          )
-                          .toList(),
+                  beforeWidgets: joinedGroups
+                      .map(
+                        (e) => InkWell(
+                          onTap: () {
+                            ChatUIKitRoute.pushOrPushNamed(
+                              navigatorKey.currentContext!,
+                              ChatUIKitRouteNames.groupDetailsView,
+                              GroupDetailsViewArguments(profile: e),
+                            );
+                          },
+                          child: ChatUIKitGroupListViewItem(
+                            GroupItemModel(profile: e),
+                          ),
+                        ),
+                      )
+                      .toList(),
                   enableSearchBar: false,
+                  onItemTap: (context, model) {
+                    ChatUIKitRoute.pushOrPushNamed(
+                      navigatorKey.currentContext!,
+                      ChatUIKitRouteNames.messagesView,
+                      MessagesViewArguments(profile: model.profile),
+                    );
+                  },
                   enableAppBar: false,
                 ),
               );

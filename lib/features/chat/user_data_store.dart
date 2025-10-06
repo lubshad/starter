@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:agora_chat_uikit/provider/chat_uikit_profile.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -8,7 +10,7 @@ import '../../exporter.dart';
 class UserDataStore {
   static const String _tableName = 'user_profiles';
   static const String _dbName = 'user_data.db';
-  static const int _dbVersion = 1;
+  static const int _dbVersion = 2;
 
   Database? _database;
 
@@ -24,7 +26,16 @@ class UserDataStore {
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, _dbName);
 
-    return await openDatabase(path, version: _dbVersion, onCreate: _onCreate);
+    return await openDatabase(
+      path,
+      version: _dbVersion,
+      onCreate: _onCreate,
+      onUpgrade: (db, oldVersion, newVersion) {
+        if (oldVersion < 2) {
+          db.execute('ALTER TABLE $_tableName ADD COLUMN extension TEXT');
+        }
+      },
+    );
   }
 
   /// Create database tables
@@ -38,7 +49,8 @@ class UserDataStore {
         nickname TEXT,
         group_name TEXT,
         created_at INTEGER NOT NULL,
-        updated_at INTEGER NOT NULL
+        updated_at INTEGER NOT NULL,
+        extension TEXT
       )
     ''');
   }
@@ -160,6 +172,7 @@ class UserDataStore {
       'group_name': profile.showName,
       'created_at': timestamp,
       'updated_at': timestamp,
+      'extension': jsonEncode(profile.extension),
     };
   }
 
@@ -170,6 +183,8 @@ class UserDataStore {
       (e) => e.toString() == typeString,
       orElse: () => ChatUIKitProfileType.contact,
     );
+    final extension =
+        jsonDecode(map['extension'] ?? "{}") as Map<String, dynamic>;
 
     if (type == ChatUIKitProfileType.group) {
       return ChatUIKitProfile.group(
@@ -178,11 +193,15 @@ class UserDataStore {
         avatarUrl: map['avatar_url'] as String?,
       );
     } else {
-      return ChatUIKitProfile.contact(
+      final profile = ChatUIKitProfile.contact(
         id: map['id'] as String,
         nickname: map['nickname'] as String?,
         avatarUrl: map['avatar_url'] as String?,
+        extension: extension.map(
+          (key, value) => MapEntry(key, value.toString()),
+        ),
       );
+      return profile;
     }
   }
 }

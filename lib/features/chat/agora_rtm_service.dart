@@ -3,95 +3,30 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:agora_chat_uikit/chat_uikit.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_callkit_incoming/entities/android_params.dart';
-import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
-import 'package:flutter_callkit_incoming/entities/ios_params.dart';
-import 'package:flutter_callkit_incoming/entities/notification_params.dart';
-import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
-import 'package:uuid/uuid.dart';
+// import 'package:flutter_callkit_incoming/entities/android_params.dart';
+// import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
+// import 'package:flutter_callkit_incoming/entities/ios_params.dart';
+// import 'package:flutter_callkit_incoming/entities/notification_params.dart';
+// import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import '../../core/app_route.dart';
 import '../../core/repository.dart';
 import '../../exporter.dart';
 import '../../services/fcm_service.dart';
-import '../../services/shared_preferences_services.dart';
 import '../../widgets/custom_appbar.dart';
+import '../profile_screen/common_controller.dart';
 
 final agoraConfig = AgoraConfig(
-  appKey: "41997883#1599773",
-  senderId: "119925723085",
+  appKey: "41997883#1598640",
+  senderId: "361182296433",
   token: "",
-  appId: "a3e45d7efac445b8a8f5bf8d1c45e8f9",
+  appId: "c8c3a8dd47ba4d6e9e11e2bb83735994",
 );
 
-String publicGroupId = "291667469991937";
+String publicGroupId = "292656738533378";
 
 String rtmTokenUrl = "https://generatertmtoken-3aykugpx2a-uc.a.run.app";
-
-class ReplyMessageData {
-  final String messageId;
-  final String content;
-  final String senderName;
-  final MessageType messageType;
-
-  ReplyMessageData({
-    required this.messageId,
-    required this.content,
-    required this.senderName,
-    required this.messageType,
-  });
-
-  static ReplyMessageData fromChatMessage(
-    ChatMessage message,
-    ChatUserInfo senderInfo,
-  ) {
-    String content = '';
-    switch (message.body.type) {
-      case MessageType.TXT:
-        content = (message.body as ChatTextMessageBody).content;
-        break;
-      case MessageType.IMAGE:
-        content = '📷 Photo';
-        break;
-      case MessageType.FILE:
-        final fileName = (message.body as ChatFileMessageBody).displayName;
-        content = '📎 $fileName';
-        break;
-      case MessageType.VOICE:
-        final duration = (message.body as ChatVoiceMessageBody).duration;
-        content = '🎤 Voice message (${duration}s)';
-        break;
-      default:
-        content = 'Message';
-    }
-
-    return ReplyMessageData(
-      messageId: message.msgId,
-      content: content,
-      senderName: senderInfo.nickName ?? senderInfo.userId,
-      messageType: message.body.type,
-    );
-  }
-
-  static ReplyMessageData? fromMessageAttributes(
-    Map<String, dynamic>? attributes,
-  ) {
-    if (attributes == null || !attributes.containsKey('reply_to_msg_id')) {
-      return null;
-    }
-    return ReplyMessageData(
-      messageId: attributes['reply_to_msg_id'],
-      content: attributes['reply_to_content'] ?? '',
-      senderName: attributes['reply_to_sender'] ?? '',
-      messageType: MessageType.values.firstWhere(
-        (type) => type.name == attributes['reply_to_type'],
-        orElse: () => MessageType.TXT,
-      ),
-    );
-  }
-}
 
 class AgoraConfig {
   final String appKey;
@@ -151,6 +86,7 @@ class AgoraRTMService {
       requireDeliveryAck: true,
       debugMode: kDebugMode,
       autoLogin: false,
+      chatAreaCode: ChatAreaCode.AS,
     );
     options.enableFCM(config.senderId);
     options.enableAPNs(config.senderId);
@@ -165,7 +101,6 @@ class AgoraRTMService {
     ChatUIKitSettings.enableMessageReport = false;
     ChatUIKitSettings.enableMessageTranslation = false;
     ChatUIKitSettings.enableMessageForward = false;
-    // ChatUIKitSettings.enableMessageReply = false;
     ChatUIKitSettings.enableMessageEdit = false;
     ChatUIKitSettings.enableMessageMultiSelect = false;
     ChatUIKitTimeFormatter.instance.formatterHandler = (context, type, time) {
@@ -297,16 +232,13 @@ class AgoraRTMService {
     }
   }
 
-  ChatUserInfo? currentUser;
-
   Future<bool> signIn({
     required String userid,
     required String avatarUrl,
     required String name,
   }) async {
     try {
-      if (ChatClient.getInstance.currentUserId != null &&
-          ChatClient.getInstance.currentUserId != userid) {
+      if (isLoggedIn && ChatUIKit.instance.currentUserId != userid) {
         await signOut();
       }
       final config = await DataRepository.i.generateRTMToken(
@@ -318,14 +250,22 @@ class AgoraRTMService {
         userId: userid,
         token: config.token,
       );
-      currentUser = await ChatClient.getInstance.userInfoManager.fetchOwnInfo();
       logInfo("login succeed, userId: $userid");
+      final extension = jsonEncode({
+        "user": CommonController.i.profileDetails?.toMap(),
+      });
+      await ChatUIKit.instance.updateUserInfo(ext: extension);
       return true;
     } catch (e) {
       if (e is ChatError && e.code == 200) {
         logInfo("login succeed, userId: $userid");
+        final extension = jsonEncode({
+          "user": CommonController.i.profileDetails?.toJson(),
+        });
+        await ChatUIKit.instance.updateUserInfo(ext: extension);
         return true;
       }
+      logInfo("login failed, userId: $userid, error: $e");
       return false;
     }
   }
@@ -334,9 +274,10 @@ class AgoraRTMService {
 
   void updateFcmToken() {
     if (!isLoggedIn) return;
-    FCMService().setupNotification().then((value) async {
+    FCMService.token.then((value) async {
       logInfo(value);
-      await ChatClient.getInstance.pushManager.updateFCMPushToken(value);
+      if (value?.isEmpty ?? true) return;
+      await ChatClient.getInstance.pushManager.updateFCMPushToken(value!);
     });
   }
 
@@ -392,72 +333,72 @@ class AgoraRTMService {
     return await ChatClient.getInstance.chatManager.sendMessage(msg);
   }
 
-  Future initiateIncommingCall(RemoteMessage message) async {
-    var extraParams = message.data["e"];
-    if (extraParams == null) return;
-    extraParams = jsonDecode(extraParams);
-    if (CmdActionType.fromValue(extraParams["type"]) !=
-        CmdActionType.startCalling) {
-      return;
-    }
-    final fromUser = ChatUserInfo.fromJson(extraParams["from"]);
-    final channel = extraParams["channel"];
+  // Future initiateIncommingCall(RemoteMessage message) async {
+  //   var extraParams = message.data["e"];
+  //   if (extraParams == null) return;
+  //   extraParams = jsonDecode(extraParams);
+  //   if (CmdActionType.fromValue(extraParams["type"]) !=
+  //       CmdActionType.startCalling) {
+  //     return;
+  //   }
+  //   final fromUser = ChatUserInfo.fromJson(extraParams["from"]);
+  //   final channel = extraParams["channel"];
 
-    await SharedPreferencesService.i.setValue(
-      key: incomingCallKey,
-      value: jsonEncode({"from": fromUser.toJson(), "channel": channel}),
-    );
+  //   await SharedPreferencesService.i.setValue(
+  //     key: incomingCallKey,
+  //     value: jsonEncode({"from": fromUser.toJson(), "channel": channel}),
+  //   );
 
-    CallKitParams callKitParams = CallKitParams(
-      id: Uuid().v4(),
-      nameCaller: fromUser.nickName,
-      appName: 'Eventxpro Attendees',
-      avatar: fromUser.avatarUrl,
-      type: 0,
-      textAccept: 'Accept',
-      textDecline: 'Decline',
-      missedCallNotification: NotificationParams(
-        showNotification: true,
-        isShowCallback: false,
-        subtitle: 'Missed call',
-        callbackText: 'Call back',
-      ),
-      callingNotification: const NotificationParams(
-        showNotification: true,
-        isShowCallback: false,
-        subtitle: 'Calling...',
-        callbackText: 'Hang Up',
-      ),
-      duration: 30000,
-      android: const AndroidParams(
-        isCustomNotification: true,
-        isShowLogo: true,
-        ringtonePath: 'system_ringtone_default',
-        backgroundColor: '#0955fa',
-        actionColor: '#4CAF50',
-        textColor: '#ffffff',
-        incomingCallNotificationChannelName: "Incoming Call",
-        missedCallNotificationChannelName: "Missed Call",
-        isShowCallID: true,
-      ),
-      ios: IOSParams(
-        handleType: 'generic',
-        supportsVideo: false,
-        maximumCallGroups: 1,
-        maximumCallsPerCallGroup: 1,
-        audioSessionMode: 'default',
-        audioSessionActive: false,
-        audioSessionPreferredSampleRate: 44100.0,
-        audioSessionPreferredIOBufferDuration: 0.005,
-        supportsDTMF: true,
-        supportsHolding: false,
-        supportsGrouping: false,
-        supportsUngrouping: false,
-        ringtonePath: 'system_ringtone_default',
-      ),
-    );
-    await FlutterCallkitIncoming.showCallkitIncoming(callKitParams);
-  }
+  //   CallKitParams callKitParams = CallKitParams(
+  //     id: Uuid().v4(),
+  //     nameCaller: fromUser.nickName,
+  //     appName: 'Eventxpro Attendees',
+  //     avatar: fromUser.avatarUrl,
+  //     type: 0,
+  //     textAccept: 'Accept',
+  //     textDecline: 'Decline',
+  //     missedCallNotification: NotificationParams(
+  //       showNotification: true,
+  //       isShowCallback: false,
+  //       subtitle: 'Missed call',
+  //       callbackText: 'Call back',
+  //     ),
+  //     callingNotification: const NotificationParams(
+  //       showNotification: true,
+  //       isShowCallback: false,
+  //       subtitle: 'Calling...',
+  //       callbackText: 'Hang Up',
+  //     ),
+  //     duration: 30000,
+  //     android: const AndroidParams(
+  //       isCustomNotification: true,
+  //       isShowLogo: true,
+  //       ringtonePath: 'system_ringtone_default',
+  //       backgroundColor: '#0955fa',
+  //       actionColor: '#4CAF50',
+  //       textColor: '#ffffff',
+  //       incomingCallNotificationChannelName: "Incoming Call",
+  //       missedCallNotificationChannelName: "Missed Call",
+  //       isShowCallID: true,
+  //     ),
+  //     ios: IOSParams(
+  //       handleType: 'generic',
+  //       supportsVideo: false,
+  //       maximumCallGroups: 1,
+  //       maximumCallsPerCallGroup: 1,
+  //       audioSessionMode: 'default',
+  //       audioSessionActive: false,
+  //       audioSessionPreferredSampleRate: 44100.0,
+  //       audioSessionPreferredIOBufferDuration: 0.005,
+  //       supportsDTMF: true,
+  //       supportsHolding: false,
+  //       supportsGrouping: false,
+  //       supportsUngrouping: false,
+  //       ringtonePath: 'system_ringtone_default',
+  //     ),
+  //   );
+  //   await FlutterCallkitIncoming.showCallkitIncoming(callKitParams);
+  // }
 
   Future<void> addReactionToMessage(String msgId, String reaction) async {
     try {
@@ -542,8 +483,10 @@ class AgoraRTMService {
             profile: profile,
             onMoreActionsItemsHandler: (context, items) {
               items.removeWhere(
-                (element) =>
-                    element.actionType == ChatUIKitActionType.contactCard,
+                (element) => [
+                  ChatUIKitActionType.contactCard,
+                  ChatUIKitActionType.file,
+                ].contains(element.actionType),
               );
               return items;
             },

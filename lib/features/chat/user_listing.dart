@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../core/app_route.dart';
 import '../../exporter.dart';
 import '../../models/name_id.dart';
