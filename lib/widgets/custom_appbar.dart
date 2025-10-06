@@ -22,7 +22,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color? borderColor;
   final Widget? actions;
   final bool showBorder;
-  final String? subtitle;
+  final Widget? subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -82,13 +82,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ],
                 ),
                 if (subtitle != null)
-                  Text(
-                    subtitle!,
-                    style: context.kanit30014.copyWith(
-                      color: Color(0xff666666),
-                    ),
-                    maxLines: 1,
-                  ),
+                  subtitle!,
               ],
             ),
           ),

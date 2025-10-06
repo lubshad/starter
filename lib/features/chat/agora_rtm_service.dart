@@ -28,6 +28,7 @@ import '../../widgets/custom_appbar.dart';
 import '../profile_screen/common_controller.dart';
 import 'agora_rtc_service.dart';
 import 'call_screen.dart';
+import 'messages_view.dart';
 
 final agoraConfig = AgoraConfig(
   appKey: "411355671#1562187",
@@ -103,7 +104,7 @@ class AgoraRTMService {
     );
     options.enableFCM(config.senderId);
     options.enableAPNs(config.senderId);
-    await ChatClient.getInstance.init(options);
+    await ChatUIKit.instance.init(options: options);
     setupChatUI();
   }
 
@@ -121,122 +122,9 @@ class AgoraRTMService {
     };
   }
 
-  Future<ChatMessage> sendMessageWithReply({
-    required String id,
-    required String message,
-    String? replyToMessageId,
-    String? replyToContent,
-    String? replyToSender,
-    MessageType? replyToType,
-    ChatType chatType = ChatType.Chat,
-  }) async {
-    var msg = ChatMessage.createTxtSendMessage(
-      targetId: id,
-      content: message,
-      chatType: chatType,
-    );
-
-    // Add reply information as extensions
-    if (replyToMessageId != null) {
-      msg.attributes = {
-        'reply_to_msg_id': replyToMessageId,
-        'reply_to_content': replyToContent ?? '',
-        'reply_to_sender': replyToSender ?? '',
-        'reply_to_type': replyToType?.name ?? 'TXT',
-      };
-    }
-
-    return await ChatClient.getInstance.chatManager.sendMessage(msg);
-  }
-
-  Future<ChatMessage> sendImageMessageWithReply({
-    required String id,
-    required File file,
-    String? replyToMessageId,
-    String? replyToContent,
-    String? replyToSender,
-    MessageType? replyToType,
-    ChatType chatType = ChatType.Chat,
-  }) async {
-    var msg = ChatMessage.createImageSendMessage(
-      targetId: id,
-      filePath: file.path,
-      displayName: file.uri.pathSegments.last,
-      chatType: chatType,
-    );
-
-    if (replyToMessageId != null) {
-      msg.attributes = {
-        'reply_to_msg_id': replyToMessageId,
-        'reply_to_content': replyToContent ?? '',
-        'reply_to_sender': replyToSender ?? '',
-        'reply_to_type': replyToType?.name ?? 'TXT',
-      };
-    }
-
-    return await ChatClient.getInstance.chatManager.sendMessage(msg);
-  }
-
-  Future<ChatMessage> sendFileMessageWithReply({
-    required String id,
-    required File file,
-    String? replyToMessageId,
-    String? replyToContent,
-    String? replyToSender,
-    MessageType? replyToType,
-    ChatType chatType = ChatType.Chat,
-  }) async {
-    var msg = ChatMessage.createFileSendMessage(
-      targetId: id,
-      filePath: file.path,
-      displayName: file.uri.pathSegments.last,
-      chatType: chatType,
-    );
-
-    if (replyToMessageId != null) {
-      msg.attributes = {
-        'reply_to_msg_id': replyToMessageId,
-        'reply_to_content': replyToContent ?? '',
-        'reply_to_sender': replyToSender ?? '',
-        'reply_to_type': replyToType?.name ?? 'TXT',
-      };
-    }
-
-    return await ChatClient.getInstance.chatManager.sendMessage(msg);
-  }
-
-  Future<ChatMessage> sendVoiceMessageWithReply({
-    required String id,
-    required File file,
-    required Duration duration,
-    String? replyToMessageId,
-    String? replyToContent,
-    String? replyToSender,
-    MessageType? replyToType,
-    ChatType chatType = ChatType.Chat,
-  }) async {
-    var msg = ChatMessage.createVoiceSendMessage(
-      targetId: id,
-      filePath: file.path,
-      duration: duration.inSeconds,
-      chatType: chatType,
-    );
-
-    if (replyToMessageId != null) {
-      msg.attributes = {
-        'reply_to_msg_id': replyToMessageId,
-        'reply_to_content': replyToContent ?? '',
-        'reply_to_sender': replyToSender ?? '',
-        'reply_to_type': replyToType?.name ?? 'TXT',
-      };
-    }
-
-    return await ChatClient.getInstance.chatManager.sendMessage(msg);
-  }
-
   Future<void> joinPublicGroup(String groupId) async {
     try {
-      await ChatClient.getInstance.groupManager.joinPublicGroup(groupId);
+      await ChatUIKit.instance.joinPublicGroup(groupId: groupId);
       logInfo("✅ Joined group: $groupId");
     } catch (e) {
       logInfo("❌ Failed to join group: $e");
@@ -283,7 +171,7 @@ class AgoraRTMService {
     }
   }
 
-  bool get isLoggedIn => ChatClient.getInstance.currentUserId != null;
+  bool get isLoggedIn => ChatUIKit.instance.currentUserId != null;
 
   void updateFcmToken() {
     if (!isLoggedIn) return;
@@ -294,9 +182,9 @@ class AgoraRTMService {
     });
   }
 
-  Future<bool> signOut([bool unbindDevice = false]) async {
+  Future<bool> signOut() async {
     try {
-      await ChatClient.getInstance.logout(unbindDevice);
+      await ChatUIKit.instance.logout();
       logInfo("sign out succeed");
       return true;
     } on ChatError catch (e) {
@@ -324,7 +212,7 @@ class AgoraRTMService {
       chatType: ChatType.Chat,
       deliverOnlineOnly: true,
     );
-    return await ChatClient.getInstance.chatManager.sendMessage(msg);
+    return await ChatUIKit.instance.sendMessage(message: msg);
   }
 
   Future initiateIncommingCall(RemoteMessage message) async {
@@ -392,33 +280,6 @@ class AgoraRTMService {
       ),
     );
     await FlutterCallkitIncoming.showCallkitIncoming(callKitParams);
-  }
-
-  Future<void> addReactionToMessage(String msgId, String reaction) async {
-    try {
-      await ChatClient.getInstance.chatManager.addReaction(
-        messageId: msgId,
-        reaction: reaction,
-      );
-      logInfo("success:");
-    } on ChatError catch (error) {
-      logInfo("fail: $error");
-    }
-  }
-
-  Future<void> removeReactionFromMessage(
-    String messageId,
-    String reaction,
-  ) async {
-    try {
-      await ChatClient.getInstance.chatManager.removeReaction(
-        messageId: messageId,
-        reaction: reaction,
-      );
-      logInfo("Reaction removed successfully");
-    } on ChatError catch (e) {
-      logInfo("Failed to remove reaction: ${e.code} - ${e.description}");
-    }
   }
 
   Future<void> showCallSheet(
@@ -502,47 +363,7 @@ class AgoraRTMService {
         return pageRoute(settings, screen);
       case ChatUIKitRouteNames.messagesView:
         final profile = (settings.arguments as MessagesViewArguments).profile;
-        screen = Scaffold(
-          resizeToAvoidBottomInset: false,
-
-          appBar: CustomAppBar(
-            title: profile.showName ?? "",
-            actions: Builder(
-              builder: (context) {
-                final isGroup = profile.type == ChatUIKitProfileType.group;
-                if (!isGroup) {
-                  return InkWell(
-                    onTap: () => startCall(profile),
-                    child: Icon(Icons.call),
-                  );
-                }
-                return InkWell(
-                  onTap: () {
-                    ChatUIKitRoute.pushOrPushNamed(
-                      context,
-                      ChatUIKitRouteNames.groupMembersView,
-                      GroupMembersViewArguments(profile: profile),
-                    );
-                  },
-                  child: Icon(Icons.group),
-                );
-              },
-            ),
-          ),
-          body: MessagesView(
-            enableAppBar: false,
-            profile: profile,
-            onMoreActionsItemsHandler: (context, items) {
-              items.removeWhere(
-                (element) => [
-                  ChatUIKitActionType.contactCard,
-                  ChatUIKitActionType.file,
-                ].contains(element.actionType),
-              );
-              return items;
-            },
-          ),
-        );
+        screen = MessagesViewWrapped(profile: profile);
         return pageRoute(settings, screen);
       case ChatUIKitRouteNames.contactDetailsView:
       case ChatUIKitRouteNames.newRequestDetailsView:

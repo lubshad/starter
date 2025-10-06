@@ -5,7 +5,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:starter/mixins/event_listener.dart';
-import '../../core/logger.dart';
 import '../../main.dart';
 import '../../services/fcm_service.dart';
 import '../../widgets/custom_appbar.dart';
@@ -24,7 +23,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage>
-    with ChatSDKEventsObserver, EventListenerMixin {
+    with ChatSDKEventsObserver, EventListenerMixin, ChatObserver {
   List<ChatUIKitProfile> joinedGroups = [];
 
   AppLifecycleState appLifecycleState = AppLifecycleState.resumed;
@@ -39,13 +38,17 @@ class _ChatPageState extends State<ChatPage>
     listenForEvents((event) {
       if (event.eventType == EventType.inactive) {
         appLifecycleState = AppLifecycleState.inactive;
+        ChatUIKit.instance.publishPresence('Offline');
       } else if (event.eventType == EventType.resumed) {
         appLifecycleState = AppLifecycleState.resumed;
+        ChatUIKit.instance.publishPresence('Online');
       }
     });
   }
 
-  void onCmdMessagesRecieved(List<ChatMessage> messages) {
+  @override
+  void onCmdMessagesReceived(List<ChatMessage> messages) {
+    super.onCmdMessagesReceived(messages);
     if (messages.first.body.type != MessageType.CMD) return;
     final messageBody = messages.first.body as ChatCmdMessageBody;
     final action = jsonDecode(messageBody.action) as Map<String, dynamic>;
@@ -78,32 +81,23 @@ class _ChatPageState extends State<ChatPage>
     }
   }
 
-  void addChatEventHandler() {
-    ChatClient.getInstance.chatManager.addEventHandler(
-      'convo_chat_event_handler',
-      ChatEventHandler(
-        onMessagesReceived: (messages) async {
-          if (messages.first.body.type == MessageType.CMD) return;
-          final userinfo =
-              (await ChatClient.getInstance.userInfoManager.fetchUserInfoById([
-                messages.first.from!,
-              ])).values.first;
-          final currentRoute = ModalRoute.of(
-            navigatorKey.currentContext!,
-          )?.settings.name;
+  @override
+  void onMessagesReceived(List<ChatMessage> messages) async {
+    super.onMessagesReceived(messages);
+    if (messages.first.body.type == MessageType.CMD) return;
+    final userinfo = (await ChatUIKit.instance.fetchUserInfoByIds([
+      messages.first.from!,
+    ])).values.first;
+    final currentRoute = ModalRoute.of(
+      navigatorKey.currentContext!,
+    )?.settings.name;
 
-          if (currentRoute != ChatUIKitRouteNames.messagesView) {
-            await FCMService().showNotification(
-              title: userinfo.nickName,
-              body: (messages.first.body as ChatTextMessageBody).content,
-            );
-          }
-        },
-        onCmdMessagesReceived: onCmdMessagesRecieved,
-      ),
-    );
-    ChatClient.getInstance.presenceManager.publishPresence('Online');
-    logInfo("convo_chat_event_handler added");
+    if (currentRoute != ChatUIKitRouteNames.messagesView) {
+      await FCMService().showNotification(
+        title: userinfo.nickName,
+        body: (messages.first.body as ChatTextMessageBody).content,
+      );
+    }
   }
 
   // @override
@@ -120,23 +114,16 @@ class _ChatPageState extends State<ChatPage>
     if (event == ChatSDKEvent.loginWithToken) {
       loading.value = false;
       AgoraRTMService.i.updateFcmToken();
-      addChatEventHandler();
+      ChatUIKit.instance.publishPresence('Online');
       // initiatePublicGroup();
     }
-  }
-
-  void removeChatEventHandler() {
-    ChatClient.getInstance.chatManager.removeEventHandler(
-      'convo_chat_event_handler',
-    );
-    ChatClient.getInstance.presenceManager.publishPresence('Offline');
   }
 
   @override
   void dispose() {
     ChatUIKit.instance.removeObserver(this);
+    ChatUIKit.instance.publishPresence('Offline');
     disposeEventListener();
-    removeChatEventHandler();
     super.dispose();
   }
 

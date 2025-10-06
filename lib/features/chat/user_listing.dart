@@ -4,6 +4,7 @@ import 'package:starter/features/chat/chats.dart';
 import 'package:starter/features/chat/mixins/chat_mixin.dart';
 import 'package:starter/features/profile_screen/common_controller.dart';
 import 'package:starter/features/profile_screen/profile_details_model.dart';
+import 'package:starter/mixins/event_listener.dart';
 import '../../exporter.dart';
 import '../../models/name_id.dart';
 import '../../widgets/error_widget_with_retry.dart';
@@ -46,7 +47,8 @@ class UserListingScreen extends StatefulWidget {
   State<UserListingScreen> createState() => _UserListingScreenState();
 }
 
-class _UserListingScreenState extends State<UserListingScreen> with ChatMixin {
+class _UserListingScreenState extends State<UserListingScreen>
+    with ChatMixin, WidgetsBindingObserver {
   Future<List<NameId>>? _usersFuture;
 
   Future<void> fetchUsers() async {
@@ -57,8 +59,25 @@ class _UserListingScreenState extends State<UserListingScreen> with ChatMixin {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     fetchUsers();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      EventListener.i.sendEvent(Event(eventType: EventType.resumed));
+    } else if (state == AppLifecycleState.inactive) {
+      EventListener.i.sendEvent(Event(eventType: EventType.inactive));
+    }
   }
 
   @override

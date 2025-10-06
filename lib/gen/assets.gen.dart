@@ -110,8 +110,14 @@ class $AssetsSoundsGen {
   /// File path: assets/sounds/message-send.mp3
   String get messageSend => 'assets/sounds/message-send.mp3';
 
+  /// File path: assets/sounds/online.mp3
+  String get online => 'assets/sounds/online.mp3';
+
+  /// File path: assets/sounds/typing.mp3
+  String get typing => 'assets/sounds/typing.mp3';
+
   /// List of all assets
-  List<String> get values => [messageRecieved, messageSend];
+  List<String> get values => [messageRecieved, messageSend, online, typing];
 }
 
 class $AssetsSvgsGen {
