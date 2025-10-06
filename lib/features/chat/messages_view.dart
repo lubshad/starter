@@ -119,7 +119,8 @@ class _MessagesViewWrappedState extends State<MessagesViewWrapped>
       resizeToAvoidBottomInset: false,
 
       appBar: CustomAppBar(
-        title: widget.profile.showName ?? "",
+        title: widget.profile.nickname,
+
         subtitle: ValueListenableBuilder(
           valueListenable: presenceStatus,
           builder: (context, value, child) {

@@ -165,11 +165,11 @@ class UserDataStore {
   Map<String, dynamic> _profileToMap(ChatUIKitProfile profile, int timestamp) {
     return {
       'id': profile.id,
-      'name': profile.showName,
+      'name': profile.nickname,
       'avatar_url': profile.avatarUrl,
       'type': profile.type.toString(),
       'nickname': profile.nickname,
-      'group_name': profile.showName,
+      'group_name': profile.nickname,
       'created_at': timestamp,
       'updated_at': timestamp,
       'extension': jsonEncode(profile.extension),
