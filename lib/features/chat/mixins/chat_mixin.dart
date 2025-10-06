@@ -1,6 +1,7 @@
 import 'package:agora_chat_uikit/chat_uikit.dart';
 
 import 'package:flutter/widgets.dart';
+import '../../../core/app_route.dart';
 import '../../../main.dart';
 
 mixin ChatMixin {
@@ -22,10 +23,11 @@ mixin ChatMixin {
         avatarUrl: chatUserInfo.avatarUrl,
       );
     }
-    ChatUIKitRoute.pushOrPushNamed(
+    ChatUIKitProvider.instance.addProfiles([chatProfile]);
+    navigate(
       context ?? navigatorKey.currentContext!,
       ChatUIKitRouteNames.messagesView,
-      MessagesViewArguments(profile: chatProfile),
+      arguments: MessagesViewArguments(profile: chatProfile),
     );
   }
 }
