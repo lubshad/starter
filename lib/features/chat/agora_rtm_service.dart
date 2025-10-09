@@ -291,7 +291,6 @@ class AgoraRTMService {
     final channel = "${ChatUIKit.instance.currentUserId ?? ""}-${profile.id}";
     final permission = await Permission.microphone.request();
     if (permission != PermissionStatus.granted) return;
-    showCallSheet(profile, channel, initialState: CallState.outgoingCall);
     if (permission == PermissionStatus.permanentlyDenied) {
       showDialog(
         // ignore: use_build_context_synchronously
@@ -326,7 +325,6 @@ class AgoraRTMService {
       );
     }
     if (permission != PermissionStatus.granted) return;
-
     showCallSheet(profile, channel, initialState: CallState.outgoingCall);
   }
 
