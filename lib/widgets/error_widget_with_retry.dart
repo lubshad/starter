@@ -38,15 +38,7 @@ class ErrorWidgetWithRetry extends StatelessWidget {
           shape: CircleBorder(),
           child: Ink(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFFD41B5E),
-                  Color(0xFFD51D5E),
-                  Color(0xFFEE484E),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: buttonGradient,
               shape: BoxShape.circle,
             ),
             child: InkWell(
