@@ -13,7 +13,7 @@ class ErrorWidgetWithRetry extends StatelessWidget {
     required this.retry,
   });
 
-  final Exception exception;
+  final dynamic exception;
   final VoidCallback retry;
 
   @override
