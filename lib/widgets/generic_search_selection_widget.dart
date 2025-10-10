@@ -365,7 +365,7 @@ class _GenericSearchSelectionWidgetState<T>
 
   Widget _buildDefaultErrorWidget() {
     return ErrorWidgetWithRetry(
-      exception: _errorMessage,
+      exception: Exception(_errorMessage),
       retry: () => _loadData(refresh: true),
     );
   }

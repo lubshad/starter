@@ -58,7 +58,7 @@ class _NotificationListingScreenState extends State<NotificationListingScreen> {
                   firstPageErrorIndicatorBuilder: (context) => SizedBox(
                     height: 400,
                     child: ErrorWidgetWithRetry(
-                      exception: state.error,
+                      exception: state.error as Exception,
                       retry: pagingController.refresh,
                     ),
                   ),
