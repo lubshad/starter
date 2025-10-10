@@ -180,6 +180,7 @@ class AgoraRTMService {
 
   Future<bool> signOut() async {
     try {
+      await ChatUIKit.instance.publishPresence("Offline");
       await ChatUIKit.instance.logout();
       logInfo("sign out succeed");
       return true;
