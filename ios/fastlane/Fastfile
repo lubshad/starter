@@ -24,9 +24,6 @@ platform :ios do
   # ----------------------------
   desc "Upload IPA to TestFlight and App Store (creates new version)"
   lane :submit_for_review do
-    # First upload to TestFlight
-    upload_testflight
-    
     # Then upload to App Store (creates new version if needed)
     deliver(
       submit_for_review: true,
@@ -46,7 +43,7 @@ platform :ios do
   desc "Upload IPA to TestFlight and submit to App Store review"
   lane :release_app do
     upload_testflight
-    submit_appstore
+    submit_for_review
     UI.success("✅ Build uploaded to TestFlight and submitted for App Store review!")
   end
 end
