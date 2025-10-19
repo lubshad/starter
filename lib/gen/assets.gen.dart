@@ -62,6 +62,9 @@ class $AssetsLottiesGen {
 class $AssetsPngsGen {
   const $AssetsPngsGen();
 
+  /// File path: assets/pngs/app_icon.png
+  AssetGenImage get appIcon => const AssetGenImage('assets/pngs/app_icon.png');
+
   /// File path: assets/pngs/broken-image.png
   AssetGenImage get brokenImage =>
       const AssetGenImage('assets/pngs/broken-image.png');
@@ -91,6 +94,7 @@ class $AssetsPngsGen {
 
   /// List of all assets
   List<AssetGenImage> get values => [
+    appIcon,
     brokenImage,
     dummyProfile,
     landing1,
@@ -156,6 +160,9 @@ class $AssetsSvgsGen {
   /// File path: assets/svgs/location_marker.svg
   String get locationMarker => 'assets/svgs/location_marker.svg';
 
+  /// File path: assets/svgs/location_pin_home.svg
+  String get locationPinHome => 'assets/svgs/location_pin_home.svg';
+
   /// File path: assets/svgs/lock_outline.svg
   String get lockOutline => 'assets/svgs/lock_outline.svg';
 
@@ -208,6 +215,7 @@ class $AssetsSvgsGen {
     landingThree,
     landingTwo,
     locationMarker,
+    locationPinHome,
     lockOutline,
     loginGraphics,
     noNetwork,

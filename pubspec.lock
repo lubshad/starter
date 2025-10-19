@@ -1581,6 +1581,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.2"
+  place_picker_google:
+    dependency: "direct main"
+    description:
+      name: place_picker_google
+      sha256: "0d4a0fca38bc34dee52fcf3c2eecdd0496153c27d6d4a2d5c67bca204b2b9864"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.20"
   platform:
     dependency: transitive
     description:

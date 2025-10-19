@@ -35,6 +35,7 @@ abstract class AppConfig {
   String get slugUrl;
   String get username;
   String get password;
+  String get googleMapsApiKey;
   String get baseUrl => "$scheme://$domain:$port$slugUrl";
   String get domainOnly => "$scheme://$domain:$port";
 }

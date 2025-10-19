@@ -24,6 +24,9 @@ class AppConfigLocal extends AppConfig {
 
   @override
   String get username => "username";
+  
+  @override
+  String get googleMapsApiKey => "AIzaSyBwAIsJa57pOEsDY9fBrtSODwaxuTksaDQ";
 }
 
 void main() async {
