@@ -92,6 +92,10 @@ class $AssetsPngsGen {
   AssetGenImage get personPlaceholder =>
       const AssetGenImage('assets/pngs/person-placeholder.jpeg');
 
+  /// File path: assets/pngs/saudi_riyal.png
+  AssetGenImage get saudiRiyal =>
+      const AssetGenImage('assets/pngs/saudi_riyal.png');
+
   /// List of all assets
   List<AssetGenImage> get values => [
     appIcon,
@@ -102,6 +106,7 @@ class $AssetsPngsGen {
     loginBackground,
     noChat,
     personPlaceholder,
+    saudiRiyal,
   ];
 }
 
