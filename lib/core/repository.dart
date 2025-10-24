@@ -15,6 +15,13 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'pagination_response.dart';
 
+final diologger = PrettyDioLogger(
+  requestHeader: true,
+  responseHeader: true,
+  requestBody: true,
+  enabled: kDebugMode,
+);
+
 class DataRepository {
   DataRepository._private();
   late final Dio _client;
@@ -36,14 +43,7 @@ class DataRepository {
     _client.interceptors.add(CookieManager(cookieJar));
     _client.interceptors.add(TokenAuthInterceptor());
     _client.interceptors.add(
-      PrettyDioLogger(
-        requestBody: true,
-        responseBody: true,
-        requestHeader: true,
-        responseHeader: true,
-        error: true,
-        compact: true,
-      ),
+      diologger,
     );
     initialized = true;
   }

@@ -71,6 +71,7 @@ class PhoneAuthRepository {
     // _client.interceptors.add(ErrorResolver());
     // _client.interceptors.add(AuthenticationInterceptor());
     _client.interceptors.add(TokenAuthInterceptor());
+    _client.interceptors.add(diologger);
   }
 
   static PhoneAuthRepository get i => _instance;
