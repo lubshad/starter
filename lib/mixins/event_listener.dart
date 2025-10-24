@@ -20,7 +20,7 @@ enum EventType {
   paused,
   inactive,
   chatDeleted,
-  locationUpdate,
+  locationUpdate, refresh,
 }
 
 class EventListener {
