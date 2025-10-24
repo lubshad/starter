@@ -2,6 +2,7 @@
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/utils.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../features/authentication/phone_auth/phone_auth_mixin.dart';
