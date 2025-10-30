@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:starter/core/app_route.dart';
 import '../../exporter.dart';
 import '../../main.dart';
 import '../../services/shared_preferences_services.dart';
@@ -188,8 +189,9 @@ void signOut() async {
   navigationController.value = Screens.home;
   await SharedPreferencesService.i.clear();
   CommonController.i.clear();
-  await Navigator.pushReplacementNamed(
+  await navigate(
     navigatorKey.currentContext!,
     SocialAuthenticationScreen.path,
+    replace: true,
   );
 }
