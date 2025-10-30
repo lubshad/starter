@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:starter/core/app_route.dart';
+import 'package:starter/core/repository.dart';
+import 'package:starter/features/chat/agora_rtm_service.dart';
 import '../../exporter.dart';
 import '../../main.dart';
 import '../../services/shared_preferences_services.dart';
@@ -187,6 +189,12 @@ Future<void> logout() async {
 
 void signOut() async {
   navigationController.value = Screens.home;
+  try {
+    await DataRepository.i.logout();
+    await AgoraRTMService.i.signOut();
+  } catch (e) {
+    logError(e);
+  }
   await SharedPreferencesService.i.clear();
   CommonController.i.clear();
   await navigate(

@@ -43,9 +43,7 @@ class DataRepository {
     var cookieJar = CookieJar(ignoreExpires: false);
     _client.interceptors.add(CookieManager(cookieJar));
     _client.interceptors.add(TokenAuthInterceptor());
-    _client.interceptors.add(
-      diologger,
-    );
+    _client.interceptors.add(diologger);
     initialized = true;
   }
 
@@ -134,5 +132,10 @@ class DataRepository {
       response.data,
       (json) => NotificationModel.fromMap(json),
     );
+  }
+
+  Future<Response> logout() async {
+    final response = await _client.post(APIConstants.logout);
+    return response;
   }
 }
