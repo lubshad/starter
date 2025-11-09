@@ -52,7 +52,6 @@ dependencies:
   flutter_animate: ^4.5.2
   firebase_messaging: ^16.0.1
   battery_plus: ^7.0.0
-  webview_flutter: ^4.13.0
   firebase_crashlytics: ^5.0.1
   gap: ^3.0.1
   lottie: ^3.3.1
@@ -101,6 +100,7 @@ dependencies:
   carousel_slider: ^5.1.1
   flutter_soloud: ^2.1.7
   place_picker_google: ^0.0.20
+  flutter_inappwebview: ^6.1.5
   
 dev_dependencies:
   flutter_test:

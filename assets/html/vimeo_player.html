@@ -36,7 +36,9 @@
                 data = { ...data, ...extraData }; // Merge extraData into data
             }
 
-            if (window.FlutterChannel) {
+            if (window.flutter_inappwebview && typeof window.flutter_inappwebview.callHandler === 'function') {
+                window.flutter_inappwebview.callHandler('FlutterChannel', JSON.stringify(data));
+            } else if (window.FlutterChannel) {
                 FlutterChannel.postMessage(JSON.stringify(data));
             }
         }

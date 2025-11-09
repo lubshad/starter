@@ -1,7 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
-import 'package:starter/widgets/custom_appbar.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+
+import '../../widgets/custom_appbar.dart';
 
 class WebviewArgs {
   final String title;
@@ -23,12 +24,15 @@ class WebViewScreen extends StatefulWidget {
 class _WebViewScreenState extends State<WebViewScreen> {
   @override
   Widget build(BuildContext context) {
+    final webUri = WebUri(widget.arguments.url);
     return Scaffold(
       appBar: CustomAppBar(title: (widget.arguments.title)),
-      body: WebViewWidget(
-        controller: WebViewController()
-          ..loadRequest(Uri.parse(widget.arguments.url))
-          ..setJavaScriptMode(JavaScriptMode.unrestricted),
+      body: InAppWebView(
+        initialUrlRequest: URLRequest(url: webUri),
+        initialSettings: InAppWebViewSettings(
+          javaScriptEnabled: true,
+          supportZoom: false,
+        ),
       ),
     );
   }
