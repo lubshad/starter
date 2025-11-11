@@ -340,6 +340,7 @@ class FCMService {
         if (event.isEmpty) return;
         await DataRepository.i.updateToken(token: event);
       });
+      await FirebaseMessaging.instance.subscribeToTopic('all');
       handleNotificationData();
     });
   }
