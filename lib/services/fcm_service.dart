@@ -181,6 +181,12 @@ class FCMService {
           provisional: true,
           sound: true,
         );
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+          alert: true,
+          badge: true,
+          sound: true, // 👈 play sound when app is in foreground
+        );
     logInfo(
       'User granted permission For Firebase: ${settings.authorizationStatus}',
     );
