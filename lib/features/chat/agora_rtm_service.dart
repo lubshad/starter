@@ -147,7 +147,7 @@ class AgoraRTMService {
       );
       logInfo("login succeed, userId: $userid");
       final extension = jsonEncode({
-        "user": CommonController.i.profileDetails!.toMap(),
+        "user": CommonController.i.profileDetails!.toJson(),
       });
       await ChatUIKit.instance.updateUserInfo(ext: extension);
       currentUser = ChatUIKitProvider.instance.getProfileById(userid);
